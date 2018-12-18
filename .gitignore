@@ -1,0 +1,13 @@
+.gradle/*
+.idea/*
+build/*
+logs/*
+out/*
+waypoints/*
+
+locations.db
+
+cuckstantiam.txt
+output.*.log
+output*.xlsx
+random_coords.txt
