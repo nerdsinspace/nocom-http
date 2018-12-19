@@ -35,29 +35,6 @@ public class GroupedLocation implements Serializable {
   private int dimension;
   private List<Position> positions;
 
-  public void setPositions(List<Position> positions) {
-    this.positions = positions;
-    evaluate();
-  }
-
-  private void evaluate() {
-    Objects.requireNonNull(getPositions(), "position list");
-
-    setNewestTime(getPositions().stream()
-        .map(Position::getTime)
-        .max(Comparator.comparingLong(Long::longValue))
-        .orElse(getNewestTime()));
-    setOldestTime(getPositions().stream()
-        .map(Position::getTime)
-        .min(Comparator.comparingLong(Long::longValue))
-        .orElse(getOldestTime()));
-
-    setCenterX(getPositions().stream()
-        .collect(Collectors.averagingInt(Position::getX)).intValue());
-    setCenterZ(getPositions().stream()
-        .collect(Collectors.averagingInt(Position::getZ)).intValue());
-  }
-
   public int distanceTo(GroupedLocation other) {
     return (int) Math.ceil(Math.sqrt(Math.pow(other.getCenterX() - getCenterX(), 2) + Math.pow(other.getCenterZ() - getCenterZ(), 2)));
   }
