@@ -110,5 +110,7 @@ FROM Locations
 WHERE
   Servers.hostname = ?
 AND
-  Locations.found_time BETWEEN ? AND ?;
+  Locations.found_time BETWEEN ? AND ?
+AND
+  Dimensions.ordinal = ?;
 

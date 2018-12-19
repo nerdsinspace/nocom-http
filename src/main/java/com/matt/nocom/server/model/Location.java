@@ -52,16 +52,15 @@ public class Location implements Serializable {
   @JsonIgnore
   public Position getPosition() {
     return Position.builder()
-        .x(x)
-        .z(z)
+        .x(getX())
+        .z(getZ())
+        .time(getTime())
         .build();
   }
 
   @Override
   public boolean equals(Object obj) {
     return this == obj || (obj instanceof Location
-        && getTime() == ((Location) obj).getTime()
-        && getUploadTime() == ((Location) obj).getUploadTime()
         && getX() == ((Location) obj).getX()
         && getZ() == ((Location) obj).getZ()
         && getServer().equals(((Location) obj).getServer())
@@ -70,11 +69,11 @@ public class Location implements Serializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(getTime(), getUploadTime(), getX(), getZ(), getServer(), getDimension());
+    return Objects.hash(getX(), getZ(), getServer(), getDimension());
   }
 
   @Override
   public String toString() {
-    return String.format("[time=%d,uploadTime=%d,pos=(%d, %d),server=%s,dim=%d", time, uploadTime, x, z, server, dimension);
+    return String.format("[pos=(%d, %d),server=%s,dim=%d", x, z, server, dimension);
   }
 }

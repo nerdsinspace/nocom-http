@@ -1,18 +1,31 @@
 package com.matt.nocom.server.model;
 
+import java.io.Serializable;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Builder
-public class Position {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Position implements Serializable {
   private int x;
   private int z;
 
+  @Default
+  private Long time = null;
+
   @Override
   public boolean equals(Object obj) {
-    return this == obj || (obj instanceof Position && getX() == ((Position) obj).getX() && getZ() == ((Position) obj).getZ());
+    return this == obj || (obj instanceof Position
+        && getX() == ((Position) obj).getX()
+        && getZ() == ((Position) obj).getZ());
   }
 
   @Override
