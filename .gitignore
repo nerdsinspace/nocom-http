@@ -5,9 +5,11 @@ logs/*
 out/*
 waypoints/*
 
-locations.db
+locations.db*
 
 cuckstantiam.txt
 output.*.log
 output*.xlsx
 random_coords.txt
+
+src/main/java/com/matt/nocom/Main.java

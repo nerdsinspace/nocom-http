@@ -21,6 +21,9 @@ public class Position implements Serializable {
   @Default
   private Long time = null;
 
+  @Default
+  private Long uploadTime = null;
+
   @Override
   public boolean equals(Object obj) {
     return this == obj || (obj instanceof Position

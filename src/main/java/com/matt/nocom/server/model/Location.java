@@ -16,8 +16,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Location implements Serializable {
-  public static final UUID UNKNOWN_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-
   /**
    * The time the location was found in unix time
    */
@@ -55,6 +53,7 @@ public class Location implements Serializable {
         .x(getX())
         .z(getZ())
         .time(getTime())
+        .uploadTime(getUploadTime())
         .build();
   }
 
