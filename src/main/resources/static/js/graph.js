@@ -3,6 +3,8 @@ const ViewGraph = (function() {
   const jServer = $('#server');
   const jDimension = $('#dimension');
   const jRange = $('#range');
+  const jDelta = $('#delta');
+  const jHits = $('#hits');
   const jStartDate = $('#startDate');
   const jEndDate = $('#endDate');
   const jSubmit = $('#submit');
@@ -23,6 +25,7 @@ const ViewGraph = (function() {
     },
     showlegend: false,
     hovermode: 'closest',
+    dragmode: 'pan',
   };
   const plotConfig = {
     scrollZoom: true,
@@ -52,6 +55,8 @@ const ViewGraph = (function() {
   const loadMarkers = () => {
     const options = {
       groupingRange: parseInt(jRange.val(), 10),
+      minDelta: parseInt(jDelta.val(), 10),
+      minHits: parseInt(jHits.val(), 10)
     };
 
     if(jServer.val() !== '')
@@ -76,18 +81,27 @@ const ViewGraph = (function() {
       markers.length = 0;
 
       data.forEach(loc => {
+        const info = loc.positions.length <= 1
+            ? new Date(loc.positions[0].time).toLocaleString()
+            : (new Date(loc.positions[0].time).toLocaleString()
+                + " - "
+                + new Date(loc.positions[loc.positions.length - 1].time).toLocaleString());
         markers.push({
           x: [loc.x],
           y: [loc.z],
+          text: [info],
           mode: 'markers',
           name: 'x' + loc.positions.length,
-          hoverinfo: "name+x+y"
+          hoverinfo: "name+x+y+text"
           //type: 'scatter'
         });
       });
 
-      console.log('added markers');
       Plotly.react(map, markers, plotLayout, plotConfig);
+      Plotly.relayout(map, {
+        'xaxis.autorange': true,
+        'yaxis.autorange': true
+      });
     });
   };
 
@@ -125,10 +139,7 @@ const ViewGraph = (function() {
       jServer.val(window.localStorage.getItem('server'));
   });
 
-  jServer.change(() => {
-    window.localStorage.setItem('server', jServer.val());
-    onInputChanged();
-  });
+  jServer.change(() => window.localStorage.setItem('server', jServer.val()));
 
   // dimension setting
   loadDimensions().then(data => {
@@ -143,45 +154,43 @@ const ViewGraph = (function() {
   if(window.localStorage.getItem('dimension'))
     jDimension.val(window.localStorage.getItem('dimension'));
 
-  jDimension.change(() => {
-    window.localStorage.setItem('dimension', jDimension.val());
-    onInputChanged();
-  });
+  jDimension.change(() => window.localStorage.setItem('dimension', jDimension.val()));
+
+  // min delta setting
+  if(window.localStorage.getItem('delta'))
+    jDelta.val(parseInt(window.localStorage.getItem('delta'), 10));
+
+  jDelta.change(() => window.localStorage.setItem('delta', jDelta.val()));
+
+  // min hits setting
+  if(window.localStorage.getItem('hits'))
+    jHits.val(parseInt(window.localStorage.getItem('hits'), 10));
+
+  jHits.change(() => window.localStorage.setItem('hits', jHits.val()));
 
   // range setting
   if(window.localStorage.getItem('range'))
     jRange.val(parseInt(window.localStorage.getItem('range'), 10));
 
-  jRange.change(() => {
-    window.localStorage.setItem('range', jRange.val());
-    onInputChanged();
-  });
+  jRange.change(() => window.localStorage.setItem('range', jRange.val()));
 
   // start date setting
   if(window.localStorage.getItem('startDate'))
     jStartDate.val(window.localStorage.getItem('startDate'));
 
-  jStartDate.change(() => {
-    window.localStorage.setItem('startDate', jStartDate.val());
-    onInputChanged();
-  });
+  jStartDate.change(() => window.localStorage.setItem('startDate', jStartDate.val()));
 
   // end date setting
   if(window.localStorage.getItem('endDate'))
     jEndDate.val(window.localStorage.getItem('endDate'));
 
-  jEndDate.change(() => {
-    window.localStorage.setItem('endDate', jEndDate.val());
-    onInputChanged();
-  });
+  jEndDate.change(() => window.localStorage.setItem('endDate', jEndDate.val()));
 
   // submit button event
   jSubmit.click(() => {
     Plotly.purge(map);
     loadMarkers();
   });
-
-  const onInputChanged = () => {};
 
   window.addEventListener('resize', initialize);
 

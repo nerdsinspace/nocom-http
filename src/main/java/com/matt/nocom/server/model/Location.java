@@ -3,9 +3,10 @@ package com.matt.nocom.server.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
+import javax.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,10 +23,11 @@ public class Location implements Serializable {
   private long time;
 
   /**
-   * The time this location was uploaded to the database
+   * (Optional) The time this location was uploaded to the database
    */
-  @Builder.Default
-  private long uploadTime = -1;
+  @Default
+  @Nullable
+  private Long uploadTime = null;
 
   /**
    * The X coordinate of the location

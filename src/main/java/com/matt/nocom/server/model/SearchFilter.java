@@ -2,6 +2,7 @@ package com.matt.nocom.server.model;
 
 import static com.matt.nocom.server.sqlite.Tables.DIMENSIONS;
 import static com.matt.nocom.server.sqlite.Tables.LOCATIONS;
+import static com.matt.nocom.server.sqlite.Tables.POSITIONS;
 import static com.matt.nocom.server.sqlite.Tables.SERVERS;
 
 import com.google.common.base.MoreObjects;
@@ -34,10 +35,13 @@ public class SearchFilter implements Serializable {
   private Long endTime = null;
 
   @Default
-  private Integer minDelta = null;
+  private Integer minHits = null;
 
   @Default
   private Integer groupingRange = null;
+
+  @Default
+  private Integer minDelta = null;
 
   public void forceGrouping() {
     if(getGroupingRange() == null) setGroupingRange(0);
@@ -57,6 +61,12 @@ public class SearchFilter implements Serializable {
           MoreObjects.firstNonNull(getStartTime(), 0L),
           MoreObjects.firstNonNull(getEndTime(), Long.MAX_VALUE)
       ));
+
+    if(getMinDelta() != null)
+      condition = condition
+          .and(DSL.abs(POSITIONS.X).ge(getMinDelta()))
+          .and(DSL.abs(POSITIONS.Z).ge(getMinDelta()))
+          .and(DSL.abs(DSL.abs(POSITIONS.X).sub(DSL.abs(POSITIONS.Z))).ge(getMinDelta()));
 
     return condition;
   }

@@ -38,7 +38,7 @@ public class LocationGroupFactory {
                 .flatMap(List::stream)
                 .collect(Collectors.toList()); // merge all positions into head
             merged.addAll(head.getPositions());
-            merged.sort(Comparator.comparingLong(Position::getTime).reversed());
+            merged.sort(Comparator.comparingLong(Position::getTime));
 
             improved.add(LocationGroup.builder()
                 .server(head.getServer())

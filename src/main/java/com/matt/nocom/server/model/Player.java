@@ -1,13 +1,27 @@
 package com.matt.nocom.server.model;
 
+import java.io.Serializable;
 import java.util.UUID;
+import javax.annotation.Nullable;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Builder
-public class Player {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Player implements Serializable {
   private UUID uuid;
+
+  @Default
+  @Nullable
+  private String name = null;
 
   @Override
   public boolean equals(Object obj) {
@@ -17,5 +31,10 @@ public class Player {
   @Override
   public int hashCode() {
     return getUuid().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return (name == null ? "" : (getName() + ": ")) + getUuid().toString();
   }
 }

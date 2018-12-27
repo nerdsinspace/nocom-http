@@ -45,19 +45,25 @@
             </select>
             </label>
             <label>
+                Min Delta: <input type="number" id="delta" value="0" min="0">
+            </label>
+            <label>
+                Min Hits: <input type="number" id="hits" value="1" min="0">
+            </label>
+            <label>
                 Grouping Range: <input type="number" id="range" value="1000" min="0">
             </label>
             <label>
-                Start Date: <input type="date" id="startDate">
+                From: <input type="date" id="startDate">
             </label>
             <label>
-                End Date: <input type="date" id="endDate">
+                To: <input type="date" id="endDate">
             </label>
             <button type="button" id="submit">Submit</button>
         </div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/js/jquery-min-3.3.1.js"></script>
+    <script src="/js/plotly-min-1.43.1.js"></script>
     <script src="/js/graph.js"></script>
 </body>
 

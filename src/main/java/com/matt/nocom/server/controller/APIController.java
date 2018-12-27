@@ -5,6 +5,7 @@ import static com.matt.nocom.server.sqlite.Tables.LOCATIONS;
 import static com.matt.nocom.server.sqlite.Tables.POSITIONS;
 import static com.matt.nocom.server.sqlite.Tables.SERVERS;
 
+import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.model.Dimension;
 import com.matt.nocom.server.model.Location;
@@ -139,8 +140,10 @@ public class APIController implements Logging {
   public ResponseEntity<LocationGroup[]> getLocationGroups(@RequestBody SearchFilter filter) {
     filter.forceGrouping();
     return ResponseEntity.ok(
-        LocationGroupFactory.translate(queryLocations(filter), filter.getGroupingRange())
-            .toArray(new LocationGroup[0]));
+        LocationGroupFactory.translate(queryLocations(filter), filter.getGroupingRange()).stream()
+            .filter(g -> g.getPositions().size() >= MoreObjects.firstNonNull(filter.getMinHits(), 0))
+            .toArray(LocationGroup[]::new)
+    );
   }
 
   @RequestMapping(value = "/servers", method = RequestMethod.GET, produces = "application/json")
