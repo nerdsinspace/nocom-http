@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<body>
+<th:block th:fragment="header">
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" th:href="@{/}">
+          <img th:src="@{/img/logo.png}" alt="memorynotfound logo"/>
+        </a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="active" sec:authorize="!isFullyAuthenticated()">
+            <a th:href="@{/}">Login</a>
+          </li>
+          <li sec:authorize="isFullyAuthenticated()">
+            <a th:href="@{/logout}">Logout</a>
+          </li>
+          <li sec:authorize="isFullyAuthenticated()">
+            <a th:href="@{/overview}">Overview</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</th:block>
+</body>
+</html>

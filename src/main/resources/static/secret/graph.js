@@ -105,52 +105,13 @@ const ViewGraph = (function() {
     });
   };
 
-  const loadServers = async () => {
-    try {
-      return await $.ajax({
-        type: 'GET',
-        url: 'api/servers',
-        dataType: 'json',
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const loadDimensions = async () => {
-    try {
-      return await $.ajax({
-        type: 'GET',
-        url: 'api/dimensions',
-        dataType: 'json',
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   // setup server setting
-  loadServers().then(data => {
-    data.forEach(server => {
-      jServer.append($('<option>', {value: server, text: server}));
-    });
-
-    if(window.localStorage.getItem('server'))
-      jServer.val(window.localStorage.getItem('server'));
-  });
+  if(window.localStorage.getItem('server'))
+    jServer.val(window.localStorage.getItem('server'));
 
   jServer.change(() => window.localStorage.setItem('server', jServer.val()));
 
   // dimension setting
-  loadDimensions().then(data => {
-    data.forEach(dimension => {
-      jDimension.append($('<option>', {value: dimension.ordinal, text: dimension.name}));
-    });
-
-    if(window.localStorage.getItem('dimension'))
-      jDimension.val(window.localStorage.getItem('dimension'));
-  });
-
   if(window.localStorage.getItem('dimension'))
     jDimension.val(window.localStorage.getItem('dimension'));
 

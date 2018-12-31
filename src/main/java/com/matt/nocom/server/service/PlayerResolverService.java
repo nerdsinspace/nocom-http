@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class PlayerResolver {
+public class PlayerResolverService {
   private Cache<UUID, String> cache = CacheBuilder.newBuilder()
       .expireAfterWrite(24, TimeUnit.HOURS)
       .build();

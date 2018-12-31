@@ -1,4 +1,4 @@
-package com.matt.nocom.server.service;
+package com.matt.nocom.server.util;
 
 import org.jooq.ExecuteContext;
 import org.jooq.SQLDialect;

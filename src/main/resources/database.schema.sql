@@ -1,21 +1,21 @@
 CREATE TABLE Servers (
-	id int PRIMARY KEY AUTOINCREMENT,
+	id integer PRIMARY KEY AUTOINCREMENT,
 	hostname varchar NOT NULL UNIQUE
 );
 
 CREATE TABLE Dimensions (
-	id int PRIMARY KEY AUTOINCREMENT,
+	id integer PRIMARY KEY AUTOINCREMENT,
 	ordinal integer NOT NULL UNIQUE,
 	name varchar
 );
 
 CREATE TABLE Players (
-	id int PRIMARY KEY AUTOINCREMENT,
+	id integer PRIMARY KEY AUTOINCREMENT,
 	uuid varchar NOT NULL UNIQUE
 );
 
 CREATE TABLE Positions (
-  id int PRIMARY KEY AUTOINCREMENT,
+  id integer PRIMARY KEY AUTOINCREMENT,
 	x integer NOT NULL,
 	z integer NOT NULL,
 	UNIQUE (x, z)
@@ -31,7 +31,7 @@ CREATE TABLE Players_Online (
 );
 
 CREATE TABLE Locations (
-	id int PRIMARY KEY AUTOINCREMENT,
+	id integer PRIMARY KEY AUTOINCREMENT,
 	found_time bigint NOT NULL,
 	upload_time bigint NOT NULL,
 	pos_id integer NOT NULL,
@@ -43,3 +43,24 @@ CREATE TABLE Locations (
 	FOREIGN KEY (dimension_id) REFERENCES Dimensions (id)
 );
 
+CREATE TABLE Auth_Users (
+  id integer PRIMARY KEY AUTOINCREMENT,
+  username varchar NOT NULL UNIQUE,
+  password varchar NOT NULL,
+  enabled integer NOT NULL DEFAULT 1
+);
+
+CREATE TABLE Auth_Groups (
+  id integer PRIMARY KEY AUTOINCREMENT,
+  name varchar NOT NULL UNIQUE,
+  level integer NOT NULL
+);
+
+CREATE TABLE Auth_User_Groups (
+  id integer PRIMARY KEY AUTOINCREMENT,
+  user_id integer NOT NULL,
+  group_id integer NOT NULL,
+  UNIQUE (user_id, group_id),
+  FOREIGN KEY (user_id) REFERENCES Auth_Users (id),
+  FOREIGN KEY (group_id) REFERENCES Auth_Groups (id)
+);

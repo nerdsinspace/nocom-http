@@ -5,6 +5,8 @@ import java.nio.file.Paths;
 import org.springframework.lang.Nullable;
 
 public interface Properties {
+  boolean DEBUG_AUTH      = Boolean.valueOf(System.getProperty("nocom.debug.auth", "false"));
+
   int DISTANCE            = Integer.valueOf(System.getProperty("nocom.distance", "1000"));
   int VIEW_DISTANCE       = Integer.valueOf(System.getProperty("nocom.distance.view", String.valueOf(9 * 16)));
 
