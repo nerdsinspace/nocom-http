@@ -46,3 +46,27 @@ CREATE TABLE IF NOT EXISTS Locations (
 INSERT OR IGNORE INTO Dimensions (ordinal, name) VALUES (-1, 'Nether'), (0, 'Overworld'), (1, 'End');
 
 INSERT OR IGNORE INTO Players (uuid) VALUES ('00000000-0000-0000-0000-000000000000');
+
+CREATE TABLE IF NOT EXISTS Auth_Users (
+  id integer PRIMARY KEY AUTOINCREMENT,
+  username text NOT NULL UNIQUE,
+  password text NOT NULL,
+  enabled integer NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS Auth_Groups (
+  id integer PRIMARY KEY AUTOINCREMENT,
+  name text NOT NULL UNIQUE ON CONFLICT IGNORE,
+  level integer NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Auth_User_Groups (
+  id integer PRIMARY KEY AUTOINCREMENT,
+  user_id integer NOT NULL,
+  group_id integer NOT NULL,
+  UNIQUE (user_id, group_id),
+  FOREIGN KEY (user_id) REFERENCES Auth_Users (id) ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY (group_id) REFERENCES Auth_Groups (id) ON DELETE CASCADE ON UPDATE NO ACTION
+);
+
+INSERT OR IGNORE INTO Auth_Groups (name, level) VALUES ('ADMIN', 0), ('DEV', 1);

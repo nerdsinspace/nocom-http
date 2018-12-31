@@ -1,5 +1,6 @@
-package com.matt.nocom.server.service;
+package com.matt.nocom.server.config;
 
+import com.matt.nocom.server.util.JOOQToSpringExceptionTransformer;
 import java.nio.file.Paths;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
