@@ -9,7 +9,8 @@ const ViewGraph = (function() {
   const jEndDate = $('#endDate');
   const jSubmit = $('#submit');
 
-  const map = $('#map')[0];
+  const jMap = $('#map');
+  const map = jMap[0];
   const markers = [];
 
   const plotLayout = {
@@ -32,10 +33,18 @@ const ViewGraph = (function() {
   };
 
   const initialize = () => {
-    plotLayout.width = (map.width = window.innerWidth);
-    plotLayout.height = (map.height = window.innerHeight);
+    plotLayout.width = (map.width);
+    plotLayout.height = (map.height);
 
     Plotly.react(map, markers, plotLayout, plotConfig);
+    recenter();
+  };
+
+  const recenter = () => {
+    Plotly.relayout(map, {
+      'xaxis.autorange': true,
+      'yaxis.autorange': true
+    });
   };
 
   const getLocations = async (options) => {
@@ -98,10 +107,7 @@ const ViewGraph = (function() {
       });
 
       Plotly.react(map, markers, plotLayout, plotConfig);
-      Plotly.relayout(map, {
-        'xaxis.autorange': true,
-        'yaxis.autorange': true
-      });
+      recenter();
     });
   };
 
