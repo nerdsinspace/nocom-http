@@ -9,6 +9,8 @@ const ViewGraph = (function() {
   const jEndDate = $('#endDate');
   const jSubmit = $('#submit');
 
+  const settings = [jServer, jDimension, jRange, jDelta, jHits, jStartDate, jEndDate];
+
   const jMap = $('#map');
   const map = jMap[0];
   const markers = [];
@@ -27,6 +29,10 @@ const ViewGraph = (function() {
     showlegend: false,
     hovermode: 'closest',
     dragmode: 'pan',
+    yaxis: {
+      scaleanchor: "x",
+      scaleratio: 1.0,
+    },
   };
   const plotConfig = {
     scrollZoom: true,
@@ -61,6 +67,10 @@ const ViewGraph = (function() {
     }
   };
 
+  const toTimeString = (ms) => {
+    return new Date(ms).toLocaleString();
+  };
+
   const loadMarkers = () => {
     const options = {
       groupingRange: parseInt(jRange.val(), 10),
@@ -89,21 +99,32 @@ const ViewGraph = (function() {
       // clear array
       markers.length = 0;
 
+      const points = [];
+
       data.forEach(loc => {
-        const info = loc.positions.length <= 1
-            ? new Date(loc.positions[0].time).toLocaleString()
-            : (new Date(loc.positions[0].time).toLocaleString()
-                + " - "
-                + new Date(loc.positions[loc.positions.length - 1].time).toLocaleString());
-        markers.push({
-          x: [loc.x],
-          y: [loc.z],
-          text: [info],
-          mode: 'markers',
-          name: 'x' + loc.positions.length,
-          hoverinfo: "name+x+y+text"
-          //type: 'scatter'
+        const infos = [];
+        const count = loc.positions.length;
+
+        infos.push(`First hit: ${toTimeString(loc.positions[0].time)}`);
+        if(count > 1) {
+          infos.push(`Latest hit: ${toTimeString(loc.positions[count - 1].time)}`)
+        }
+        infos.push(`Hit(s): ${count}`);
+
+        points.push({
+          x: loc.x,
+          y: loc.z,
+          info: infos.join('<br>'),
         });
+      });
+
+      markers.push({
+        x: points.map(p => p.x),
+        y: points.map(p => p.y),
+        text: points.map(p => p.info),
+        mode: 'markers',
+        hoverinfo: "text+x+y",
+        type: 'scattergl',
       });
 
       Plotly.react(map, markers, plotLayout, plotConfig);
@@ -111,47 +132,12 @@ const ViewGraph = (function() {
     });
   };
 
-  // setup server setting
-  if(window.localStorage.getItem('server'))
-    jServer.val(window.localStorage.getItem('server'));
-
-  jServer.change(() => window.localStorage.setItem('server', jServer.val()));
-
-  // dimension setting
-  if(window.localStorage.getItem('dimension'))
-    jDimension.val(window.localStorage.getItem('dimension'));
-
-  jDimension.change(() => window.localStorage.setItem('dimension', jDimension.val()));
-
-  // min delta setting
-  if(window.localStorage.getItem('delta'))
-    jDelta.val(parseInt(window.localStorage.getItem('delta'), 10));
-
-  jDelta.change(() => window.localStorage.setItem('delta', jDelta.val()));
-
-  // min hits setting
-  if(window.localStorage.getItem('hits'))
-    jHits.val(parseInt(window.localStorage.getItem('hits'), 10));
-
-  jHits.change(() => window.localStorage.setItem('hits', jHits.val()));
-
-  // range setting
-  if(window.localStorage.getItem('range'))
-    jRange.val(parseInt(window.localStorage.getItem('range'), 10));
-
-  jRange.change(() => window.localStorage.setItem('range', jRange.val()));
-
-  // start date setting
-  if(window.localStorage.getItem('startDate'))
-    jStartDate.val(window.localStorage.getItem('startDate'));
-
-  jStartDate.change(() => window.localStorage.setItem('startDate', jStartDate.val()));
-
-  // end date setting
-  if(window.localStorage.getItem('endDate'))
-    jEndDate.val(window.localStorage.getItem('endDate'));
-
-  jEndDate.change(() => window.localStorage.setItem('endDate', jEndDate.val()));
+  settings.forEach(e => {
+    const id = e.attr('id');
+    const saved = window.localStorage.getItem(id);
+    if(saved !== undefined) e.val(saved);
+    e.change(() => window.localStorage.setItem(id, e.val()))
+  });
 
   // submit button event
   jSubmit.click(() => {
