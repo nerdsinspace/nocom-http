@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,19 +30,22 @@ public class LocationGroup implements Serializable {
   @Singular
   private List<Position> positions;
 
-  public LocationGroup organize() {
+  public LocationGroup setup() {
     setX(getPositions().stream().collect(Collectors.averagingInt(Position::getX)).intValue());
     setZ(getPositions().stream().collect(Collectors.averagingInt(Position::getZ)).intValue());
     return this;
   }
 
-  public int distanceTo(LocationGroup other) {
-    return (int) Math.ceil(Math.sqrt(Math.pow(other.getX() - getX(), 2) + Math.pow(other.getZ() - getZ(), 2)));
+  private int distanceSqTo(int otherX, int otherZ) {
+    return (int) Math.ceil(Math.pow(otherX - getX(), 2) + Math.pow(otherZ - getZ(), 2));
+  }
+  private int distanceSqTo(LocationGroup other) {
+    return distanceSqTo(other.getX(), other.getZ());
   }
 
   @JsonIgnore
   public boolean isInGroup(LocationGroup other, int distance) {
-    return distanceTo(other) <= distance;
+    return distanceSqTo(other) <= distance;
   }
 
   @JsonIgnore
