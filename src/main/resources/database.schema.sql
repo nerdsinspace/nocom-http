@@ -53,7 +53,7 @@ CREATE TABLE Auth_Users (
 CREATE TABLE Auth_Groups (
   id integer PRIMARY KEY AUTOINCREMENT,
   name varchar NOT NULL UNIQUE,
-  level integer NOT NULL
+  level integer default 666
 );
 
 CREATE TABLE Auth_User_Groups (
