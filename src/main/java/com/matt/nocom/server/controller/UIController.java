@@ -34,6 +34,13 @@ public class UIController {
     return "/secret/overview";
   }
 
+  @GetMapping("/listview")
+  public String listView(Model model) {
+    model.addAttribute("servers", api.getServers());
+    model.addAttribute("dimensions", api.getDimensions());
+    return "/secret/listview";
+  }
+
   @GetMapping("/access-denied")
   public String accessDenied() {
     return "/error/access-denied";

@@ -1,6 +1,8 @@
 package com.matt.nocom.server.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.matt.nocom.server.minecraft.BiomeSupplier;
+import com.matt.nocom.server.minecraft.Seeds;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -10,6 +12,7 @@ import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minecraft.world.biome.Biome;
 
 @Getter
 @Setter
@@ -56,6 +59,11 @@ public class Location implements Serializable {
         .z(getZ())
         .time(getTime())
         .uploadTime(getUploadTime())
+        .biome(Seeds.forServer(getServer())
+            .map(seed -> BiomeSupplier.getBiome(seed, getX(), getZ()))
+            .map(Biome::getBiomeName)
+            .orElse(null)
+        )
         .build();
   }
 
