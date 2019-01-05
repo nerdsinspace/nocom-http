@@ -18,6 +18,9 @@
           <li sec:authorize="isFullyAuthenticated()">
             <a th:href="@{/overview}">Overview</a>
           </li>
+          <li sec:authorize="isFullyAuthenticated()">
+            <a th:href="@{/listview}">ListView</a>
+          </li>
         </ul>
       </div>
     </div>

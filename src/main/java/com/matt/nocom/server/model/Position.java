@@ -24,6 +24,12 @@ public class Position implements Serializable {
   @Default
   private Long uploadTime = null;
 
+  /**
+   * The biome the location is probably in
+   */
+  @Default
+  private String biome = null;
+
   @Override
   public boolean equals(Object obj) {
     return this == obj || (obj instanceof Position
@@ -38,6 +44,6 @@ public class Position implements Serializable {
 
   @Override
   public String toString() {
-    return x + "," + z;
+    return "{" + x + ", " + z + "}";
   }
 }
