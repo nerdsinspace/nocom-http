@@ -54,7 +54,7 @@ jooq {
     sqlite(sourceSets.main) {
         jdbc {
             driver = 'org.sqlite.JDBC'
-            url = "jdbc:sqlite:${System.properties['user.dir']}/locations.db"
+            url = "jdbc:sqlite:${System.properties['user.dir']}/${project.property('db.path')}"
         }
         generator {
             name = 'org.jooq.codegen.DefaultGenerator'
