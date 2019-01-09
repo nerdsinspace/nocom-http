@@ -64,3 +64,11 @@ CREATE TABLE Auth_User_Groups (
   FOREIGN KEY (user_id) REFERENCES Auth_Users (id),
   FOREIGN KEY (group_id) REFERENCES Auth_Groups (id)
 );
+
+CREATE TABLE Auth_Tokens (
+  token varchar PRIMARY KEY,
+  address varchar NOT NULL,
+  expires_on bigint NOT NULL,
+  user_id integer NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES Auth_Users (id)
+);

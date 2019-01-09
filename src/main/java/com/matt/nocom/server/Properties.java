@@ -10,4 +10,6 @@ public interface Properties {
   int VIEW_DISTANCE       = Integer.valueOf(System.getProperty("nocom.distance.view", String.valueOf(9 * 16)));
 
   String DATABASE_PATH    = System.getProperty("nocom.database", Paths.get("").resolve("locations.db").toAbsolutePath().toString());
+
+  long TOKEN_EXPIRATION   = Long.valueOf(System.getProperty("nocom.login.expiration", "86400000")); // default to 1 day
 }
