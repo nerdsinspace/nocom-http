@@ -6,6 +6,7 @@ import com.matt.nocom.server.service.LoginManagerService;
 import com.matt.nocom.server.util.AuthenticationTokenFilter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,19 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @ComponentScan({"com.matt.nocom.server.service"})
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements Logging {
+  private static final String[] PUBLIC_URIS = new String[] {
+      "/",
+      "/user/login",
+      "/js/**",
+      "/css/**",
+      "/fonts/**",
+      "/img/**"
+  };
+  private static final String[] ADMIN_ONLY_URIS = new String[] {
+      "/user/**",
+      "/manager"
+  };
+
   private final LoginManagerService login;
 
   public SecurityConfiguration(LoginManagerService login) {
@@ -48,8 +62,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
     return super.authenticationManagerBean();
   }
 
-  private static String[] allowedAuthorities() {
+  private static String[] allAuthorities() {
     return Arrays.stream(UserGroup.values())
+        .filter(UserGroup::isAllowed)
+        .map(UserGroup::getName)
+        .toArray(String[]::new);
+  }
+
+  private static String[] adminAuthorities() {
+    return Stream.of(UserGroup.ADMIN, UserGroup.DEBUG)
         .filter(UserGroup::isAllowed)
         .map(UserGroup::getName)
         .toArray(String[]::new);
@@ -59,13 +80,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
   protected void configure(HttpSecurity http) throws Exception {
     http
         .authorizeRequests()
-          .antMatchers("/",
-              "/api/authenticate",
-              "/js/**",
-              "/css/**",
-              "/fonts/**",
-              "/img/**").permitAll()
-          .anyRequest().hasAnyAuthority(allowedAuthorities())
+          .antMatchers(PUBLIC_URIS).permitAll()
+          .antMatchers(ADMIN_ONLY_URIS).hasAnyAuthority(adminAuthorities())
+          .anyRequest().hasAnyAuthority(allAuthorities())
         .and()
         .formLogin()
         .loginPage("/login")
@@ -91,7 +108,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
                     .collect(Collectors.joining(", ")));
             response.sendRedirect(request.getContextPath() + "/access-denied");
           }))
-          .authenticationEntryPoint(((request, response, authException) -> response.sendError(403)))
+          .authenticationEntryPoint(((request, response, authException) -> response.sendError(403, "Access denied")))
         .and()
         .csrf().disable()
         .addFilterBefore(new AuthenticationTokenFilter(login), BasicAuthenticationFilter.class);

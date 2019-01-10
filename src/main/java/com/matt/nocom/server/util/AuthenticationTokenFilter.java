@@ -1,9 +1,7 @@
 package com.matt.nocom.server.util;
 
-import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.model.auth.User;
 import com.matt.nocom.server.service.LoginManagerService;
-import com.matt.nocom.server.util.Util;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,13 +28,14 @@ public class AuthenticationTokenFilter extends GenericFilterBean {
         .map(HttpServletRequest.class::cast)
         .orElseThrow(() -> new Error("request is not instance of HttpServletRequest"));
 
-    String provided = req.getHeader("Access-Token");
-    if(provided == null) provided = req.getParameter("access-token");
+    String provided = req.getHeader("Authorization");
+    if(provided == null) provided = req.getParameter("Authorization");
 
     if(provided != null) {
       login.getUserByToken(UUID.fromString(provided), Util.stringToAddress(req.getRemoteAddr()))
+          .filter(User::isNotDebugUser)
           .ifPresent(user -> SecurityContextHolder.getContext()
-              .setAuthentication(user.toUsernamePasswordAuthenticationToken()));
+              .setAuthentication(user.toAuthenticationToken()));
     }
 
     chain.doFilter(request, response);

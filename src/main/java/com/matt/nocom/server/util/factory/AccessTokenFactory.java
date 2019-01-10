@@ -4,14 +4,16 @@ import com.google.common.collect.Lists;
 import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.model.auth.AccessToken;
 import com.matt.nocom.server.util.Util;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.UUID;
 
 public class AccessTokenFactory {
-  public static AccessToken create() {
+  public static AccessToken generate(InetAddress address) {
     return AccessToken.builder()
         .token(UUID.randomUUID())
         .expiresOn(System.currentTimeMillis() + Properties.TOKEN_EXPIRATION)
+        .address(address)
         .build();
   }
 

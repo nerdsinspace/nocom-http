@@ -1,11 +1,10 @@
 package com.matt.nocom.server.model.auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.net.InetAddress;
 import java.util.UUID;
-import javax.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,10 +19,7 @@ public class AccessToken {
   private InetAddress address;
   private long expiresOn;
 
-  @Nullable
-  @Default
-  private User user = null;
-
+  @JsonIgnore
   public boolean isExpired() {
     return System.currentTimeMillis() >= expiresOn;
   }
