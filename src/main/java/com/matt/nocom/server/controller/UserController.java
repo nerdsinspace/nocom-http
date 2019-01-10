@@ -100,6 +100,12 @@ public class UserController implements Logging {
           .message("username already exists")
           .asResponseEntity();
 
+    if(details.getPassword().length() < 8)
+      return ApiError.builder()
+      .status(HttpStatus.NOT_ACCEPTABLE)
+      .message("password too short")
+      .asResponseEntity();
+
     // encode the users password
     details.setPassword(passwordEncoder.encode(details.getPassword()));
     // remove the debug groups
