@@ -91,9 +91,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
                     .collect(Collectors.joining(", ")));
             response.sendRedirect(request.getContextPath() + "/access-denied");
           }))
-          .authenticationEntryPoint(((request, response, authException) -> {
-            response.sendError(403, "Unauthorized access");
-          }))
+          .authenticationEntryPoint(((request, response, authException) -> response.sendError(403)))
         .and()
         .csrf().disable()
         .addFilterBefore(new AuthenticationTokenFilter(login), BasicAuthenticationFilter.class);
