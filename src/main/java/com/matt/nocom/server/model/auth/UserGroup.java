@@ -12,6 +12,7 @@ public enum UserGroup implements GrantedAuthority {
   DEBUG(0),
   ADMIN(0),
   USER(4),
+  DEV(4),
   ;
 
   private int level;
