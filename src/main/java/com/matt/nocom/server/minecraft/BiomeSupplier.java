@@ -2,8 +2,6 @@ package com.matt.nocom.server.minecraft;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.block.Block;
@@ -17,7 +15,7 @@ import net.minecraft.world.biome.BiomeProvider;
 public class BiomeSupplier {
   private static final Cache<Long, BiomeProvider> CACHE = CacheBuilder.newBuilder()
       .expireAfterWrite(5, TimeUnit.MINUTES)
-      //.expireAfterAccess(5, TimeUnit.MINUTES)
+      .expireAfterAccess(5, TimeUnit.MINUTES)
       .build();
 
   public static Biome getBiome(long seed, int x, int z) {

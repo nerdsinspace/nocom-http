@@ -108,7 +108,7 @@ const ListView = (function() {
            // Render
            .append($('<td>')
              .append((buttonDownloaded = $('<button type="button" class = "collapsible">')).text('Downloaded'))
-             .append((buttonGenerated = $('<button type="button" class = "collapsible" style="margin-right:0px;">')).text('Generated'))
+             .append((buttonGenerated =  $('<button type="button" class = "collapsible" style="margin-right:0px;">')).text('Generated'))
            )
         );
 
@@ -128,7 +128,7 @@ const ListView = (function() {
 
 
         makeCollapsible(buttonDownloaded, divDownloaded);
-        makeCollapsible(buttonGenerated, divGenerated);
+        makeCollapsible(buttonGenerated,  divGenerated);
       }
 
     });
