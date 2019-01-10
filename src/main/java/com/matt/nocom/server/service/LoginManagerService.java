@@ -40,9 +40,6 @@ public class LoginManagerService implements UserDetailsService, Logging {
     if(!user.getUsername().matches("[A-Za-z0-9_]+"))
       throw new IllegalUsernameException();
 
-    if(user.getPassword().length() < 8)
-      throw new IllegalPasswordException();
-
     return dsl.insertInto(AUTH_USERS,
         AUTH_USERS.USERNAME,
         AUTH_USERS.PASSWORD,
