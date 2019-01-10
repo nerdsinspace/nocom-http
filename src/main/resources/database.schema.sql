@@ -53,7 +53,7 @@ CREATE TABLE Auth_Users (
 CREATE TABLE Auth_Groups (
   id integer PRIMARY KEY AUTOINCREMENT,
   name varchar NOT NULL UNIQUE,
-  level integer NOT NULL
+  level integer default 666
 );
 
 CREATE TABLE Auth_User_Groups (
@@ -63,4 +63,12 @@ CREATE TABLE Auth_User_Groups (
   UNIQUE (user_id, group_id),
   FOREIGN KEY (user_id) REFERENCES Auth_Users (id),
   FOREIGN KEY (group_id) REFERENCES Auth_Groups (id)
+);
+
+CREATE TABLE Auth_Tokens (
+  token varchar PRIMARY KEY,
+  address varchar NOT NULL,
+  expires_on bigint NOT NULL,
+  user_id integer NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES Auth_Users (id)
 );

@@ -16,6 +16,9 @@
             <a th:href="@{/logout}">Logout</a>
           </li>
           <li sec:authorize="isFullyAuthenticated()">
+            <a th:href="@{/manager}">Account Manager</a>
+          </li>
+          <li sec:authorize="isFullyAuthenticated()">
             <a th:href="@{/overview}">Overview</a>
           </li>
           <li sec:authorize="isFullyAuthenticated()">

@@ -1,29 +1,47 @@
 package com.matt.nocom.server.config;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.Properties;
-import com.matt.nocom.server.service.LoginAccessDeniedHandler;
-import com.matt.nocom.server.service.LoginService;
+import com.matt.nocom.server.model.auth.UserGroup;
+import com.matt.nocom.server.service.LoginManagerService;
+import com.matt.nocom.server.util.AuthenticationTokenFilter;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @ComponentScan({"com.matt.nocom.server.service"})
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements Logging {
-  private final LoginService login;
-  private final LoginAccessDeniedHandler accessDeniedHandler;
+  private static final String[] PUBLIC_URIS = new String[] {
+      "/",
+      "/user/login",
+      "/js/**",
+      "/css/**",
+      "/fonts/**",
+      "/img/**"
+  };
+  private static final String[] ADMIN_ONLY_URIS = new String[] {
+      "/user/**",
+      "/manager"
+  };
 
-  public SecurityConfiguration(LoginService login,
-      LoginAccessDeniedHandler accessDeniedHandler) {
+  private final LoginManagerService login;
+
+  public SecurityConfiguration(LoginManagerService login) {
     this.login = login;
-    this.accessDeniedHandler = accessDeniedHandler;
   }
 
   @Bean
@@ -33,27 +51,38 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    if(Properties.DEBUG_AUTH) {
-      LOGGER.warn("Debug authentication loaded");
-      auth
-          .inMemoryAuthentication()
-          .withUser("root").password(passwordEncoder().encode("pass")).roles("ADMIN");
-    } else
-      auth
-          .userDetailsService(login)
-          .passwordEncoder(passwordEncoder());
+    auth
+        .userDetailsService(login)
+        .passwordEncoder(passwordEncoder());
+  }
+
+  @Bean
+  @Override
+  public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+  }
+
+  private static String[] allAuthorities() {
+    return Arrays.stream(UserGroup.values())
+        .filter(UserGroup::isAllowed)
+        .map(UserGroup::getName)
+        .toArray(String[]::new);
+  }
+
+  private static String[] adminAuthorities() {
+    return Stream.of(UserGroup.ADMIN, UserGroup.DEBUG)
+        .filter(UserGroup::isAllowed)
+        .map(UserGroup::getName)
+        .toArray(String[]::new);
   }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
         .authorizeRequests()
-          .antMatchers("/",
-              "/js/**",
-              "/css/**",
-              "/fonts/**",
-              "/img/**").permitAll() // data is for testing
-          .anyRequest().authenticated()
+          .antMatchers(PUBLIC_URIS).permitAll()
+          .antMatchers(ADMIN_ONLY_URIS).hasAnyAuthority(adminAuthorities())
+          .anyRequest().hasAnyAuthority(allAuthorities())
         .and()
           .headers()
             .frameOptions().disable() // allows iframes to work
@@ -70,8 +99,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
             .logoutSuccessUrl("/login?logout")
             .permitAll()
         .and()
-          .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+        .exceptionHandling()
+          .accessDeniedHandler(((request, response, accessDeniedException) -> {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if(auth != null) LOGGER.warn(
+                "{} attempted to access forbidden resource at {} with authorities [{}]",
+                auth.getName(),
+                request.getRequestURI(),
+                auth.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.joining(", ")));
+            response.sendRedirect(request.getContextPath() + "/access-denied");
+          }))
+          .authenticationEntryPoint(((request, response, authException) -> response.sendError(403, "Access denied")))
         .and()
-          .csrf().disable();
+          .csrf().disable()
+          .addFilterBefore(new AuthenticationTokenFilter(login), BasicAuthenticationFilter.class);
   }
 }

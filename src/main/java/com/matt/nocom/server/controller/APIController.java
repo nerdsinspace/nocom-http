@@ -1,10 +1,5 @@
 package com.matt.nocom.server.controller;
 
-import static com.matt.nocom.server.sqlite.Tables.DIMENSIONS;
-import static com.matt.nocom.server.sqlite.Tables.LOCATIONS;
-import static com.matt.nocom.server.sqlite.Tables.POSITIONS;
-import static com.matt.nocom.server.sqlite.Tables.SERVERS;
-
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.model.Dimension;
