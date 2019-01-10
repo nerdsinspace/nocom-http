@@ -11,6 +11,8 @@ public interface Properties {
 
   String DATABASE_PATH    = System.getProperty("nocom.database", Paths.get("locations.db").toAbsolutePath().toString());
 
+  long TOKEN_EXPIRATION   = Long.valueOf(System.getProperty("nocom.login.expiration", "86400000")); // default to 1 day
+
   String WORLDS_PATH      = System.getProperty("nocom.worlds", Paths.get("worlds").toAbsolutePath().toString());
   String RENDER_PATH      = System.getProperty("nocom.renders", Paths.get("renders").toAbsolutePath().toString());
 
@@ -18,4 +20,5 @@ public interface Properties {
   String MAPCRAFTER_PATH  = System.getProperty("nocom.mapcrafter"); // path to exe
   @Nullable
   String SPIGOT_PATH      = System.getProperty("nocom.spigot"); // path to jar
+
 }

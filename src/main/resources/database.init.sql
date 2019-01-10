@@ -56,8 +56,8 @@ CREATE TABLE IF NOT EXISTS Auth_Users (
 
 CREATE TABLE IF NOT EXISTS Auth_Groups (
   id integer PRIMARY KEY AUTOINCREMENT,
-  name text NOT NULL UNIQUE ON CONFLICT IGNORE,
-  level integer NOT NULL
+  name text NOT NULL UNIQUE,
+  level integer default 666
 );
 
 CREATE TABLE IF NOT EXISTS Auth_User_Groups (
@@ -69,4 +69,14 @@ CREATE TABLE IF NOT EXISTS Auth_User_Groups (
   FOREIGN KEY (group_id) REFERENCES Auth_Groups (id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-INSERT OR IGNORE INTO Auth_Groups (name, level) VALUES ('ADMIN', 0), ('DEV', 1);
+CREATE TABLE IF NOT EXISTS Auth_Tokens (
+  token text PRIMARY KEY,
+  address text NOT NULL,
+  expires_on bigint NOT NULL,
+  user_id integer NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES Auth_Users (id) ON DELETE CASCADE ON UPDATE NO ACTION
+);
+
+INSERT OR IGNORE INTO Auth_Users (username, password) VALUES ('root', '$2a$10$DPHl8sG2HC6Hz76nzPBx1OjL9NlbBKqxWJVCCZMDDSCsBEcTKpziW');
+INSERT OR IGNORE INTO Auth_Groups (name, level) VALUES ('DEBUG', 666), ('ADMIN', 0), ('DEV', 4);
+INSERT OR IGNORE INTO Auth_User_Groups (user_id, group_id) VALUES (01, 01);

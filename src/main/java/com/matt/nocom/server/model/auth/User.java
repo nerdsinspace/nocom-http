@@ -1,16 +1,20 @@
 package com.matt.nocom.server.model.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.matt.nocom.server.Properties;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -20,19 +24,30 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
+  public static User nameOnly(String username) {
+    return User.builder()
+        .username(username)
+        .build();
+  }
+
   private String username;
   private String password; // encrypted
-  private boolean enabled;
+
+  @Default
+  private boolean enabled = true;
 
   @Singular
   private Set<UserGroup> groups;
 
   @JsonIgnore
+  public boolean isNotDebugUser() {
+    return Properties.DEBUG_AUTH || !getGroups().contains(UserGroup.DEBUG);
+  }
+
+  @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return getGroups().stream()
-        .sorted(Comparator.comparingInt(UserGroup::getLevel).reversed())
-        .collect(Collectors.toList());
+    return getGroups();
   }
 
   @JsonIgnore
@@ -51,5 +66,17 @@ public class User implements UserDetails {
   @Override
   public boolean isCredentialsNonExpired() {
     return true;
+  }
+
+  public UsernamePasswordAuthenticationToken toAuthenticationToken() {
+    return new UsernamePasswordAuthenticationToken(getUsername(), getPassword(), getAuthorities());
+  }
+
+  @Override
+  public String toString() {
+    return username
+        + ", authorities=["
+        + getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(", "))
+        + "]";
   }
 }
