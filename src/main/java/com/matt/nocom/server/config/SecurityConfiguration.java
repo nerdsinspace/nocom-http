@@ -52,23 +52,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
               "/js/**",
               "/css/**",
               "/fonts/**",
-              "/img/**").permitAll()
+              "/img/**").permitAll() // data is for testing
           .anyRequest().authenticated()
         .and()
-        .formLogin()
-        .loginPage("/login")
-          .defaultSuccessUrl("/overview")
-          .permitAll()
+          .headers()
+            .frameOptions().disable() // allows iframes to work
         .and()
-        .logout()
-          .invalidateHttpSession(true)
-          .clearAuthentication(true)
-          .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-          .logoutSuccessUrl("/login?logout")
-          .permitAll()
+          .formLogin()
+          .loginPage("/login")
+              .defaultSuccessUrl("/overview")
+              .permitAll()
         .and()
-        .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+          .logout()
+            .invalidateHttpSession(true)
+            .clearAuthentication(true)
+            .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+            .logoutSuccessUrl("/login?logout")
+            .permitAll()
         .and()
-        .csrf().disable();
+          .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+        .and()
+          .csrf().disable();
   }
 }

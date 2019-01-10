@@ -38,7 +38,7 @@ public class APIController implements Logging {
       consumes = "application/json",
       produces = "application/json")
   @ResponseBody
-  public ResponseEntity<Object> addLocations(@RequestBody Location[] locations) {
+  public ResponseEntity<Void> addLocations(@RequestBody Location[] locations) {
     if(locations.length < 1)
       throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Must have at least one location object.");
 

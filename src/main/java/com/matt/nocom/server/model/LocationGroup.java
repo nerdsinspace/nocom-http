@@ -3,6 +3,12 @@ package com.matt.nocom.server.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.matt.nocom.server.model.LocationGroup.Serializer;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @Setter
@@ -21,6 +28,7 @@ import lombok.Singular;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(Include.NON_EMPTY)
+@JsonSerialize(using = Serializer.class)
 public class LocationGroup implements Serializable {
   private int x;
   private int z;
@@ -35,6 +43,7 @@ public class LocationGroup implements Serializable {
     setZ(getPositions().stream().collect(Collectors.averagingInt(Position::getZ)).intValue());
     return this;
   }
+
 
   private int distanceSqTo(int otherX, int otherZ) {
     return (int) Math.ceil(Math.pow(otherX - getX(), 2) + Math.pow(otherZ - getZ(), 2));
@@ -51,5 +60,27 @@ public class LocationGroup implements Serializable {
   @JsonIgnore
   public boolean isInSameWorld(LocationGroup other) {
     return getServer().equalsIgnoreCase(other.getServer()) && getDimension() == other.getDimension();
+  }
+
+  public static class Serializer extends JsonSerializer<LocationGroup> {
+
+    @Override
+    public void serialize(LocationGroup value, JsonGenerator gen, SerializerProvider serializers)
+        throws IOException {
+      gen.writeStartObject();
+        gen.writeNumberField("x", value.getX());
+        gen.writeNumberField("z", value.getZ());
+        gen.writeStringField("server", value.getServer());
+        gen.writeNumberField("dimension", value.getDimension());
+
+        gen.writeStringField("generatedUrl", "poz");
+        gen.writeNullField("downloadedUrl");
+
+        gen.writeArrayFieldStart("positions");
+        for (Position pos : value.getPositions()) gen.writeObject(pos);
+        gen.writeEndArray();
+
+      gen.writeEndObject();
+    }
   }
 }
