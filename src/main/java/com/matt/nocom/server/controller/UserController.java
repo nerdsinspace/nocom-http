@@ -1,9 +1,10 @@
 package com.matt.nocom.server.controller;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.exception.IllegalPasswordException;
+import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.exception.IllegalUsernameException;
 import com.matt.nocom.server.model.ApiError;
+import com.matt.nocom.server.model.EmptyModel;
 import com.matt.nocom.server.model.auth.UserGroup;
 import com.matt.nocom.server.model.auth.UsernamePasswordRequest;
 import com.matt.nocom.server.model.auth.AuthenticatedResponse;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -97,13 +99,13 @@ public class UserController implements Logging {
     if(login.usernameExists(details.getUsername()))
       return ApiError.builder()
           .status(HttpStatus.NOT_ACCEPTABLE)
-          .message("username already exists")
+          .message("Username already exists.")
           .asResponseEntity();
 
-    if(details.getPassword().length() < 8)
+    if(details.getPassword().length() < Properties.MIN_PASSWORD_LEN)
       return ApiError.builder()
       .status(HttpStatus.NOT_ACCEPTABLE)
-      .message("password too short")
+      .message("Password must be at least " + Properties.MIN_PASSWORD_LEN + " characters long.")
       .asResponseEntity();
 
     // encode the users password
@@ -121,8 +123,8 @@ public class UserController implements Logging {
       for (UserGroup group : details.getGroups())
         login.addUserToGroup(details, group);
 
-      return ResponseEntity.ok().body(null);
-    } catch (IllegalUsernameException | IllegalPasswordException e) {
+      return ResponseEntity.ok(EmptyModel.getInstance());
+    } catch (IllegalUsernameException e) {
       return ApiError.builder()
           .status(HttpStatus.NOT_ACCEPTABLE)
           .message(e.getMessage())
@@ -136,7 +138,7 @@ public class UserController implements Logging {
   @ResponseBody
   public ResponseEntity unregister(@PathVariable("username") String username) {
     login.removeUser(User.nameOnly(username));
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(EmptyModel.getInstance());
   }
 
   @RequestMapping(value = "/tokens/{username}",
@@ -155,6 +157,16 @@ public class UserController implements Logging {
   @ResponseBody
   public ResponseEntity expireUserTokens(@PathVariable("username") String username) {
     login.expireUserTokens(User.nameOnly(username));
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(EmptyModel.getInstance());
+  }
+
+  @RequestMapping(value = "/set/enabled/{username}",
+      method = RequestMethod.GET,
+      produces = "application/json")
+  @ResponseBody
+  public ResponseEntity setUserEnabled(@PathVariable("username") String username,
+      @RequestParam("enabled") boolean enabled) {
+    login.setUserEnabled(User.nameOnly(username), enabled);
+    return ResponseEntity.ok(EmptyModel.getInstance());
   }
 }

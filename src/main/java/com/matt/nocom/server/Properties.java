@@ -12,4 +12,6 @@ public interface Properties {
   String DATABASE_PATH    = System.getProperty("nocom.database", Paths.get("").resolve("locations.db").toAbsolutePath().toString());
 
   long TOKEN_EXPIRATION   = Long.valueOf(System.getProperty("nocom.login.expiration", "86400000")); // default to 1 day
+
+  int MIN_PASSWORD_LEN    = Integer.valueOf(System.getProperty("nocom.min.pass.length", "8"));
 }

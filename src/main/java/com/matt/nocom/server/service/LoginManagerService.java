@@ -7,7 +7,6 @@ import static com.matt.nocom.server.sqlite.Tables.AUTH_USER_GROUPS;
 
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.exception.IllegalPasswordException;
 import com.matt.nocom.server.exception.IllegalUsernameException;
 import com.matt.nocom.server.model.auth.AccessToken;
 import com.matt.nocom.server.model.auth.UserData;
@@ -36,7 +35,7 @@ public class LoginManagerService implements UserDetailsService, Logging {
     this.dsl = dsl;
   }
 
-  public int addUser(User user) throws IllegalUsernameException, IllegalPasswordException {
+  public int addUser(User user) throws IllegalUsernameException {
     if(!user.getUsername().matches("[A-Za-z0-9_]+"))
       throw new IllegalUsernameException();
 
@@ -52,10 +51,16 @@ public class LoginManagerService implements UserDetailsService, Logging {
         .execute();
   }
 
-  public int updateUser(User user) {
+  public int setUserPassword(User user, String password) {
     return dsl.update(AUTH_USERS)
-        .set(AUTH_USERS.PASSWORD, user.getPassword())
-        .set(AUTH_USERS.ENABLED, user.isEnabled() ? 1 : 0)
+        .set(AUTH_USERS.PASSWORD, password)
+        .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+        .execute();
+  }
+
+  public int setUserEnabled(User user, boolean enabled) {
+    return dsl.update(AUTH_USERS)
+        .set(AUTH_USERS.ENABLED, enabled ? 1 : 0)
         .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
         .execute();
   }
