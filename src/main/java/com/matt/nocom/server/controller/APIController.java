@@ -2,7 +2,9 @@ package com.matt.nocom.server.controller;
 
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
+import com.matt.nocom.server.model.ApiError;
 import com.matt.nocom.server.model.Dimension;
+import com.matt.nocom.server.model.EmptyModel;
 import com.matt.nocom.server.model.Location;
 import com.matt.nocom.server.model.LocationGroup;
 import com.matt.nocom.server.model.SearchFilter;
@@ -33,9 +35,12 @@ public class APIController implements Logging {
       consumes = "application/json",
       produces = "application/json")
   @ResponseBody
-  public ResponseEntity<Object> addLocations(@RequestBody Location[] locations) {
+  public ResponseEntity addLocations(@RequestBody Location[] locations) {
     if(locations.length < 1)
-      throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Must have at least one location object.");
+      return ApiError.builder()
+          .status(HttpStatus.BAD_REQUEST)
+          .message("Must provide at least one location")
+          .asResponseEntity();
 
     api.addServers(Arrays.stream(locations)
         .map(Location::getServer)
@@ -48,7 +53,7 @@ public class APIController implements Logging {
 
     api.addLocations(Arrays.asList(locations));
 
-    return ResponseEntity.ok().body(null);
+    return ResponseEntity.ok(EmptyModel.getInstance());
   }
 
   @RequestMapping(value = "/search/locations",
