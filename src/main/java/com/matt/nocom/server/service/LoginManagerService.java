@@ -173,8 +173,11 @@ public class LoginManagerService implements UserDetailsService, Logging {
   public List<AccessToken> getUserTokens(User user) {
     return dsl.select(AUTH_TOKENS.TOKEN, AUTH_TOKENS.ADDRESS, AUTH_TOKENS.EXPIRES_ON)
         .from(AUTH_TOKENS)
-        .innerJoin(AUTH_USERS).on(AUTH_TOKENS.USER_ID.eq(AUTH_USERS.ID))
-        .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+        .where(AUTH_TOKENS.USER_ID.eq(dsl.select(AUTH_USERS.ID)
+            .from(AUTH_USERS)
+            .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+            .limit(1)
+        ))
         .fetch()
         .map(record -> AccessToken.builder()
             .token(UUID.fromString(record.getValue(AUTH_TOKENS.TOKEN)))
