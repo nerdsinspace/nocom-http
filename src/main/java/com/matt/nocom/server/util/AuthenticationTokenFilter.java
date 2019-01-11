@@ -34,6 +34,7 @@ public class AuthenticationTokenFilter extends GenericFilterBean {
     if(provided != null) {
       login.getUserByToken(UUID.fromString(provided), Util.stringToAddress(req.getRemoteAddr()))
           .filter(User::isNotDebugUser)
+          .filter(User::isEnabled)
           .ifPresent(user -> SecurityContextHolder.getContext()
               .setAuthentication(user.toAuthenticationToken()));
     }
