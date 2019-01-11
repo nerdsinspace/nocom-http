@@ -53,7 +53,7 @@ public class UserController implements Logging {
       consumes = "application/json",
       produces = "application/json")
   @ResponseBody
-  public ResponseEntity<AuthenticatedResponse> login(
+  public ResponseEntity login(
       @RequestBody UsernamePasswordRequest details,
       HttpServletRequest request) {
     User user = login.getUser(details.getUsername())
@@ -74,7 +74,11 @@ public class UserController implements Logging {
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     AccessToken token = AccessTokenFactory.generate(Util.stringToAddress(request.getRemoteAddr()));
-    login.addUserToken(user, token);
+    if(login.addUserToken(user, token) != 1)
+      return ApiError.builder()
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .message("Failed to add access token")
+          .asResponseEntity();
 
     return ResponseEntity.ok(AuthenticatedResponse.builder()
         .username(user.getUsername())
@@ -104,9 +108,9 @@ public class UserController implements Logging {
 
     if(details.getPassword().length() < Properties.MIN_PASSWORD_LEN)
       return ApiError.builder()
-      .status(HttpStatus.NOT_ACCEPTABLE)
-      .message("Password must be at least " + Properties.MIN_PASSWORD_LEN + " characters long.")
-      .asResponseEntity();
+          .status(HttpStatus.NOT_ACCEPTABLE)
+          .message("Password must be at least " + Properties.MIN_PASSWORD_LEN + " characters long.")
+          .asResponseEntity();
 
     // encode the users password
     details.setPassword(passwordEncoder.encode(details.getPassword()));
@@ -139,6 +143,16 @@ public class UserController implements Logging {
   public ResponseEntity unregister(@PathVariable("username") String username) {
     login.removeUser(User.nameOnly(username));
     return ResponseEntity.ok(EmptyModel.getInstance());
+  }
+
+  @RequestMapping(value = "/tokens",
+      method = RequestMethod.GET,
+      produces = "application/json")
+  @ResponseBody
+  public ResponseEntity<AccessToken[]> getAccessTokens() {
+    return ResponseEntity.ok(login.getTokens().stream()
+        .sorted(Comparator.comparingLong(AccessToken::getExpiresOn))
+        .toArray(AccessToken[]::new));
   }
 
   @RequestMapping(value = "/tokens/{username}",
