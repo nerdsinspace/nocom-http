@@ -1,7 +1,7 @@
 package com.matt.nocom.server.config;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.model.auth.UserGroup;
+import com.matt.nocom.server.auth.UserGroup;
 import com.matt.nocom.server.service.LoginManagerService;
 import com.matt.nocom.server.util.AuthenticationTokenFilter;
 import java.util.Arrays;

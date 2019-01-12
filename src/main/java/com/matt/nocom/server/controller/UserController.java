@@ -5,11 +5,11 @@ import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.exception.IllegalUsernameException;
 import com.matt.nocom.server.model.ApiError;
 import com.matt.nocom.server.model.EmptyModel;
-import com.matt.nocom.server.model.auth.UserGroup;
-import com.matt.nocom.server.model.auth.UsernamePasswordRequest;
-import com.matt.nocom.server.model.auth.AuthenticatedResponse;
-import com.matt.nocom.server.model.auth.AccessToken;
-import com.matt.nocom.server.model.auth.User;
+import com.matt.nocom.server.auth.UserGroup;
+import com.matt.nocom.server.model.auth.UsernamePassword;
+import com.matt.nocom.server.model.auth.UsernameToken;
+import com.matt.nocom.server.auth.AccessToken;
+import com.matt.nocom.server.auth.User;
 import com.matt.nocom.server.service.LoginManagerService;
 import com.matt.nocom.server.util.Util;
 import com.matt.nocom.server.util.factory.AccessTokenFactory;
@@ -54,7 +54,7 @@ public class UserController implements Logging {
       produces = "application/json")
   @ResponseBody
   public ResponseEntity login(
-      @RequestBody UsernamePasswordRequest details,
+      @RequestBody UsernamePassword details,
       HttpServletRequest request) {
     User user = login.getUser(details.getUsername())
         .filter(User::isNotDebugUser)
@@ -80,7 +80,7 @@ public class UserController implements Logging {
           .message("Failed to add access token")
           .asResponseEntity();
 
-    return ResponseEntity.ok(AuthenticatedResponse.builder()
+    return ResponseEntity.ok(UsernameToken.builder()
         .username(user.getUsername())
         .token(token.getToken())
         .build());

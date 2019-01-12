@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model;
+package com.matt.nocom.server.model.game;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

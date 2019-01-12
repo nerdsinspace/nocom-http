@@ -1,6 +1,6 @@
 package com.matt.nocom.server.util;
 
-import com.matt.nocom.server.model.auth.User;
+import com.matt.nocom.server.auth.User;
 import com.matt.nocom.server.service.LoginManagerService;
 import java.io.IOException;
 import java.util.Optional;
