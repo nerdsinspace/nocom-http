@@ -2,6 +2,8 @@ package com.matt.nocom.server.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class Util {
   public static boolean arraysSameLength(Object[]... arrays) {
@@ -20,5 +22,9 @@ public class Util {
     } catch (UnknownHostException e) {
       throw new Error(e);
     }
+  }
+
+  public static UsernamePasswordAuthenticationToken toAuthenticationToken(UserDetails details) {
+    return new UsernamePasswordAuthenticationToken(details.getUsername(), details.getPassword(), details.getAuthorities());
   }
 }

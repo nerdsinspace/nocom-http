@@ -1,44 +1,57 @@
 package com.matt.nocom.server.util;
 
-import com.matt.nocom.server.auth.User;
 import com.matt.nocom.server.service.LoginManagerService;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.GenericFilterBean;
 
 public class AuthenticationTokenFilter extends GenericFilterBean {
-  private final LoginManagerService login;
+  private static final String AUTHORIZATION_IDENTIFIER = "Authorization";
 
-  public AuthenticationTokenFilter(LoginManagerService login) {
+  private final LoginManagerService login;
+  private final AuthenticationManager authentication;
+
+  public AuthenticationTokenFilter(LoginManagerService login,
+      AuthenticationManager authentication) {
     this.login = login;
+    this.authentication = authentication;
   }
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
-    HttpServletRequest req = Optional.of(request)
-        .filter(HttpServletRequest.class::isInstance)
-        .map(HttpServletRequest.class::cast)
-        .orElseThrow(() -> new Error("request is not instance of HttpServletRequest"));
-
-    String provided = req.getHeader("Authorization");
-    if(provided == null) provided = req.getParameter("Authorization");
+    String provided = findAuthorization(request);
 
     if(provided != null) {
-      login.getUserByToken(UUID.fromString(provided), Util.stringToAddress(req.getRemoteAddr()))
-          .filter(User::isNotDebugUser)
-          .filter(User::isEnabled)
-          .ifPresent(user -> SecurityContextHolder.getContext()
-              .setAuthentication(user.toAuthenticationToken()));
+      login.getUsernameByToken(UUID.fromString(provided), Util.stringToAddress(request.getRemoteAddr()))
+          .map(login::loadUserByUsername)
+          .filter(UserDetails::isEnabled)
+          .filter(UserDetails::isAccountNonExpired)
+          .filter(UserDetails::isAccountNonLocked)
+          .filter(UserDetails::isCredentialsNonExpired)
+          .map(Util::toAuthenticationToken)
+          .ifPresent(auth -> SecurityContextHolder.getContext().setAuthentication(auth));
     }
 
     chain.doFilter(request, response);
+  }
+
+  @Nullable
+  private static String findAuthorization(ServletRequest request) {
+    return Optional.of(request)
+        .filter(HttpServletRequest.class::isInstance)
+        .map(HttpServletRequest.class::cast)
+        .map(req -> req.getHeader(AUTHORIZATION_IDENTIFIER))
+        .orElse(request.getParameter(AUTHORIZATION_IDENTIFIER));
   }
 }

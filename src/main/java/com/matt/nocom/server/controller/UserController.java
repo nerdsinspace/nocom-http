@@ -74,7 +74,7 @@ public class UserController implements Logging {
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     AccessToken token = AccessTokenFactory.generate(Util.stringToAddress(request.getRemoteAddr()));
-    if(login.addUserToken(user, token) != 1)
+    if(login.addUserToken(user.getUsername(), token) != 1)
       return ApiError.builder()
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
           .message("Failed to add access token")
@@ -125,7 +125,7 @@ public class UserController implements Logging {
 
       // add the user to any groups provided
       for (UserGroup group : details.getGroups())
-        login.addUserToGroup(details, group);
+        login.addUserToGroup(details.getUsername(), group);
 
       return ResponseEntity.ok(EmptyModel.getInstance());
     } catch (IllegalUsernameException e) {
@@ -141,7 +141,7 @@ public class UserController implements Logging {
       produces = "application/json")
   @ResponseBody
   public ResponseEntity unregister(@PathVariable("username") String username) {
-    login.removeUser(User.nameOnly(username));
+    login.removeUser(username);
     return ResponseEntity.ok(EmptyModel.getInstance());
   }
 
@@ -160,7 +160,7 @@ public class UserController implements Logging {
       produces = "application/json")
   @ResponseBody
   public ResponseEntity<AccessToken[]> getUserAccessTokens(@PathVariable("username") String username) {
-    return ResponseEntity.ok(login.getUserTokens(User.nameOnly(username)).stream()
+    return ResponseEntity.ok(login.getUserTokens(username).stream()
         .sorted(Comparator.comparingLong(AccessToken::getExpiresOn))
         .toArray(AccessToken[]::new));
   }
@@ -170,7 +170,7 @@ public class UserController implements Logging {
       produces = "application/json")
   @ResponseBody
   public ResponseEntity expireUserTokens(@PathVariable("username") String username) {
-    login.expireUserTokens(User.nameOnly(username));
+    login.expireUserTokens(username);
     return ResponseEntity.ok(EmptyModel.getInstance());
   }
 
@@ -180,7 +180,7 @@ public class UserController implements Logging {
   @ResponseBody
   public ResponseEntity setUserEnabled(@PathVariable("username") String username,
       @RequestParam("enabled") boolean enabled) {
-    login.setUserEnabled(User.nameOnly(username), enabled);
+    login.setUserEnabled(username, enabled);
     return ResponseEntity.ok(EmptyModel.getInstance());
   }
 }
