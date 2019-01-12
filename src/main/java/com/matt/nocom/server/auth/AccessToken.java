@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model.auth;
+package com.matt.nocom.server.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.net.InetAddress;

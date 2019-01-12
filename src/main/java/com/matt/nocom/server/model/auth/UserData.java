@@ -1,5 +1,8 @@
 package com.matt.nocom.server.model.auth;
 
+import com.matt.nocom.server.auth.AccessToken;
+import com.matt.nocom.server.auth.UserGroup;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -14,7 +17,7 @@ import lombok.Singular;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserData {
+public class UserData implements Serializable {
   private String username;
   private boolean enabled;
 

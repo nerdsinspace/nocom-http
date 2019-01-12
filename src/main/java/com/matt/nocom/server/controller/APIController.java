@@ -3,10 +3,10 @@ package com.matt.nocom.server.controller;
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.model.ApiError;
-import com.matt.nocom.server.model.Dimension;
+import com.matt.nocom.server.model.game.Dimension;
 import com.matt.nocom.server.model.EmptyModel;
-import com.matt.nocom.server.model.Location;
-import com.matt.nocom.server.model.LocationGroup;
+import com.matt.nocom.server.model.game.Location;
+import com.matt.nocom.server.model.game.LocationGroup;
 import com.matt.nocom.server.model.SearchFilter;
 import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.util.factory.LocationGroupFactory;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 
 @RestController
 @RequestMapping("api")

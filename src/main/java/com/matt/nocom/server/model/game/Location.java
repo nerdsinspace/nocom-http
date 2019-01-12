@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model;
+package com.matt.nocom.server.model.game;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
