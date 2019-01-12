@@ -75,7 +75,7 @@ public class LoginManagerService implements UserDetailsService, Logging {
         .execute();
   }
 
-  private Stream<User> getUsers(Condition conditions) {
+  private List<User> getUsers(Condition conditions) {
     return dsl.select(
         AUTH_USERS.ID,
         AUTH_USERS.USERNAME,
@@ -83,8 +83,7 @@ public class LoginManagerService implements UserDetailsService, Logging {
         AUTH_USERS.ENABLED)
         .from(AUTH_USERS)
         .where(conditions)
-        .fetchStream()
-        .map(record -> User.builder()
+        .fetch(record -> User.builder()
             .username(record.getValue(AUTH_USERS.USERNAME))
             .password(record.getValue(AUTH_USERS.PASSWORD))
             .enabled(record.getValue(AUTH_USERS.ENABLED) > 0)
@@ -97,16 +96,15 @@ public class LoginManagerService implements UserDetailsService, Logging {
             .build());
   }
   public List<User> getUsers() {
-    return getUsers(DSL.noCondition())
-        .collect(Collectors.toList());
+    return getUsers(DSL.noCondition());
   }
 
   public Optional<User> getUser(String name) {
-    return getUsers(DSL.and(AUTH_USERS.USERNAME.equalIgnoreCase(name))).findFirst();
+    return getUsers(DSL.and(AUTH_USERS.USERNAME.equalIgnoreCase(name))).stream().findFirst();
   }
 
   public Optional<User> getUserById(int id) {
-    return getUsers(DSL.and(AUTH_USERS.ID.eq(id))).findFirst();
+    return getUsers(DSL.and(AUTH_USERS.ID.eq(id))).stream().findFirst();
   }
 
   public List<String> getUsernames() {
