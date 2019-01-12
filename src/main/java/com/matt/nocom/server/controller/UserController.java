@@ -16,6 +16,7 @@ import com.matt.nocom.server.util.Util;
 import com.matt.nocom.server.util.factory.AccessTokenFactory;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -141,10 +143,10 @@ public class UserController implements Logging {
   @RequestMapping(value = "/unregister/{username}",
       method = RequestMethod.GET,
       produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity unregister(@PathVariable("username") String username) {
+  public void unregister(@PathVariable("username") String username) {
     login.removeUser(username);
-    return ResponseEntity.ok(EmptyModel.getInstance());
   }
 
   @RequestMapping(value = "/tokens",
@@ -157,7 +159,7 @@ public class UserController implements Logging {
         .toArray(AccessToken[]::new));
   }
 
-  @RequestMapping(value = "/tokens/{username}",
+  @RequestMapping(value = "/tokens/user/{username}",
       method = RequestMethod.GET,
       produces = "application/json")
   @ResponseBody
@@ -167,22 +169,31 @@ public class UserController implements Logging {
         .toArray(AccessToken[]::new));
   }
 
-  @RequestMapping(value = "/tokens/{username}/expire",
+  @RequestMapping(value = "/tokens/user/{username}/expire",
       method = RequestMethod.GET,
       produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity expireUserTokens(@PathVariable("username") String username) {
+  public void expireUserTokens(@PathVariable("username") String username) {
     login.expireUserTokens(username);
-    return ResponseEntity.ok(EmptyModel.getInstance());
+  }
+
+  @RequestMapping(value = "/tokens/expire/{uuid}",
+      method = RequestMethod.GET,
+      produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void expireUuid(@PathVariable("uuid") String uuid) {
+    login.expireToken(UUID.fromString(uuid));
   }
 
   @RequestMapping(value = "/set/enabled/{username}",
       method = RequestMethod.GET,
       produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity setUserEnabled(@PathVariable("username") String username,
+  public void setUserEnabled(@PathVariable("username") String username,
       @RequestParam("enabled") boolean enabled) {
     login.setUserEnabled(username, enabled);
-    return ResponseEntity.ok(EmptyModel.getInstance());
   }
 }
