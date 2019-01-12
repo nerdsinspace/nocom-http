@@ -15,8 +15,11 @@ import com.matt.nocom.server.auth.User;
 import com.matt.nocom.server.util.Util;
 import java.net.InetAddress;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -51,27 +54,28 @@ public class LoginManagerService implements UserDetailsService, Logging {
         .execute();
   }
 
-  public int setUserPassword(User user, String password) {
+  public int setUserPassword(String username, String password) {
+    Objects.requireNonNull(username, "username");
     return dsl.update(AUTH_USERS)
         .set(AUTH_USERS.PASSWORD, password)
-        .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+        .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
         .execute();
   }
 
-  public int setUserEnabled(User user, boolean enabled) {
+  public int setUserEnabled(String username, boolean enabled) {
     return dsl.update(AUTH_USERS)
         .set(AUTH_USERS.ENABLED, enabled ? 1 : 0)
-        .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+        .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
         .execute();
   }
 
-  public int removeUser(User user) {
+  public int removeUser(String username) {
     return dsl.deleteFrom(AUTH_USERS)
-        .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+        .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
         .execute();
   }
 
-  private List<User> getUsers(Condition conditions) {
+  private Stream<User> getUsers(Condition conditions) {
     return dsl.select(
         AUTH_USERS.ID,
         AUTH_USERS.USERNAME,
@@ -79,11 +83,11 @@ public class LoginManagerService implements UserDetailsService, Logging {
         AUTH_USERS.ENABLED)
         .from(AUTH_USERS)
         .where(conditions)
-        .fetch()
+        .fetchStream()
         .map(record -> User.builder()
             .username(record.getValue(AUTH_USERS.USERNAME))
             .password(record.getValue(AUTH_USERS.PASSWORD))
-            .enabled(MoreObjects.firstNonNull(record.getValue(AUTH_USERS.ENABLED), 1) > 0)
+            .enabled(record.getValue(AUTH_USERS.ENABLED) > 0)
             .groups(dsl.select(AUTH_GROUPS.NAME)
                 .from(AUTH_USER_GROUPS)
                 .innerJoin(AUTH_GROUPS).on(AUTH_GROUPS.ID.eq(AUTH_USER_GROUPS.GROUP_ID))
@@ -93,19 +97,22 @@ public class LoginManagerService implements UserDetailsService, Logging {
             .build());
   }
   public List<User> getUsers() {
-    return getUsers(DSL.noCondition());
+    return getUsers(DSL.noCondition())
+        .collect(Collectors.toList());
+  }
+
+  public Optional<User> getUser(String name) {
+    return getUsers(DSL.and(AUTH_USERS.USERNAME.equalIgnoreCase(name))).findFirst();
+  }
+
+  public Optional<User> getUserById(int id) {
+    return getUsers(DSL.and(AUTH_USERS.ID.eq(id))).findFirst();
   }
 
   public List<String> getUsernames() {
     return dsl.select(AUTH_USERS.USERNAME)
         .from(AUTH_USERS)
-        .fetch()
-        .map(record -> record.getValue(AUTH_USERS.USERNAME));
-  }
-
-  public Optional<User> getUser(String name) {
-    return getUsers(DSL.and(AUTH_USERS.USERNAME.equalIgnoreCase(name))).stream()
-        .findFirst();
+        .fetch(AUTH_USERS.USERNAME);
   }
 
   public boolean usernameExists(String name) {
@@ -127,12 +134,12 @@ public class LoginManagerService implements UserDetailsService, Logging {
     return getGroups(DSL.noCondition());
   }
 
-  public int addUserToGroup(User user, UserGroup group) {
+  public int addUserToGroup(String username, UserGroup group) {
     return dsl.insertInto(AUTH_USER_GROUPS, AUTH_USER_GROUPS.USER_ID, AUTH_USER_GROUPS.GROUP_ID)
         .values(
             DSL.field(dsl.select(AUTH_USERS.ID)
                 .from(AUTH_USERS)
-                .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+                .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
                 .limit(1)),
             DSL.field(dsl.select(AUTH_GROUPS.ID)
                 .from(AUTH_GROUPS)
@@ -142,7 +149,7 @@ public class LoginManagerService implements UserDetailsService, Logging {
         .execute();
   }
 
-  public int removeUserFromGroup(User user, UserGroup group) {
+  public int removeUserFromGroup(String username, UserGroup group) {
     return dsl.deleteFrom(AUTH_USER_GROUPS)
         .where(AUTH_USER_GROUPS.GROUP_ID.eq(dsl.select(AUTH_GROUPS.ID)
             .from(AUTH_GROUPS)
@@ -150,7 +157,7 @@ public class LoginManagerService implements UserDetailsService, Logging {
             .limit(1)))
         .and(AUTH_USER_GROUPS.USER_ID.eq(dsl.select(AUTH_USERS.ID)
             .from(AUTH_USERS)
-            .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+            .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
             .limit(1)))
         .execute();
   }
@@ -170,12 +177,12 @@ public class LoginManagerService implements UserDetailsService, Logging {
     return getTokens(DSL.noCondition());
   }
 
-  public List<AccessToken> getUserTokens(User user) {
+  public List<AccessToken> getUserTokens(String username) {
     return dsl.select(AUTH_TOKENS.TOKEN, AUTH_TOKENS.ADDRESS, AUTH_TOKENS.EXPIRES_ON)
         .from(AUTH_TOKENS)
         .where(AUTH_TOKENS.USER_ID.eq(dsl.select(AUTH_USERS.ID)
             .from(AUTH_USERS)
-            .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+            .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
             .limit(1)
         ))
         .fetch()
@@ -186,34 +193,18 @@ public class LoginManagerService implements UserDetailsService, Logging {
             .build());
   }
 
-  public Optional<User> getUserByToken(UUID token, InetAddress address) {
-    return dsl.select(
-        AUTH_USERS.ID,
-        AUTH_USERS.USERNAME,
-        AUTH_USERS.PASSWORD,
-        AUTH_USERS.ENABLED)
+  public Optional<String> getUsernameByToken(UUID token, InetAddress address) {
+    return dsl.select(AUTH_USERS.USERNAME)
         .from(AUTH_TOKENS)
         .innerJoin(AUTH_USERS).on(AUTH_TOKENS.USER_ID.eq(AUTH_USERS.ID))
         .where(AUTH_TOKENS.TOKEN.eq(token.toString()))
         .and(AUTH_TOKENS.ADDRESS.eq(address.getHostAddress()))
         .and(AUTH_TOKENS.EXPIRES_ON.ge(System.currentTimeMillis()))
         .limit(1)
-        .fetch()
-        .map(record -> User.builder()
-            .username(record.getValue(AUTH_USERS.USERNAME))
-            .password(record.getValue(AUTH_USERS.PASSWORD))
-            .enabled(MoreObjects.firstNonNull(record.getValue(AUTH_USERS.ENABLED), 1) > 0)
-            .groups(dsl.select(AUTH_GROUPS.NAME)
-                .from(AUTH_USER_GROUPS)
-                .innerJoin(AUTH_GROUPS).on(AUTH_USER_GROUPS.GROUP_ID.eq(AUTH_GROUPS.ID))
-                .where(AUTH_USER_GROUPS.USER_ID.eq(record.getValue(AUTH_USERS.ID)))
-                .fetch()
-                .map(rec -> UserGroup.valueOf(rec.getValue(AUTH_GROUPS.NAME))))
-            .build()
-        ).stream().findFirst();
+        .fetchOptional(AUTH_USERS.USERNAME);
   }
 
-  public int addUserToken(User user, AccessToken token) {
+  public int addUserToken(String username, AccessToken token) {
     return dsl.insertInto(AUTH_TOKENS,
         AUTH_TOKENS.TOKEN,
         AUTH_TOKENS.ADDRESS,
@@ -225,18 +216,24 @@ public class LoginManagerService implements UserDetailsService, Logging {
             DSL.val(token.getExpiresOn()),
             DSL.field(dsl.select(AUTH_USERS.ID)
                 .from(AUTH_USERS)
-                .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+                .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
                 .limit(1)
             )
         )
         .execute();
   }
 
-  public int expireUserTokens(User user) {
+  public int expireToken(UUID token) {
+    return dsl.deleteFrom(AUTH_TOKENS)
+        .where(AUTH_TOKENS.TOKEN.eq(token.toString()))
+        .execute();
+  }
+
+  public int expireUserTokens(String username) {
     return dsl.deleteFrom(AUTH_TOKENS)
         .where(AUTH_TOKENS.USER_ID.eq(dsl.select(AUTH_USERS.ID)
             .from(AUTH_USERS)
-            .where(AUTH_USERS.USERNAME.equalIgnoreCase(user.getUsername()))
+            .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
             .limit(1)
         ))
         .execute();

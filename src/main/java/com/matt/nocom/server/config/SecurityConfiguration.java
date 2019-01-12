@@ -111,6 +111,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
           .authenticationEntryPoint(((request, response, authException) -> response.sendError(403, "Access denied")))
         .and()
         .csrf().disable()
-        .addFilterBefore(new AuthenticationTokenFilter(login), BasicAuthenticationFilter.class);
+        .addFilterBefore(new AuthenticationTokenFilter(login, authenticationManager()), BasicAuthenticationFilter.class);
   }
 }
