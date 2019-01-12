@@ -6,6 +6,7 @@ import com.matt.nocom.server.exception.IllegalUsernameException;
 import com.matt.nocom.server.model.ApiError;
 import com.matt.nocom.server.model.EmptyModel;
 import com.matt.nocom.server.auth.UserGroup;
+import com.matt.nocom.server.model.auth.UserRegistration;
 import com.matt.nocom.server.model.auth.UsernamePassword;
 import com.matt.nocom.server.model.auth.UsernameToken;
 import com.matt.nocom.server.auth.AccessToken;
@@ -99,7 +100,7 @@ public class UserController implements Logging {
       consumes = "application/json",
       produces = "application/json")
   @ResponseBody
-  public ResponseEntity register(@RequestBody User details) {
+  public ResponseEntity register(@RequestBody UserRegistration details) {
     if(login.usernameExists(details.getUsername()))
       return ApiError.builder()
           .status(HttpStatus.NOT_ACCEPTABLE)
@@ -112,20 +113,21 @@ public class UserController implements Logging {
           .message("Password must be at least " + Properties.MIN_PASSWORD_LEN + " characters long.")
           .asResponseEntity();
 
-    // encode the users password
-    details.setPassword(passwordEncoder.encode(details.getPassword()));
-    // remove the debug groups
-    details.setGroups(details.getGroups().stream()
-        .filter(UserGroup::isAllowed)
-        .collect(Collectors.toSet()));
+    User user = User.builder()
+        .username(details.getUsername())
+        .password(passwordEncoder.encode(details.getPassword()))
+        .groups(details.getGroups().stream()
+            .filter(UserGroup::isAllowed)
+            .collect(Collectors.toSet()))
+        .build();
 
     try {
       // add the user to the database
-      login.addUser(details);
+      login.addUser(user);
 
       // add the user to any groups provided
-      for (UserGroup group : details.getGroups())
-        login.addUserToGroup(details.getUsername(), group);
+      for (UserGroup group : user.getGroups())
+        login.addUserToGroup(user.getUsername(), group);
 
       return ResponseEntity.ok(EmptyModel.getInstance());
     } catch (IllegalUsernameException e) {
