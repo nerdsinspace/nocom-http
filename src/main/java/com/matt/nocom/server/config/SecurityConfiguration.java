@@ -4,7 +4,9 @@ import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.auth.UserGroup;
 import com.matt.nocom.server.service.LoginManagerService;
 import com.matt.nocom.server.util.AuthenticationTokenFilter;
+import com.matt.nocom.server.util.Util;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @ComponentScan({"com.matt.nocom.server.service"})
@@ -37,6 +40,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
       "/user/**",
       "/manager"
   };
+
+  private static final List<RequestMatcher> REST_API_MATCHERS = Util.antMatchers("/api/**", "/user/**");
 
   private final LoginManagerService login;
 
@@ -108,7 +113,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
                     .collect(Collectors.joining(", ")));
             response.sendRedirect(request.getContextPath() + "/access-denied");
           }))
-          .authenticationEntryPoint(((request, response, authException) -> response.sendError(403, "Access denied")))
+          .authenticationEntryPoint(((request, response, authException) -> {
+            if(REST_API_MATCHERS.stream().anyMatch(matcher -> matcher.matches(request)))
+              response.sendError(403, "Access denied");
+            else
+              response.sendRedirect("/");
+          }))
         .and()
         .csrf().disable()
         .addFilterBefore(new AuthenticationTokenFilter(login, authenticationManager()), BasicAuthenticationFilter.class);

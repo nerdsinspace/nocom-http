@@ -2,8 +2,14 @@ package com.matt.nocom.server.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.AntPathMatcher;
 
 public class Util {
   public static boolean arraysSameLength(Object[]... arrays) {
@@ -26,5 +32,11 @@ public class Util {
 
   public static UsernamePasswordAuthenticationToken toAuthenticationToken(UserDetails details) {
     return new UsernamePasswordAuthenticationToken(details.getUsername(), details.getPassword(), details.getAuthorities());
+  }
+
+  public static List<RequestMatcher> antMatchers(String... uris) {
+    return Arrays.stream(uris)
+        .map(uri -> new AntPathRequestMatcher(uri, null))
+        .collect(Collectors.toList());
   }
 }
