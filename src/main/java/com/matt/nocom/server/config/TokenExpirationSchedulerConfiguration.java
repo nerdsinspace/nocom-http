@@ -1,6 +1,9 @@
 package com.matt.nocom.server.config;
 
+import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.service.LoginManagerService;
+import java.time.Instant;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -36,9 +39,9 @@ public class TokenExpirationSchedulerConfiguration implements SchedulingConfigur
             .map(Date::new)
             .orElseGet(() -> Optional.ofNullable(context.lastActualExecutionTime())
                 .map(Date::toInstant)
-                .map(time -> time.plusSeconds(3600))
+                .map(time -> time.plusMillis(Properties.TOKEN_EXPIRATION)) // a new token will never be under this time
                 .map(Date::from)
-                .orElseGet(Date::new)
+                .orElseGet(() -> Date.from(Instant.now().plusSeconds(30))) // run expire tokens once on startup
             )
     );
   }
