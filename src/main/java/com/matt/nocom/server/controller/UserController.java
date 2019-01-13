@@ -128,8 +128,7 @@ public class UserController implements Logging {
       login.addUser(user);
 
       // add the user to any groups provided
-      for (UserGroup group : user.getGroups())
-        login.addUserToGroup(user.getUsername(), group);
+      login.addUserToGroups(user.getUsername(), user.getGroups().toArray(new UserGroup[0]));
 
       return ResponseEntity.ok(EmptyModel.getInstance());
     } catch (IllegalUsernameException e) {
