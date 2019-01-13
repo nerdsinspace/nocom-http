@@ -2,12 +2,10 @@ package com.matt.nocom.server.controller;
 
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.model.ApiError;
 import com.matt.nocom.server.model.game.Dimension;
-import com.matt.nocom.server.model.EmptyModel;
 import com.matt.nocom.server.model.game.Location;
 import com.matt.nocom.server.model.game.LocationGroup;
-import com.matt.nocom.server.model.SearchFilter;
+import com.matt.nocom.server.model.game.SearchFilter;
 import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.util.factory.LocationGroupFactory;
 import java.util.Arrays;
@@ -18,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("api")
@@ -33,13 +33,11 @@ public class APIController implements Logging {
       method = RequestMethod.POST,
       consumes = "application/json",
       produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity addLocations(@RequestBody Location[] locations) {
+  public void addLocations(@RequestBody Location[] locations) {
     if(locations.length < 1)
-      return ApiError.builder()
-          .status(HttpStatus.BAD_REQUEST)
-          .message("Must provide at least one location")
-          .asResponseEntity();
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Must contain at least one location object.");
 
     api.addServers(Arrays.stream(locations)
         .map(Location::getServer)
@@ -51,8 +49,6 @@ public class APIController implements Logging {
         .collect(Collectors.toSet()));
 
     api.addLocations(Arrays.asList(locations));
-
-    return ResponseEntity.ok(EmptyModel.getInstance());
   }
 
   @RequestMapping(value = "/search/locations",
