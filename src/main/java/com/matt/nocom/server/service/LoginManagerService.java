@@ -14,6 +14,7 @@ import com.matt.nocom.server.auth.UserGroup;
 import com.matt.nocom.server.auth.User;
 import com.matt.nocom.server.util.Util;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -132,32 +133,37 @@ public class LoginManagerService implements UserDetailsService, Logging {
     return getGroups(DSL.noCondition());
   }
 
-  public int addUserToGroup(String username, UserGroup group) {
-    return dsl.insertInto(AUTH_USER_GROUPS, AUTH_USER_GROUPS.USER_ID, AUTH_USER_GROUPS.GROUP_ID)
-        .values(
-            DSL.field(dsl.select(AUTH_USERS.ID)
-                .from(AUTH_USERS)
-                .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
-                .limit(1)),
-            DSL.field(dsl.select(AUTH_GROUPS.ID)
-                .from(AUTH_GROUPS)
-                .where(AUTH_GROUPS.NAME.equalIgnoreCase(group.getName()))
-                .limit(1))
-        )
-        .execute();
+  public int[] addUserToGroups(String username, UserGroup... groups) {
+    return dsl.batch(
+        Arrays.stream(groups)
+            .map(group -> dsl.insertInto(AUTH_USER_GROUPS, AUTH_USER_GROUPS.USER_ID, AUTH_USER_GROUPS.GROUP_ID)
+                .values(
+                    DSL.field(dsl.select(AUTH_USERS.ID)
+                        .from(AUTH_USERS)
+                        .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
+                        .limit(1)),
+                    DSL.field(dsl.select(AUTH_GROUPS.ID)
+                        .from(AUTH_GROUPS)
+                        .where(AUTH_GROUPS.NAME.equalIgnoreCase(group.getName()))
+                        .limit(1))))
+            .collect(Collectors.toList())
+    ).execute();
   }
 
-  public int removeUserFromGroup(String username, UserGroup group) {
-    return dsl.deleteFrom(AUTH_USER_GROUPS)
-        .where(AUTH_USER_GROUPS.GROUP_ID.eq(dsl.select(AUTH_GROUPS.ID)
-            .from(AUTH_GROUPS)
-            .where(AUTH_GROUPS.NAME.eq(group.getName()))
-            .limit(1)))
-        .and(AUTH_USER_GROUPS.USER_ID.eq(dsl.select(AUTH_USERS.ID)
-            .from(AUTH_USERS)
-            .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
-            .limit(1)))
-        .execute();
+  public int[] removeUserFromGroups(String username, UserGroup... groups) {
+    return dsl.batch(
+        Arrays.stream(groups)
+            .map(group -> dsl.deleteFrom(AUTH_USER_GROUPS)
+                .where(AUTH_USER_GROUPS.GROUP_ID.eq(dsl.select(AUTH_GROUPS.ID)
+                    .from(AUTH_GROUPS)
+                    .where(AUTH_GROUPS.NAME.eq(group.getName()))
+                    .limit(1)))
+                .and(AUTH_USER_GROUPS.USER_ID.eq(dsl.select(AUTH_USERS.ID)
+                    .from(AUTH_USERS)
+                    .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
+                    .limit(1))))
+            .collect(Collectors.toList())
+    ).execute();
   }
 
   private List<AccessToken> getTokens(Condition condition) {
