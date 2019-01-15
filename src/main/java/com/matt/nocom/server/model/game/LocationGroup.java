@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.matt.nocom.server.model.LocationGroup.Serializer;
+import com.matt.nocom.server.model.game.LocationGroup.Serializer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
