@@ -1,6 +1,6 @@
 package com.matt.nocom.server.controller;
 
-import com.matt.nocom.server.model.auth.UserGroup;
+import com.matt.nocom.server.auth.UserGroup;
 import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.service.LoginManagerService;
 import java.util.Optional;

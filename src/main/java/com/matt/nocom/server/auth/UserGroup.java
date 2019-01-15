@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model.auth;
+package com.matt.nocom.server.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.matt.nocom.server.Properties;
@@ -11,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 public enum UserGroup implements GrantedAuthority {
   DEBUG(0),
   ADMIN(0),
-  USER(4),
   DEV(4),
   ;
 

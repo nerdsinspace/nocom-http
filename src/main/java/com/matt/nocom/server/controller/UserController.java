@@ -1,21 +1,28 @@
 package com.matt.nocom.server.controller;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.exception.IllegalPasswordException;
+import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.exception.IllegalUsernameException;
+import com.matt.nocom.server.exception.ShortPasswordException;
 import com.matt.nocom.server.model.ApiError;
-import com.matt.nocom.server.model.auth.UserGroup;
-import com.matt.nocom.server.model.auth.UsernamePasswordRequest;
-import com.matt.nocom.server.model.auth.AuthenticatedResponse;
-import com.matt.nocom.server.model.auth.AccessToken;
-import com.matt.nocom.server.model.auth.User;
+import com.matt.nocom.server.model.EmptyModel;
+import com.matt.nocom.server.auth.UserGroup;
+import com.matt.nocom.server.model.auth.UserRegistration;
+import com.matt.nocom.server.model.auth.UsernamePassword;
+import com.matt.nocom.server.model.auth.UsernameToken;
+import com.matt.nocom.server.auth.AccessToken;
+import com.matt.nocom.server.auth.User;
 import com.matt.nocom.server.service.LoginManagerService;
+import com.matt.nocom.server.util.CredentialsChecker;
 import com.matt.nocom.server.util.Util;
 import com.matt.nocom.server.util.factory.AccessTokenFactory;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +34,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("user")
@@ -51,8 +61,8 @@ public class UserController implements Logging {
       consumes = "application/json",
       produces = "application/json")
   @ResponseBody
-  public ResponseEntity<AuthenticatedResponse> login(
-      @RequestBody UsernamePasswordRequest details,
+  public ResponseEntity login(
+      @RequestBody UsernamePassword details,
       HttpServletRequest request) {
     User user = login.getUser(details.getUsername())
         .filter(User::isNotDebugUser)
@@ -65,16 +75,15 @@ public class UserController implements Logging {
         .orElseGet(() -> User.builder()
             .username(details.getUsername())
             .password(details.getPassword())
-            .groups(Collections.emptySet())
             .build());
 
     Authentication authentication = auth.authenticate(user.toAuthenticationToken());
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     AccessToken token = AccessTokenFactory.generate(Util.stringToAddress(request.getRemoteAddr()));
-    login.addUserToken(user, token);
+    login.addUserToken(user.getUsername(), token);
 
-    return ResponseEntity.ok(AuthenticatedResponse.builder()
+    return ResponseEntity.ok(UsernameToken.builder()
         .username(user.getUsername())
         .token(token.getToken())
         .build());
@@ -92,63 +101,88 @@ public class UserController implements Logging {
       method = RequestMethod.POST,
       consumes = "application/json",
       produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity register(@RequestBody User details) {
+  public void register(@RequestBody UserRegistration details) {
     if(login.usernameExists(details.getUsername()))
-      return ApiError.builder()
-          .status(HttpStatus.NOT_ACCEPTABLE)
-          .message("username already exists")
-          .asResponseEntity();
-
-    // encode the users password
-    details.setPassword(passwordEncoder.encode(details.getPassword()));
-    // remove the debug groups
-    details.setGroups(details.getGroups().stream()
-        .filter(UserGroup::isAllowed)
-        .collect(Collectors.toSet()));
+      throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Username already exists.");
 
     try {
+      CredentialsChecker.checkUsername(details.getUsername());
+      CredentialsChecker.checkPasswordLength(details.getPassword());
+
+      User user = User.builder()
+          .username(details.getUsername())
+          .password(passwordEncoder.encode(details.getPassword()))
+          .groups(details.getGroups().stream()
+              .filter(UserGroup::isAllowed)
+              .collect(Collectors.toSet()))
+          .build();
+
       // add the user to the database
-      login.addUser(details);
+      login.addUser(user);
 
       // add the user to any groups provided
-      for (UserGroup group : details.getGroups())
-        login.addUserToGroup(details, group);
-
-      return ResponseEntity.ok().body(null);
-    } catch (IllegalUsernameException | IllegalPasswordException e) {
-      return ApiError.builder()
-          .status(HttpStatus.NOT_ACCEPTABLE)
-          .message(e.getMessage())
-          .asResponseEntity();
+      login.addUserToGroups(user.getUsername(), user.getGroups().toArray(new UserGroup[0]));
+    } catch (IllegalUsernameException | ShortPasswordException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, e.getLocalizedMessage(), e);
     }
   }
 
   @RequestMapping(value = "/unregister/{username}",
       method = RequestMethod.GET,
       produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity unregister(@PathVariable("username") String username) {
-    login.removeUser(User.nameOnly(username));
-    return ResponseEntity.ok().build();
+  public void unregister(@PathVariable("username") String username) {
+    login.removeUser(username);
   }
 
-  @RequestMapping(value = "/tokens/{username}",
+  @RequestMapping(value = "/tokens",
       method = RequestMethod.GET,
       produces = "application/json")
   @ResponseBody
-  public ResponseEntity<AccessToken[]> getUserAccessTokens(@PathVariable("username") String username) {
-    return ResponseEntity.ok(login.getUserTokens(User.nameOnly(username)).stream()
+  public ResponseEntity<AccessToken[]> getAccessTokens() {
+    return ResponseEntity.ok(login.getTokens().stream()
         .sorted(Comparator.comparingLong(AccessToken::getExpiresOn))
         .toArray(AccessToken[]::new));
   }
 
-  @RequestMapping(value = "/tokens/{username}/expire",
+  @RequestMapping(value = "/tokens/user/{username}",
       method = RequestMethod.GET,
       produces = "application/json")
   @ResponseBody
-  public ResponseEntity expireUserTokens(@PathVariable("username") String username) {
-    login.expireUserTokens(User.nameOnly(username));
-    return ResponseEntity.ok().build();
+  public ResponseEntity<AccessToken[]> getUserAccessTokens(@PathVariable("username") String username) {
+    return ResponseEntity.ok(login.getUserTokens(username).stream()
+        .sorted(Comparator.comparingLong(AccessToken::getExpiresOn))
+        .toArray(AccessToken[]::new));
+  }
+
+  @RequestMapping(value = "/tokens/user/{username}/expire",
+      method = RequestMethod.GET,
+      produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void expireUserTokens(@PathVariable("username") String username) {
+    login.expireUserTokens(username);
+  }
+
+  @RequestMapping(value = "/tokens/expire/{uuid}",
+      method = RequestMethod.GET,
+      produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void expireUuid(@PathVariable("uuid") String uuid) {
+    login.expireToken(UUID.fromString(uuid));
+  }
+
+  @RequestMapping(value = "/set/enabled/{username}",
+      method = RequestMethod.GET,
+      produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void setUserEnabled(@PathVariable("username") String username,
+      @RequestParam("enabled") boolean enabled) {
+    login.setUserEnabled(username, enabled);
   }
 }

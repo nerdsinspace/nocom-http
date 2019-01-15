@@ -5,11 +5,10 @@ import static com.matt.nocom.server.sqlite.Tables.LOCATIONS;
 import static com.matt.nocom.server.sqlite.Tables.POSITIONS;
 import static com.matt.nocom.server.sqlite.Tables.SERVERS;
 
-import com.matt.nocom.server.model.Dimension;
-import com.matt.nocom.server.model.Location;
-import com.matt.nocom.server.model.Position;
-import com.matt.nocom.server.model.SearchFilter;
-import java.util.Arrays;
+import com.matt.nocom.server.model.game.Dimension;
+import com.matt.nocom.server.model.game.Location;
+import com.matt.nocom.server.model.game.Position;
+import com.matt.nocom.server.model.game.SearchFilter;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

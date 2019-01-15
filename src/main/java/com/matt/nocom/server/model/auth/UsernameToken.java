@@ -1,5 +1,7 @@
 package com.matt.nocom.server.model.auth;
 
+import java.io.Serializable;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsernamePasswordRequest {
+public class UsernameToken implements Serializable {
   private String username;
-  private String password;
+  private UUID token;
 }

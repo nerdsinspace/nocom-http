@@ -1,10 +1,9 @@
-package com.matt.nocom.server.model.auth;
+package com.matt.nocom.server.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.matt.nocom.server.Properties;
+import com.matt.nocom.server.util.Util;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -24,12 +23,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
-  public static User nameOnly(String username) {
-    return User.builder()
-        .username(username)
-        .build();
-  }
-
   private String username;
   private String password; // encrypted
 
@@ -69,7 +62,7 @@ public class User implements UserDetails {
   }
 
   public UsernamePasswordAuthenticationToken toAuthenticationToken() {
-    return new UsernamePasswordAuthenticationToken(getUsername(), getPassword(), getAuthorities());
+    return Util.toAuthenticationToken(this);
   }
 
   @Override
