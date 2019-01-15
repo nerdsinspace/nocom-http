@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model;
+package com.matt.nocom.server.model.game;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

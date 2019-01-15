@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model;
+package com.matt.nocom.server.model.game;
 
 import static com.matt.nocom.server.sqlite.Tables.DIMENSIONS;
 import static com.matt.nocom.server.sqlite.Tables.LOCATIONS;

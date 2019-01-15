@@ -1,10 +1,9 @@
 package com.matt.nocom.server.util.factory;
 
 import com.google.common.collect.Lists;
-import com.matt.nocom.server.model.Location;
-import com.matt.nocom.server.model.LocationGroup;
-import com.matt.nocom.server.model.Position;
-import java.util.Collections;
+import com.matt.nocom.server.model.game.Location;
+import com.matt.nocom.server.model.game.LocationGroup;
+import com.matt.nocom.server.model.game.Position;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;

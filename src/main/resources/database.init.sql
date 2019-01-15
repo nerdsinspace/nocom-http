@@ -79,4 +79,4 @@ CREATE TABLE IF NOT EXISTS Auth_Tokens (
 
 INSERT OR IGNORE INTO Auth_Users (username, password) VALUES ('root', '***REMOVED***');
 INSERT OR IGNORE INTO Auth_Groups (name, level) VALUES ('DEBUG', 666), ('ADMIN', 0), ('DEV', 4);
-INSERT OR IGNORE INTO Auth_User_Groups (user_id, group_id) VALUES (01, 01);
+INSERT OR IGNORE INTO Auth_User_Groups (user_id, group_id) VALUES ((SELECT id FROM Auth_Users WHERE username = 'root' LIMIT 1) , (SELECT id FROM Auth_Groups WHERE name = 'DEBUG' LIMIT 1));
