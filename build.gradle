@@ -138,12 +138,22 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-/*processResources {
-    filter ReplaceTokens, tokens: [
-            'db.path': project.property('db.path')
-    ]
-}*/
+processResources {
+
+    filesMatching('*.properties') {
+        println it
+
+        filter ReplaceTokens, tokens: [
+                'db.path': project.property('db.path')
+        ]
+    }
+
+}
 
 task replaceConfigTokens() {
 
+}
+
+bootRun {
+    jvmArgs = ['-Dnocom.debug.auth=true']
 }
