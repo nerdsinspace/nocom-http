@@ -122,12 +122,12 @@ const ListView = (function() {
         jList.append(row);
 
 
-        // fix this poz code
+        // TODO: fix this poz code
 
         const baseUrl = 'secret/chunkviewer/index.html';
         if (downloaded != null) {
           const collapsibleRow = $('<tr align="center">');
-          const collapsibleCell = $('<td colspan="666" style="border-top: 0">');
+          const collapsibleCell = $('<td colspan="666" style="border-top: 0; padding: 0;">');
           collapsibleRow.append(collapsibleCell);
           collapsibleCell.append(
              (divDownloaded = $('<div class="content">')).append(iframeDownloaded = $('<iframe width="600" height="600">')) //  src="secret/chunkviewer/index.html" width="500" height="500"
@@ -138,7 +138,7 @@ const ListView = (function() {
         }
         if (generated != null) {
           const collapsibleRow = $('<tr align="center">');
-          const collapsibleCell = $('<td colspan="666" style="border-top: 0">');
+          const collapsibleCell = $('<td colspan="666" style="border-top: 0; padding: 0;">');
           collapsibleRow.append(collapsibleCell);
           collapsibleCell.append(
              (divGenerated = $('<div class="content">')).append(iframeGenerated = $('<iframe width="600" height="600">'))
