@@ -1,6 +1,7 @@
 package com.matt.nocom.server;
 
 import java.nio.file.Paths;
+import java.time.Duration;
 import org.springframework.lang.Nullable;
 
 public interface Properties {
@@ -11,16 +12,13 @@ public interface Properties {
 
   String DATABASE_PATH    = System.getProperty("nocom.database", Paths.get("locations.db").toAbsolutePath().toString());
 
-  long TOKEN_EXPIRATION   = Long.valueOf(System.getProperty("nocom.login.expiration", "86400000")); // default to 1 day
+  long TOKEN_EXPIRATION   = Long.valueOf(System.getProperty("nocom.login.expiration", String.valueOf(Duration.ofDays(1).toMillis()))); // default to 1 day
 
   int MIN_PASSWORD_LEN    = Integer.valueOf(System.getProperty("nocom.min.pass.length", "8"));
 
 
   String WORLDS_PATH      = System.getProperty("nocom.worlds", Paths.get("worlds").toAbsolutePath().toString());
-  String RENDER_PATH      = System.getProperty("nocom.renders", Paths.get("renders").toAbsolutePath().toString());
 
-  @Nullable
-  String MAPCRAFTER_PATH  = System.getProperty("nocom.mapcrafter"); // path to exe
   @Nullable
   String SPIGOT_PATH      = System.getProperty("nocom.spigot"); // path to jar
 
