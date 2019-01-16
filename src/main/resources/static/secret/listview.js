@@ -15,8 +15,12 @@ const ListView = (function() {
 
   };
 
-  const makeCollapsible = (button, div) => {
+  const makeCollapsible = (button, div, iframe, src) => {
     button.click(() => {
+      if (iframe.attr('src') == undefined) {
+        iframe.attr('src', src)
+      }
+
       if (div[0].style.maxHeight){
         div[0].style.maxHeight = null;
       } else {
@@ -84,51 +88,66 @@ const ListView = (function() {
           biomeDiv.append($('<p>').text(bName));
         });
 
-        const biomeCell =$('<td class="dropdown">')
+        const biomeCell = $('<td class="dropdown">')
           .append(
             $('<button class="dropbtn">').text(biomes[0] != null ? biomes[0] : '')
               .append(biomeDiv)
           );
 
+        const downloaded = loc.downloaded;
+        const generated = loc.generated;
+
+
         var buttonDownloaded;
         var divDownloaded;
         var buttonGenerated;
         var divGenerated;
+        var iframeDownloaded
+        var iframeGenerated
 
         const mAligned = 'style="vertical-align: middle"';
-        jList.append(
-         $('<tr>')
+        const row = $('<tr>')
            .append($('<td ' + mAligned + '>').text(loc.x)) // X
            .append($('<td ' + mAligned + '>').text(loc.z)) // Z
            .append($('<td ' + mAligned + '>').text(dist)) // Distance
-           .append(biomeCell)
-
-           // TODO: embed iframe
-           // TODO: check if renders exist
-           // Render
-           .append($('<td>')
-             .append((buttonDownloaded = $('<button type="button" class = "collapsible">')).text('Downloaded'))
-             .append((buttonGenerated =  $('<button type="button" class = "collapsible" style="margin-right:0px;">')).text('Generated'))
-           )
-        );
-
-        // TODO: fix formatting
-        jList.append(
-         $('<tr align="center">')
-         .append(
-           $('<td colspan="666">').append(
-             (divDownloaded = $('<div class="content">')).text(':^)')
-           )
-           .append($('<td colspan="666">').append(
-              (divGenerated = $('<div class="content">')).text(':^)')
-             )
-           )
-         )
-        );
+           .append(biomeCell);
+        const renderCell = $('<td>');
+        if (downloaded != null) {
+          renderCell.append((buttonDownloaded = $('<button type="button" class = "collapsible">')).text('Downloaded'));
+        }
+        if (generated != null) {
+          renderCell.append((buttonGenerated =  $('<button type="button" class = "collapsible" style="margin-right:0px;">')).text('Generated'))
+        }
+        row.append(renderCell);
+        jList.append(row);
 
 
-        makeCollapsible(buttonDownloaded, divDownloaded);
-        makeCollapsible(buttonGenerated,  divGenerated);
+        // fix this poz code
+
+        const baseUrl = 'secret/chunkviewer/index.html';
+        if (downloaded != null) {
+          const collapsibleRow = $('<tr align="center">');
+          const collapsibleCell = $('<td colspan="666" style="border-top: 0">');
+          collapsibleRow.append(collapsibleCell);
+          collapsibleCell.append(
+             (divDownloaded = $('<div class="content">')).append(iframeDownloaded = $('<iframe width="600" height="600">')) //  src="secret/chunkviewer/index.html" width="500" height="500"
+          )
+          jList.append(collapsibleRow);
+
+          makeCollapsible(buttonDownloaded, divDownloaded, iframeDownloaded, baseUrl + '#todo:putsomethinghere');
+        }
+        if (generated != null) {
+          const collapsibleRow = $('<tr align="center">');
+          const collapsibleCell = $('<td colspan="666" style="border-top: 0">');
+          collapsibleRow.append(collapsibleCell);
+          collapsibleCell.append(
+             (divGenerated = $('<div class="content">')).append(iframeGenerated = $('<iframe width="600" height="600">'))
+          )
+          jList.append(collapsibleRow);
+
+          makeCollapsible(buttonGenerated,  divGenerated, iframeGenerated, baseUrl + '#todo:putsomethinghere');
+        }
+
       }
 
     });

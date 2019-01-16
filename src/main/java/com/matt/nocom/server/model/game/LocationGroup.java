@@ -71,8 +71,9 @@ public class LocationGroup implements Serializable {
         gen.writeStringField("server", value.getServer());
         gen.writeNumberField("dimension", value.getDimension());
 
-        gen.writeStringField("generatedUrl", "poz");
-        gen.writeNullField("downloadedUrl");
+        gen.writeStringField("downloaded", "2b2t.org/DOWNLOADED/0/0,0");
+        //gen.writeNullField("generated");
+        gen.writeStringField("generated", "2b2t.org/DOWNLOADED/0/0,0");
 
         gen.writeArrayFieldStart("positions");
         for (Position pos : value.getPositions()) gen.writeObject(pos);
