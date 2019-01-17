@@ -11,10 +11,13 @@ import lombok.AllArgsConstructor;
 public class Regions {
   private final Path regionPath;
 
-  public Optional<Path> getRegionAt(int x, int z) {
-    Path out = regionPath.resolve(String.format("r.%d.%d.mca", toRegion(x), toRegion(z)));
+  // may or may not exist
+  public Path getRegionAt(int x, int z) {
+    return regionPath.resolve(String.format("r.%d.%d.mca", toRegion(x), toRegion(z)));
+  }
 
-    return Files.exists(out) ? Optional.of(out) : Optional.empty();
+  public boolean hasRegionAt(int x, int z) {
+    return Files.exists(getRegionAt(x, z));
   }
 
   public Path getPath() {

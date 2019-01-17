@@ -31,6 +31,7 @@ public class MinecraftWorld {
 
   @Getter
   @AllArgsConstructor
+  // should be serialized as string as the identifier
   public enum Type {
     DOWNLOADED("Downloaded"),
     GENERATED("Generated");
