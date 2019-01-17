@@ -7,6 +7,7 @@ import com.matt.nocom.server.data.worlds.MinecraftWorld.Type;
 import com.matt.nocom.server.model.game.Dimension;
 import com.matt.nocom.server.model.game.Location;
 import com.matt.nocom.server.model.game.LocationGroup;
+import com.matt.nocom.server.model.game.RegionFileData;
 import com.matt.nocom.server.model.game.RegionFileFilter;
 import com.matt.nocom.server.model.game.SearchFilter;
 import com.matt.nocom.server.service.APIService;
@@ -14,11 +15,12 @@ import com.matt.nocom.server.util.factory.LocationGroupFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Base64;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -110,17 +112,17 @@ public class APIController implements Logging {
           .build();
     }
 
-    Optional<Path> filePath = new MinecraftWorld(request.getServer())
+    Path filePath = new MinecraftWorld(request.getServer())
         .ofType(Type.valueOf(request.getType()))
         .dimension(request.getDimension())
         .getRegionAt(request.getX(), request.getZ());
 
-    if (!filePath.isPresent()) {
+    if (!Files.exists(filePath)) {
       return ResponseEntity.notFound().build();
     }
 
     try {
-      ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(filePath.get()));
+      Resource resource = new FileSystemResource(filePath);
 
       return ResponseEntity.ok()
           .contentLength(resource.contentLength())
@@ -136,6 +138,28 @@ public class APIController implements Logging {
 
   private static <T extends Enum<T>> boolean enumExists(Class<T> type, String name) {
     return Stream.of(type.getEnumConstants()).anyMatch(member -> member.name().equals(name));
+  }
+
+  @RequestMapping(value = "/upload/region",
+      method = RequestMethod.POST,
+      consumes = "application/json",
+      produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity addRegionFile(@RequestBody RegionFileData regionData) {
+    final Path path = new MinecraftWorld(regionData.getServer())
+        .ofType(regionData.getType())
+        .dimension(regionData.getDimension())
+        .getRegionAt(regionData.getX(), regionData.getZ());
+
+    try {
+      // TODO: rename already existing files
+      Files.write(path, Base64.getDecoder().decode(regionData.getBase64Data()), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+      return ResponseEntity.ok().build();
+    } catch (IOException ex) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.toString());
+    }
   }
 
 }

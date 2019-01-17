@@ -125,6 +125,9 @@ const ListView = (function() {
         // TODO: fix this poz code
 
         const baseUrl = 'secret/chunkviewer/index.html';
+        // TODO: use proper url syntax
+        const getAppendage = type => loc.server + '/' + type  + '/' + loc.dimension + '/' + loc.x + ',' + loc.z;
+
         if (downloaded != null) {
           const collapsibleRow = $('<tr align="center">');
           const collapsibleCell = $('<td colspan="666" style="border-top: 0; padding: 0;">');
@@ -134,7 +137,7 @@ const ListView = (function() {
           )
           jList.append(collapsibleRow);
 
-          makeCollapsible(buttonDownloaded, divDownloaded, iframeDownloaded, baseUrl + '#todo:putsomethinghere');
+          makeCollapsible(buttonDownloaded, divDownloaded, iframeDownloaded, baseUrl + '#' + getAppendage('DOWNLOADED'));
         }
         if (generated != null) {
           const collapsibleRow = $('<tr align="center">');
@@ -145,7 +148,7 @@ const ListView = (function() {
           )
           jList.append(collapsibleRow);
 
-          makeCollapsible(buttonGenerated,  divGenerated, iframeGenerated, baseUrl + '#todo:putsomethinghere');
+          makeCollapsible(buttonGenerated,  divGenerated, iframeGenerated, baseUrl + '#' + getAppendage('GENERATED'));
         }
 
       }
