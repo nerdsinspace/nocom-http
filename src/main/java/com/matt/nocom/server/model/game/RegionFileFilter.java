@@ -1,6 +1,7 @@
 package com.matt.nocom.server.model.game;
 
 
+import com.matt.nocom.server.data.worlds.MinecraftWorld;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,7 @@ public class RegionFileFilter implements Serializable {
 
   private String server;
 
-  private String type; // "DOWNLOADED" or "GENERATED"
+  private MinecraftWorld.Type type; // "DOWNLOADED" or "GENERATED"
 
   private int dimension;
 
