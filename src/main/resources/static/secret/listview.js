@@ -94,8 +94,9 @@ const ListView = (function() {
               .append(biomeDiv)
           );
 
-        const downloaded = loc.downloaded;
-        const generated = loc.generated;
+        // booleans
+        const downloaded = loc.downloaded_exists;
+        const generated = loc.generated_exists;
 
 
         var buttonDownloaded;
@@ -112,10 +113,10 @@ const ListView = (function() {
            .append($('<td ' + mAligned + '>').text(dist)) // Distance
            .append(biomeCell);
         const renderCell = $('<td>');
-        if (downloaded != null) {
+        if (downloaded) {
           renderCell.append((buttonDownloaded = $('<button type="button" class = "collapsible">')).text('Downloaded'));
         }
-        if (generated != null) {
+        if (generated) {
           renderCell.append((buttonGenerated =  $('<button type="button" class = "collapsible" style="margin-right:0px;">')).text('Generated'))
         }
         row.append(renderCell);
@@ -125,10 +126,9 @@ const ListView = (function() {
         // TODO: fix this poz code
 
         const baseUrl = 'secret/chunkviewer/index.html';
-        // TODO: use proper url syntax
-        const getAppendage = type => loc.server + '/' + type  + '/' + loc.dimension + '/' + loc.x + ',' + loc.z;
+        const getQuery = type => '?server=' + loc.server + '&type=' + type + '&dim=' + loc.dimension + '&x=' + loc.x + '&z=' + loc.z;
 
-        if (downloaded != null) {
+        if (downloaded) {
           const collapsibleRow = $('<tr align="center">');
           const collapsibleCell = $('<td colspan="666" style="border-top: 0; padding: 0;">');
           collapsibleRow.append(collapsibleCell);
@@ -137,9 +137,9 @@ const ListView = (function() {
           )
           jList.append(collapsibleRow);
 
-          makeCollapsible(buttonDownloaded, divDownloaded, iframeDownloaded, baseUrl + '#' + getAppendage('DOWNLOADED'));
+          makeCollapsible(buttonDownloaded, divDownloaded, iframeDownloaded, baseUrl + getQuery('DOWNLOADED'));
         }
-        if (generated != null) {
+        if (generated) {
           const collapsibleRow = $('<tr align="center">');
           const collapsibleCell = $('<td colspan="666" style="border-top: 0; padding: 0;">');
           collapsibleRow.append(collapsibleCell);
@@ -148,7 +148,7 @@ const ListView = (function() {
           )
           jList.append(collapsibleRow);
 
-          makeCollapsible(buttonGenerated,  divGenerated, iframeGenerated, baseUrl + '#' + getAppendage('GENERATED'));
+          makeCollapsible(buttonGenerated,  divGenerated, iframeGenerated, baseUrl + getQuery('GENERATED'));
         }
 
       }

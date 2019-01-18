@@ -106,14 +106,8 @@ public class APIController implements Logging {
       method = RequestMethod.POST,
       consumes = "application/json")
   public ResponseEntity<Resource> downloadRegionFile(@RequestBody RegionFileFilter request) {
-    if (!enumExists(MinecraftWorld.Type.class, request.getType())) {
-      return ResponseEntity.badRequest()
-          .header("message", "Invalid type, expected \"DOWNLOADED\" or \"GENERATED\"")
-          .build();
-    }
-
     Path filePath = new MinecraftWorld(request.getServer())
-        .ofType(Type.valueOf(request.getType()))
+        .ofType(request.getType())
         .dimension(request.getDimension())
         .getRegionAt(request.getX(), request.getZ());
 
@@ -134,10 +128,6 @@ public class APIController implements Logging {
           .header("cause", ex.toString())
           .build();
     }
-  }
-
-  private static <T extends Enum<T>> boolean enumExists(Class<T> type, String name) {
-    return Stream.of(type.getEnumConstants()).anyMatch(member -> member.name().equals(name));
   }
 
   @RequestMapping(value = "/upload/region",
