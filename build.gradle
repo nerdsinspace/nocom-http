@@ -141,8 +141,7 @@ dependencies {
 processResources {
 
     filesMatching('*.properties') {
-        println it
-
+        //println it
         filter ReplaceTokens, tokens: [
                 'db.path': project.property('db.path')
         ]
