@@ -27,7 +27,7 @@ public class TokenExpirationSchedulerConfiguration implements SchedulingConfigur
 
   @Bean(destroyMethod = "shutdown")
   public ExecutorService taskExecutor() {
-    return Executors.newScheduledThreadPool(1);
+    return Executors.newSingleThreadScheduledExecutor();
   }
 
   @Override
@@ -36,7 +36,10 @@ public class TokenExpirationSchedulerConfiguration implements SchedulingConfigur
     taskRegistrar.addTriggerTask(
         login::clearExpiredTokens,
         context -> login.getNextExpirationTime()
-            .map(Date::new)
+            .map(time -> Math.max(time, System.currentTimeMillis()))
+            .map(Instant::ofEpochMilli)
+            .map(in -> in.plusSeconds(30))
+            .map(Date::from)
             .orElseGet(() -> Optional.ofNullable(context.lastActualExecutionTime())
                 .map(Date::toInstant)
                 .map(time -> time.plusMillis(Properties.TOKEN_EXPIRATION)) // a new token will never be under this time

@@ -128,11 +128,13 @@ dependencies {
 }
 
 processResources {
-    filter ReplaceTokens, tokens: [
-        'db.path': project.property('db.path')
-    ]
+    filesMatching('**/*.properties') {
+        filter ReplaceTokens, tokens: [
+                'db.path': project.property('db.path')
+        ]
+    }
 }
 
-task replaceConfigTokens() {
-
+bootRun {
+    jvmArgs = ['-Dnocom.debug.auth=true']
 }

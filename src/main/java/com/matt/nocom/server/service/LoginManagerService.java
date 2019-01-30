@@ -253,9 +253,9 @@ public class LoginManagerService implements UserDetailsService, Logging {
   }
 
   public int clearExpiredTokens() {
-    LOGGER.trace("Expired tokens cleared");
+    LOGGER.info("Expired tokens cleared");
     return dsl.deleteFrom(AUTH_TOKENS)
-        .where(AUTH_TOKENS.EXPIRES_ON.ge(System.currentTimeMillis()))
+        .where(AUTH_TOKENS.EXPIRES_ON.le(System.currentTimeMillis()))
         .execute();
   }
 

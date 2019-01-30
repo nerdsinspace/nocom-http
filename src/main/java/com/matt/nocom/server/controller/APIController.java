@@ -5,12 +5,14 @@ import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.model.game.Dimension;
 import com.matt.nocom.server.model.game.Location;
 import com.matt.nocom.server.model.game.LocationGroup;
+import com.matt.nocom.server.model.game.Position;
 import com.matt.nocom.server.model.game.SearchFilter;
 import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.util.factory.LocationGroupFactory;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +47,7 @@ public class APIController implements Logging {
         .collect(Collectors.toSet()));
 
     api.addPositions(Arrays.stream(locations)
-        .map(Location::getPosition)
+        .map(Location::toPosition)
         .collect(Collectors.toSet()));
 
     api.addLocations(Arrays.asList(locations));
@@ -68,10 +70,22 @@ public class APIController implements Logging {
   public ResponseEntity<LocationGroup[]> getLocationGroups(@RequestBody SearchFilter filter) {
     filter.forceGrouping();
     return ResponseEntity.ok(
-        LocationGroupFactory.translate(api.getLocations(filter), filter.getGroupingRange()).stream()
+        LocationGroupFactory.translate2(api.getLocations(filter), filter.getGroupingRange()).stream()
             .filter(g -> g.getPositions().size() >= MoreObjects.firstNonNull(filter.getMinHits(), 0))
             .toArray(LocationGroup[]::new)
     );
+  }
+
+  @RequestMapping(value = "/search/locations/list",
+      method = RequestMethod.POST ,
+      consumes = "application/json",
+      produces = MediaType.TEXT_PLAIN_VALUE)
+  @ResponseBody
+  public ResponseEntity<String> listLocations(@RequestBody SearchFilter filter) {
+    return ResponseEntity.ok(api.getLocations(filter).stream()
+        .map(Location::toPosition)
+        .map(Position::toString)
+        .collect(Collectors.joining("\n")));
   }
 
   @RequestMapping(value = "/servers", method = RequestMethod.GET, produces = "application/json")
@@ -84,5 +98,12 @@ public class APIController implements Logging {
   @ResponseBody
   public ResponseEntity<Dimension[]> getDimensions() {
     return ResponseEntity.ok(api.getDimensions().toArray(new Dimension[0]));
+  }
+
+  @RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void test() {
+    api.test();
   }
 }
