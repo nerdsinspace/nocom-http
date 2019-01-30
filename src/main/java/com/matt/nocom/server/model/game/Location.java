@@ -1,6 +1,8 @@
 package com.matt.nocom.server.model.game;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.matt.nocom.server.util.WorldEntry;
+import com.matt.nocom.server.util.VectorXZ;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -16,7 +18,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Location implements Serializable {
+public class Location implements Serializable, VectorXZ, WorldEntry {
   /**
    * The time the location was found in unix time
    */
@@ -50,7 +52,7 @@ public class Location implements Serializable {
   private int dimension;
 
   @JsonIgnore
-  public Position getPosition() {
+  public Position toPosition() {
     return Position.builder()
         .x(getX())
         .z(getZ())
