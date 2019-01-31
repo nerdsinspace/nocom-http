@@ -1,5 +1,6 @@
 package com.matt.nocom.server.model.game;
 
+import com.matt.nocom.server.util.VectorXZ;
 import java.io.Serializable;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Position implements Serializable {
+public class Position implements Serializable, VectorXZ {
   private int x;
   private int z;
 
