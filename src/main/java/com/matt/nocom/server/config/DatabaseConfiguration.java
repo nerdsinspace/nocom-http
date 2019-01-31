@@ -1,5 +1,7 @@
 package com.matt.nocom.server.config;
 
+import com.matt.nocom.server.Logging;
+import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.util.JOOQToSpringExceptionTransformer;
 import java.nio.file.Paths;
 import javax.sql.DataSource;
@@ -28,7 +30,7 @@ import org.sqlite.SQLiteDataSource;
 @ComponentScan({"com.matt.nocom.server.service"})
 @EnableTransactionManagement
 @PropertySource("database.properties")
-public class DatabaseConfiguration {
+public class DatabaseConfiguration implements Logging {
   private final Environment env;
 
   @Autowired
@@ -92,6 +94,13 @@ public class DatabaseConfiguration {
 
     ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
     populator.addScript(new ClassPathResource(env.getRequiredProperty("db.schema")));
+
+    if(Properties.DEBUG_AUTH) {
+      LOGGER.debug("Debug sql script loaded");
+      populator.addScript(new ClassPathResource(env.getRequiredProperty("db.debug")));
+    } else {
+      populator.addScript(new ClassPathResource(env.getRequiredProperty("db.prod")));
+    }
 
     initializer.setDatabasePopulator(populator);
     return initializer;
