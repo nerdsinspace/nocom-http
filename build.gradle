@@ -147,5 +147,5 @@ processResources {
 }
 
 bootRun {
-    jvmArgs = ['-Dnocom.debug.auth=true']
+    jvmArgs = ['-Dnocom.auth.debug=true']
 }

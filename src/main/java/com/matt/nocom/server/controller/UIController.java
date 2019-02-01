@@ -4,7 +4,6 @@ import com.matt.nocom.server.auth.UserGroup;
 import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.service.LoginManagerService;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,7 @@ public class UIController {
 
   @GetMapping({"/", "/login"})
   public String index() {
-    return "/login";
+    return "login";
   }
 
   @GetMapping("/overview")
@@ -36,27 +35,25 @@ public class UIController {
       @RequestParam("endTime") Optional<Long> endTime) {
     model.addAttribute("servers", api.getServers());
     model.addAttribute("dimensions", api.getDimensions());
-    return "/secret/overview";
+    return "secret/overview";
   }
 
   @GetMapping("/listview")
   public String listView(Model model) {
     model.addAttribute("servers", api.getServers());
     model.addAttribute("dimensions", api.getDimensions());
-    return "/secret/listview";
+    return "secret/listview";
   }
 
   @GetMapping("/manager")
   public String manager(Model model) {
     model.addAttribute("usersData", login.getUserData());
-    model.addAttribute("authGroups", login.getGroups().stream()
-        .filter(UserGroup::isAllowed)
-        .collect(Collectors.toList()));
-    return "/secret/manager";
+    model.addAttribute("authGroups", UserGroup.production());
+    return "secret/manager";
   }
 
   @GetMapping("/access-denied")
   public String accessDenied() {
-    return "/error/access-denied";
+    return "error/access-denied";
   }
 }

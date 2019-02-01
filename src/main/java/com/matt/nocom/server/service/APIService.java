@@ -117,43 +117,9 @@ public class APIService {
   }
 
   public List<Dimension> getDimensions() {
-    return dsl.select(DIMENSIONS.NAME, DIMENSIONS.ORDINAL)
+    return dsl.select(DIMENSIONS.ORDINAL)
         .from(DIMENSIONS)
         .fetch()
-        .map(record -> Dimension.builder()
-            .ordinal(record.getValue(DIMENSIONS.ORDINAL))
-            .name(record.getValue(DIMENSIONS.NAME))
-            .build());
-  }
-
-  public void test() {
-    List<Location> locations = getLocations(SearchFilter.builder()
-        .server("2b2t.org")
-        .dimension(0)
-        .build());
-
-    Location near = Location.builder()
-        .x(1000)
-        .z(1000)
-        .build();
-
-    System.out.println("OriginalSize=" + locations.size());
-    System.out.println("OrNearest=" + locations.stream()
-        .min(Comparator.comparingDouble(near::distanceSqTo))
-        .orElse(null));
-
-    //locations.sort(Comparator.comparingLong(loc -> Math.abs(loc.getX()) + Math.abs(loc.getZ())));
-    //Collections.shuffle(locations);
-
-    KdTree<Location> tree = new KdTree<>(locations);
-    System.out.println("Size=" + tree.size());
-    System.out.println("Nearest=" + tree.nearest(near));
-
-    try {
-      Files.write(Paths.get("").resolve("tree.txt"), tree.getRoot().toString().getBytes(),
-          StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+        .map(record -> Dimension.from(record.getValue(DIMENSIONS.ORDINAL)));
   }
 }

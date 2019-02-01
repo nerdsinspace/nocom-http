@@ -43,10 +43,6 @@ CREATE TABLE IF NOT EXISTS Locations (
   FOREIGN KEY (dimension_id) REFERENCES Dimensions (id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-INSERT OR IGNORE INTO Dimensions (ordinal, name) VALUES (-1, 'Nether'), (0, 'Overworld'), (1, 'End');
-
-INSERT OR IGNORE INTO Players (uuid) VALUES ('00000000-0000-0000-0000-000000000000');
-
 CREATE TABLE IF NOT EXISTS Auth_Users (
   id integer PRIMARY KEY AUTOINCREMENT,
   username text NOT NULL UNIQUE,
@@ -76,7 +72,3 @@ CREATE TABLE IF NOT EXISTS Auth_Tokens (
   user_id integer NOT NULL,
   FOREIGN KEY (user_id) REFERENCES Auth_Users (id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
-
-INSERT OR IGNORE INTO Auth_Users (username, password) VALUES ('root', '$2a$10$DPHl8sG2HC6Hz76nzPBx1OjL9NlbBKqxWJVCCZMDDSCsBEcTKpziW');
-INSERT OR IGNORE INTO Auth_Groups (name, level) VALUES ('DEBUG', 666), ('ADMIN', 0), ('DEV', 4);
-INSERT OR IGNORE INTO Auth_User_Groups (user_id, group_id) VALUES ((SELECT id FROM Auth_Users WHERE username = 'root' LIMIT 1) , (SELECT id FROM Auth_Groups WHERE name = 'DEBUG' LIMIT 1));

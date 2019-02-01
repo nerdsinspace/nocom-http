@@ -1,11 +1,8 @@
 package com.matt.nocom.server.controller;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.exception.IllegalUsernameException;
 import com.matt.nocom.server.exception.ShortPasswordException;
-import com.matt.nocom.server.model.ApiError;
-import com.matt.nocom.server.model.EmptyModel;
 import com.matt.nocom.server.auth.UserGroup;
 import com.matt.nocom.server.model.auth.UserRegistration;
 import com.matt.nocom.server.model.auth.UsernamePassword;
@@ -16,13 +13,10 @@ import com.matt.nocom.server.service.LoginManagerService;
 import com.matt.nocom.server.util.CredentialsChecker;
 import com.matt.nocom.server.util.Util;
 import com.matt.nocom.server.util.factory.AccessTokenFactory;
-import java.sql.SQLException;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
-import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -115,7 +109,7 @@ public class UserController implements Logging {
           .username(details.getUsername())
           .password(passwordEncoder.encode(details.getPassword()))
           .groups(details.getGroups().stream()
-              .filter(UserGroup::isAllowed)
+              .filter(UserGroup::isActive)
               .collect(Collectors.toSet()))
           .build();
 

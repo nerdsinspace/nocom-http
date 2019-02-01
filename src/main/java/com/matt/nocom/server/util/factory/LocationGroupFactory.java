@@ -83,7 +83,7 @@ public class LocationGroupFactory {
       }
     }
 
-    List<LocationGroup> joined = Lists.newArrayList();
+    List<LocationGroup> joined = Lists.newArrayListWithCapacity(inputs.size());
 
     for(KdTree<Location> tree : trees) {
       final Location first = tree.getRoot().getReference();
@@ -95,15 +95,20 @@ public class LocationGroupFactory {
         else
           nodes = tree.radiusSq(tree.getRoot(), rangeSq);
 
-          LocationGroup lg = LocationGroup.builder()
-              .server(first.getServer())
-              .dimension(first.getDimension())
-              .positions(nodes.stream()
-                  .map(KdNode::getReferences)
-                  .flatMap(List::stream)
-                  .map(Location::toPosition)
-                  .collect(Collectors.toList()))
-              .build();
+        if(nodes.isEmpty()) {
+          tree.remove(tree.getRoot());
+          continue;
+        }
+
+        LocationGroup lg = LocationGroup.builder()
+            .server(first.getServer())
+            .dimension(first.getDimension())
+            .positions(nodes.stream()
+                .map(KdNode::getReferences)
+                .flatMap(List::stream)
+                .map(Location::toPosition)
+                .collect(Collectors.toList()))
+            .build();
 
           nodes.forEach(tree::remove);
 

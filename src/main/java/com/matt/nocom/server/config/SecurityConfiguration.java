@@ -5,10 +5,10 @@ import com.matt.nocom.server.auth.UserGroup;
 import com.matt.nocom.server.service.LoginManagerService;
 import com.matt.nocom.server.util.AuthenticationTokenFilter;
 import com.matt.nocom.server.util.Util;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -43,22 +43,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
 
   private static final List<RequestMatcher> REST_API_MATCHERS = Util.antMatchers("/api/**", "/user/**");
 
+  private final PasswordEncoder passwordEncoder;
   private final LoginManagerService login;
 
-  public SecurityConfiguration(LoginManagerService login) {
+  @Autowired
+  public SecurityConfiguration(LoginManagerService login, PasswordEncoder passwordEncoder) {
     this.login = login;
-  }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
+    this.passwordEncoder = passwordEncoder;
   }
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     auth
         .userDetailsService(login)
-        .passwordEncoder(passwordEncoder());
+        .passwordEncoder(passwordEncoder);
   }
 
   @Bean
@@ -68,15 +66,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
   }
 
   private static String[] allAuthorities() {
-    return Arrays.stream(UserGroup.values())
-        .filter(UserGroup::isAllowed)
+    return UserGroup.active().stream()
         .map(UserGroup::getName)
         .toArray(String[]::new);
   }
 
   private static String[] adminAuthorities() {
-    return Stream.of(UserGroup.ADMIN, UserGroup.DEBUG)
-        .filter(UserGroup::isAllowed)
+    return UserGroup.highestPrivileges().stream()
         .map(UserGroup::getName)
         .toArray(String[]::new);
   }

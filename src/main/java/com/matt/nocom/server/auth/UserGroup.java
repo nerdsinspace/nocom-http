@@ -2,6 +2,10 @@ package com.matt.nocom.server.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.matt.nocom.server.Properties;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,24 +13,53 @@ import org.springframework.security.core.GrantedAuthority;
 @Getter
 @AllArgsConstructor
 public enum UserGroup implements GrantedAuthority {
-  DEBUG(0),
-  ADMIN(0),
-  DEV(4),
+  ADMIN(0, false),
+  DEV(4, false),
+  DEBUG(0, true),
   ;
 
   private int level;
+  private boolean debug;
 
   public String getName() {
     return name();
   }
 
-  public boolean isAllowed() {
-    return this != DEBUG || Properties.DEBUG_AUTH;
+  public boolean isHighestPrivileges() {
+    return getLevel() == 0;
+  }
+
+  public boolean isActive() {
+    return Properties.DEBUG_AUTH || !isDebug();
   }
 
   @JsonIgnore
   @Override
   public String getAuthority() {
     return getName();
+  }
+
+  private static final EnumSet<UserGroup> ACTIVE = Arrays.stream(values())
+      .filter(UserGroup::isActive)
+      .collect(Collectors.toCollection(() -> EnumSet.noneOf(UserGroup.class)));
+
+  private static final EnumSet<UserGroup> HIGHEST_PRIVILEGES = Arrays.stream(values())
+      .filter(UserGroup::isHighestPrivileges)
+      .collect(Collectors.toCollection(() -> EnumSet.noneOf(UserGroup.class)));
+
+  private static final EnumSet<UserGroup> PRODUCTION = Arrays.stream(values())
+      .filter(g -> !g.isDebug())
+      .collect(Collectors.toCollection(() -> EnumSet.noneOf(UserGroup.class)));
+
+  public static EnumSet<UserGroup> active() {
+    return ACTIVE;
+  }
+
+  public static EnumSet<UserGroup> highestPrivileges() {
+    return HIGHEST_PRIVILEGES;
+  }
+
+  public static EnumSet<UserGroup> production() {
+    return PRODUCTION;
   }
 }
