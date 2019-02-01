@@ -108,19 +108,19 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
     compile group: 'org.apache.logging.log4j', name: 'log4j-web', version: log4jVersion
-
+    
     // Google commons
     compile group: 'com.google.guava', name: 'guava', version: guavaVersion
-
+    
     // Spread sheet building
     compile group: 'org.apache.poi', name: 'poi', version: apachePoiVersion
     compile group: 'org.apache.poi', name: 'poi-ooxml', version: apachePoiVersion
-
+    
     // SQLite driver
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
     jooqRuntime group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
     jooqRuntime group: 'org.jooq', name: 'jooq-meta-extensions'
-
+    
     // jOOQ
     compile group: 'org.jooq', name: 'jooq'
     compile group: 'org.jooq', name: 'jooq-meta'
@@ -139,18 +139,11 @@ dependencies {
 }
 
 processResources {
-
-    filesMatching('*.properties') {
-        //println it
+    filesMatching('**/*.properties') {
         filter ReplaceTokens, tokens: [
                 'db.path': project.property('db.path')
         ]
     }
-
-}
-
-task replaceConfigTokens() {
-
 }
 
 bootRun {

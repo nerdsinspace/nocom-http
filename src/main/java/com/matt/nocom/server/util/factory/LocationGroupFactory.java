@@ -4,6 +4,9 @@ import com.google.common.collect.Lists;
 import com.matt.nocom.server.model.game.Location;
 import com.matt.nocom.server.model.game.LocationGroup;
 import com.matt.nocom.server.model.game.Position;
+import com.matt.nocom.server.util.kdtree.KdNode;
+import com.matt.nocom.server.util.kdtree.KdTree;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -17,8 +20,8 @@ public class LocationGroupFactory {
         .map(loc -> LocationGroup.builder()
             .server(loc.getServer())
             .dimension(loc.getDimension())
-            .position(loc.getPosition())
-            .build().setup())
+            .position(loc.toPosition())
+            .build())
         .collect(Collectors.toList());
 
     boolean changed;
@@ -54,5 +57,60 @@ public class LocationGroupFactory {
     } while (changed);
 
     return locations;
+  }
+
+  public static List<LocationGroup> translate2(List<Location> inputs, int range) {
+    if(inputs.isEmpty())
+      return Collections.emptyList();
+
+    final int rangeSq = range*range;
+
+    // sort the results by server and dimension
+    inputs.sort(Comparator.comparing(Location::getServer, String.CASE_INSENSITIVE_ORDER)
+        .thenComparingInt(Location::getDimension));
+
+    List<KdTree<Location>> trees = Lists.newArrayList();
+
+    List<Location> list = Lists.newArrayList();
+    for(int i = 0; i < inputs.size(); i++) {
+      Location loc = inputs.get(i);
+      list.add(loc);
+
+      Location next = (i + 1) < inputs.size() ? inputs.get(i + 1) : null;
+      if((next != null && !next.isInSameWorld(loc)) || i == (inputs.size() - 1)) {
+        trees.add(new KdTree<>(list));
+        list = Lists.newArrayList();
+      }
+    }
+
+    List<LocationGroup> joined = Lists.newArrayList();
+
+    for(KdTree<Location> tree : trees) {
+      final Location first = tree.getRoot().getReference();
+
+      while(!tree.isEmpty()) {
+        List<KdNode<Location>> nodes;
+        if(rangeSq <= 0)
+          nodes = Collections.singletonList(tree.getRoot());
+        else
+          nodes = tree.radiusSq(tree.getRoot(), rangeSq);
+
+          LocationGroup lg = LocationGroup.builder()
+              .server(first.getServer())
+              .dimension(first.getDimension())
+              .positions(nodes.stream()
+                  .map(KdNode::getReferences)
+                  .flatMap(List::stream)
+                  .map(Location::toPosition)
+                  .collect(Collectors.toList()))
+              .build();
+
+          nodes.forEach(tree::remove);
+
+          joined.add(lg);
+      }
+    }
+
+    return joined;
   }
 }
