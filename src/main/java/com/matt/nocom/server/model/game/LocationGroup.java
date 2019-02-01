@@ -34,8 +34,6 @@ import org.springframework.http.ResponseEntity;
 @JsonInclude(Include.NON_EMPTY)
 @JsonSerialize(using = Serializer.class)
 public class LocationGroup implements Serializable, VectorXZ, WorldEntry {
-  private int x;
-  private int z;
   private String server;
   private int dimension;
 
@@ -82,7 +80,6 @@ public class LocationGroup implements Serializable, VectorXZ, WorldEntry {
     return getRegion().getMinZ() + ((getRegion().getMaxZ() - getRegion().getMinZ()) / 2);
   }
 
-
   private int distanceSqTo(int otherX, int otherZ) {
     return (int) Math.ceil(Math.pow(otherX - getX(), 2) + Math.pow(otherZ - getZ(), 2));
   }
@@ -102,6 +99,7 @@ public class LocationGroup implements Serializable, VectorXZ, WorldEntry {
       return new LocationGroup(server, dimension, MoreObjects.firstNonNull(region, new Region()), positions).setup();
     }
   }
+
 
   public static class Serializer extends JsonSerializer<LocationGroup> {
 
