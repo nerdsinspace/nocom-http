@@ -22,7 +22,7 @@ public class UIController {
 
   @GetMapping({"/", "/login"})
   public String index() {
-    return "/login";
+    return "login";
   }
 
   @GetMapping("/overview")
@@ -36,7 +36,7 @@ public class UIController {
       @RequestParam("endTime") Optional<Long> endTime) {
     model.addAttribute("servers", api.getServers());
     model.addAttribute("dimensions", api.getDimensions());
-    return "/secret/overview";
+    return "secret/overview";
   }
 
   @GetMapping("/manager")
@@ -45,11 +45,11 @@ public class UIController {
     model.addAttribute("authGroups", login.getGroups().stream()
         .filter(UserGroup::isAllowed)
         .collect(Collectors.toList()));
-    return "/secret/manager";
+    return "secret/manager";
   }
 
   @GetMapping("/access-denied")
   public String accessDenied() {
-    return "/error/access-denied";
+    return "error/access-denied";
   }
 }
