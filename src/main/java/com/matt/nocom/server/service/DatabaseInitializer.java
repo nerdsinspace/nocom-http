@@ -160,13 +160,20 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
       }
 
       while(scanner.hasNextLine()) {
-        String[] ss = scanner.nextLine().split(" ");
+        String line = scanner.nextLine();
 
-        if(ss.length < 2)
-          throw new IllegalArgumentException("Error parsing admins file: expected 2 arguments, got " + ss.length);
+        if(line.trim().isEmpty())
+          continue;
+
+        String[] ss = line.split(" ");
+
+        if(ss.length < 2) {
+          LOGGER.error("Error parsing admins file: expected 2 arguments, got " + ss.length);
+          continue;
+        }
 
         String username = ss[0];
-        String password = ss[1];
+        String password = String.join(" ", Arrays.copyOfRange(ss, 1, ss.length));
 
         addOrUpdateUser(login, username, password, UserGroup.ADMIN);
 
