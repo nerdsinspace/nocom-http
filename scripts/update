@@ -9,7 +9,7 @@ fi
 function usage() {
     echo -n \
          "Usage: $(basename "$0")
-Provision bare minimum required to compile a minecraft mod.
+Provision bare minimum required to compile a nocom-http.
 "
 }
 
@@ -21,10 +21,5 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             -f docker-compose.ci.yml \
             run --rm \
             nocom-http clean
-
-        docker-compose \
-            -f docker-compose.ci.yml \
-            run --rm \
-            nocom-http setupDecompWorkspace
     fi
 fi
