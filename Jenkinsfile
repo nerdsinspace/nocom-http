@@ -31,6 +31,13 @@ node {
                 archiveArtifacts artifacts: '**/build/libs/*.jar', fingerprint: true 
             }
         }		
+        stage('cipublish') {
+            wrap([$class: 'AnsiColorBuildWrapper']) {
+                withCredentials([usernamePassword(credentialsId: 'nocom-gitlab-registry', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASSWORD')]) {
+                    sh './scripts/cipublish'
+                }
+            }
+        }
 	} catch (err) {
 	    // Update the commit status in GitLab.
 	    updateGitlabCommitStatus name: 'build', state: 'failed'
