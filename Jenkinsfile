@@ -37,6 +37,7 @@ node {
                     sh './scripts/cipublish'
                 }
             }
+        }
 	} catch (err) {
 	    // Update the commit status in GitLab.
 	    updateGitlabCommitStatus name: 'build', state: 'failed'
