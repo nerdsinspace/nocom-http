@@ -19,6 +19,8 @@ const ListView = (function() {
     button.click(() => {
       if (iframe.attr('src') == undefined) {
         iframe.attr('src', src)
+      } else {
+        //iframe.attr('src', undefined); // might be necessary
       }
 
       if (div[0].style.maxHeight){

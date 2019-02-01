@@ -84,13 +84,12 @@ public class APIController implements Logging {
   public ResponseEntity<LocationGroup[]> getLocationGroups(@RequestBody SearchFilter filter) {
     filter.forceGrouping();
     return ResponseEntity.ok(
-        LocationGroupFactory.translate(api.getLocations(filter), filter.getGroupingRange()).stream()
-            .filter(g -> g.getPositions().size() >= MoreObjects.firstNonNull(filter.getMinHits(), 0))
         LocationGroupFactory.translate2(api.getLocations(filter), filter.getGroupingRange()).stream()
             .filter(g -> g.getPositions().size() >= MoreObjects.firstNonNull(filter.getMinHits(), 0))
             .toArray(LocationGroup[]::new)
     );
   }
+
 
   @RequestMapping(value = "/search/locations/list",
       method = RequestMethod.POST ,
