@@ -33,7 +33,7 @@ node {
         }		
         stage('cipublish') {
             wrap([$class: 'AnsiColorBuildWrapper']) {
-                withCredentials([usernamePassword(credentialsId: '84b0e215-33ac-4c77-b623-698c2587a8ee', usernameVariable: 'GITLAB_USERNAME', passwordVariable: 'GITLAB_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'nocom-gitlab-registry', usernameVariable: 'GITLAB_USERNAME', passwordVariable: 'GITLAB_PASSWORD')]) {
                     sh './scripts/cipublish'
                 }
             }
