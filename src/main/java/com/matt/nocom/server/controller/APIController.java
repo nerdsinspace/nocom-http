@@ -37,6 +37,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("api")
 public class APIController implements Logging {
+
   private final APIService api;
 
   public APIController(APIService api) {
@@ -50,8 +51,9 @@ public class APIController implements Logging {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public void addLocations(@RequestBody Location[] locations) {
-    if(locations.length < 1)
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Must contain at least one location object.");
+    if (locations.length < 1)
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Must contain at least one location object.");
 
     api.addServers(Arrays.stream(locations)
         .map(Location::getServer)
@@ -87,6 +89,7 @@ public class APIController implements Logging {
             .toArray(LocationGroup[]::new)
     );
   }
+
 
   @RequestMapping(value = "/search/locations/list",
       method = RequestMethod.POST ,
@@ -162,11 +165,4 @@ public class APIController implements Logging {
     }
   }
 
-
-  @RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
-  @ResponseStatus(HttpStatus.OK)
-  @ResponseBody
-  public void test() {
-    api.test();
-  }
 }
