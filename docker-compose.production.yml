@@ -7,3 +7,5 @@ services:
             - /data/nocom-http/admins.txt:/opt/nocom-http/admins.txt
             - /data/nocom-http/logs:/opt/nocom-http/logs
         working_dir: /opt/nocom-http
+        ports:
+            - "7373:8080"
