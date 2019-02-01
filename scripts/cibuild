@@ -27,5 +27,6 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             -f docker-compose.ci.yml \
             run --rm \
             nocom-http build
+        docker build -t "registry.gitlab.com/fr1kin/nocom-http:latest" .
     fi
 fi
