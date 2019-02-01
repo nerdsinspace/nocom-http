@@ -99,11 +99,4 @@ public class APIController implements Logging {
   public ResponseEntity<Dimension[]> getDimensions() {
     return ResponseEntity.ok(api.getDimensions().toArray(new Dimension[0]));
   }
-
-  @RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
-  @ResponseStatus(HttpStatus.OK)
-  @ResponseBody
-  public void test() {
-    api.test();
-  }
 }

@@ -2,27 +2,28 @@ package com.matt.nocom.server.config;
 
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.Properties;
+import com.matt.nocom.server.service.DatabaseInitializer;
 import com.matt.nocom.server.util.JOOQToSpringExceptionTransformer;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultDSLContext;
 import org.jooq.impl.DefaultExecuteListenerProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.sqlite.SQLiteDataSource;
 
@@ -32,19 +33,24 @@ import org.sqlite.SQLiteDataSource;
 @PropertySource("database.properties")
 public class DatabaseConfiguration implements Logging {
   private final Environment env;
+  private final DatabaseInitializer databaseInitializer;
 
   @Autowired
-  public DatabaseConfiguration(Environment env) {
+  public DatabaseConfiguration(Environment env,
+      DatabaseInitializer databaseInitializer) {
     this.env = env;
+    this.databaseInitializer = databaseInitializer;
+  }
+
+  private Path getDatabasePath() {
+    return Paths.get("")
+        .resolve(env.getRequiredProperty("db.file"));
   }
 
   @Bean
   public DataSource dataSource() {
     SQLiteDataSource src = new SQLiteDataSource();
-    src.setUrl("jdbc:sqlite:" + Paths.get("")
-        .resolve(env.getRequiredProperty("db.file"))
-        .toAbsolutePath()
-        .toString());
+    src.setUrl("jdbc:sqlite:" + getDatabasePath().toAbsolutePath().toString());
     return src;
   }
 
@@ -78,7 +84,7 @@ public class DatabaseConfiguration implements Logging {
     DefaultConfiguration config = new DefaultConfiguration();
     config.set(connectionProvider());
     config.set(new DefaultExecuteListenerProvider(jooqToSpringExceptionTransformer()));
-    config.set(SQLDialect.SQLITE);
+    config.set(Properties.SQL_DIALECT);
     return config;
   }
 
@@ -91,18 +97,7 @@ public class DatabaseConfiguration implements Logging {
   public DataSourceInitializer dataSourceInitializer() {
     DataSourceInitializer initializer = new DataSourceInitializer();
     initializer.setDataSource(dataSource());
-
-    ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-    populator.addScript(new ClassPathResource(env.getRequiredProperty("db.schema")));
-
-    if(Properties.DEBUG_AUTH) {
-      LOGGER.debug("Debug sql script loaded");
-      populator.addScript(new ClassPathResource(env.getRequiredProperty("db.debug")));
-    } else {
-      populator.addScript(new ClassPathResource(env.getRequiredProperty("db.prod")));
-    }
-
-    initializer.setDatabasePopulator(populator);
+    initializer.setDatabasePopulator(databaseInitializer);
     return initializer;
   }
 }
