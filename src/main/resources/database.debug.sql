@@ -1,2 +1,0 @@
-INSERT OR IGNORE INTO Auth_Users (username, password) VALUES ('root', '***REMOVED***');
-INSERT OR IGNORE INTO Auth_User_Groups (user_id, group_id) VALUES ((SELECT id FROM Auth_Users WHERE username = 'root' LIMIT 1) , (SELECT id FROM Auth_Groups WHERE name = 'DEBUG' LIMIT 1));

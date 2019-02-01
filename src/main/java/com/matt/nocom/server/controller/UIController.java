@@ -42,9 +42,7 @@ public class UIController {
   @GetMapping("/manager")
   public String manager(Model model) {
     model.addAttribute("usersData", login.getUserData());
-    model.addAttribute("authGroups", login.getGroups().stream()
-        .filter(UserGroup::isAllowed)
-        .collect(Collectors.toList()));
+    model.addAttribute("authGroups", UserGroup.production());
     return "secret/manager";
   }
 
