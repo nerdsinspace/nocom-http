@@ -20,7 +20,7 @@ const ListView = (function() {
       if (iframe.attr('src') == undefined) {
         iframe.attr('src', src)
       } else {
-        //iframe.attr('src', undefined); // might be necessary
+        iframe.removeAttr('src'); // prevent page from crashing from too much being loaded
       }
 
       if (div[0].style.maxHeight){
@@ -113,6 +113,7 @@ const ListView = (function() {
            .append($('<td ' + mAligned + '>').text(loc.x)) // X
            .append($('<td ' + mAligned + '>').text(loc.z)) // Z
            .append($('<td ' + mAligned + '>').text(dist)) // Distance
+           .append($('<td ' + mAligned + '>').text(loc.positions.length)) // hits
            .append(biomeCell);
         const renderCell = $('<td>');
         if (downloaded) {
