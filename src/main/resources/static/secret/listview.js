@@ -97,7 +97,7 @@ const ListView = (function() {
           );
 
         // booleans
-        const downloaded = true;//loc.downloaded_exists;
+        const downloaded = loc.downloaded_exists;
         const generated = loc.generated_exists;
 
 
