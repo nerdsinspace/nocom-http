@@ -82,7 +82,7 @@ const ListView = (function() {
                       + new Date(loc.positions[loc.positions.length - 1].time).toLocaleString());
 
 
-        const dist = Math.round(Math.sqrt((loc.x * loc.x) + (loc.z * loc.z))) + 'm';
+        const dist = Math.round(Math.sqrt((loc.x * loc.x) + (loc.z * loc.z)));
         const biomes = sortedByRelevance(loc.positions.map(p => p.biome));
 
         var biomeDiv = $('<div class="dropdown-content">');
@@ -97,7 +97,7 @@ const ListView = (function() {
           );
 
         // booleans
-        const downloaded = loc.downloaded_exists;
+        const downloaded = true;//loc.downloaded_exists;
         const generated = loc.generated_exists;
 
 
@@ -112,27 +112,25 @@ const ListView = (function() {
         const row = $('<tr>')
            .append($('<td ' + mAligned + '>').text(loc.x)) // X
            .append($('<td ' + mAligned + '>').text(loc.z)) // Z
-           .append($('<td ' + mAligned + '>').text(dist)) // Distance
+           .append($('<td ' + mAligned + '>').text(dist + 'm')) // Distance
            .append($('<td ' + mAligned + '>').text(loc.positions.length)) // hits
            .append(biomeCell);
         const renderCell = $('<td>');
         if (downloaded) {
-          renderCell.append((buttonDownloaded = $('<button type="button" class = "collapsible">')).text('Downloaded'));
+          renderCell.append((buttonDownloaded = $('<button type="button" class="collapsible">')).text('Downloaded'));
         }
         if (generated) {
-          renderCell.append((buttonGenerated =  $('<button type="button" class = "collapsible" style="margin-right:0px;">')).text('Generated'))
+          renderCell.append((buttonGenerated =  $('<button type="button" class="collapsible" style="margin-right:0px;"')).text('Generated'))
         }
         row.append(renderCell);
         jList.append(row);
 
 
-        // TODO: fix this poz code
-
         const baseUrl = 'secret/chunkviewer/index.html';
         const getQuery = type => '?server=' + loc.server + '&type=' + type + '&dim=' + loc.dimension + '&x=' + loc.x + '&z=' + loc.z;
 
         if (downloaded) {
-          const collapsibleRow = $('<tr align="center">');
+          const collapsibleRow = $('<tr align="center" data-type="collapsible">');
           const collapsibleCell = $('<td colspan="666" style="border-top: 0; padding: 0;">');
           collapsibleRow.append(collapsibleCell);
           collapsibleCell.append(
@@ -143,7 +141,7 @@ const ListView = (function() {
           makeCollapsible(buttonDownloaded, divDownloaded, iframeDownloaded, baseUrl + getQuery('DOWNLOADED'));
         }
         if (generated) {
-          const collapsibleRow = $('<tr align="center">');
+          const collapsibleRow = $('<tr align="center" data-type="collapsible">');
           const collapsibleCell = $('<td colspan="666" style="border-top: 0; padding: 0;">');
           collapsibleRow.append(collapsibleCell);
           collapsibleCell.append(
@@ -156,8 +154,61 @@ const ListView = (function() {
 
       }
 
+
+      //makeSortable('#distance_header, #hits_header, #biome_header', null);
+      makeSortable('#distance_header', (a, b) => {
+        const filter = (str) => str.replace(/[a-zA-Z]/g, ''); // remove m
+        return filter(b) - filter(a);
+      });
+      makeSortable('#hits_header', (a, b) => b - a);
+      makeSortable('#biome_header', (a, b) => a.toLowerCase().localeCompare(b.toLowerCase())) // lmao
+
     });
   };
+
+  const makeSortable = (id, comparator) => {
+    $(id).each(function(){
+        const th = $(this);
+        const thIndex = th.index();
+        var inverse = false;
+        const table = $('table');
+
+        th.click(function(){
+          const rows = table.find('tr:gt(0)').toArray();
+          const rowMap = new Map(); // map row to hidden rows to fix sorted array
+          for (var i = 0; i < rows.length; i++) {
+            if ($(rows[i]).attr('data-type') == null) {
+              rowMap.set(rows[i], []);
+              for (var j = i + 1; j < rows.length; j++) {
+                if ($(rows[j]).attr('data-type') == 'collapsible') {
+                  rowMap.get(rows[i]).push(rows[j]);
+                } else { break; }
+              }
+            }
+          }
+
+          const sorted = rows
+            .filter(r => $(r).attr('data-type') == null)
+            .sort((a, b) => {
+              const getText = (obj) => $($(obj).find('td').get(thIndex)).text();
+              const comparison = comparator(getText(a), getText(b));
+              return inverse ? -1 * comparison : comparison
+          });
+
+          for (var entry of rowMap.entries()) {
+            const index = sorted.indexOf(entry[0]);
+            sorted.splice(index + 1, 0, ...entry[1]); // insert hidden row array after the normal row
+          }
+
+          for (var r of sorted) {
+            table.append(r); // lmao
+          }
+
+          inverse = !inverse;
+        });
+      });
+  }
+
 
   const sortedByRelevance = (biomeList) => {
       var map = {};
