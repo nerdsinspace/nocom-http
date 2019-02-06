@@ -107,6 +107,7 @@ public class LocationGroupFactory {
                 .map(KdNode::getReferences)
                 .flatMap(List::stream)
                 .map(Location::toPosition)
+                .sorted(Comparator.comparingLong(Position::getTime))
                 .collect(Collectors.toList()))
             .build();
 
