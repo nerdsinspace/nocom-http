@@ -1,0 +1,2 @@
+[nhackindustries-vm]
+nhackindustries-vm ansible_port=22 ansible_host=localhost ansible_user=linuxauto
