@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -u
 
 function usage() {
     echo -n \
@@ -10,6 +9,12 @@ Publish container images.
 "
 }
 
+if [[ -n "${GIT_BRANCH}" ]]; then
+    :
+else
+    GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+fi
+
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     if [ "${1:-}" = "--help" ]; then
         usage
@@ -17,7 +22,11 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         docker \
             login -u "${GITLAB_USER}" -p "${GITLAB_PASSWORD}" registry.gitlab.com;
 
-        docker \
-            push "registry.gitlab.com/fr1kin/nocom-http:latest";
+        if [ "x${GIT_BRANCH}" = "xmaster" ]; then
+            docker push "registry.gitlab.com/fr1kin/nocom-http:master"
+            docker push "registry.gitlab.com/fr1kin/nocom-http:latest"
+        else
+            docker push "registry.gitlab.com/fr1kin/nocom-http:${GIT_BRANCH}"
+        fi
     fi
 fi

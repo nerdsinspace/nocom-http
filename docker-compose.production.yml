@@ -3,9 +3,9 @@ services:
     nocom-http:
         image: registry.gitlab.com/fr1kin/nocom-http:latest
         volumes:
-            - /data/nocom-http/locations.db:/opt/nocom-http/locations.db
-            - /data/nocom-http/admins.txt:/opt/nocom-http/admins.txt
-            - /data/nocom-http/logs:/opt/nocom-http/logs
+            - "/opt/nocom-http/locations.db:/opt/nocom-http/locations.db"
+            - "/opt/nocom-http/admins.txt:/opt/nocom-http/admins.txt"
+            - "/opt/nocom-http/logs:/opt/nocom-http/logs"
         working_dir: /opt/nocom-http
         ports:
             - "7373:8080"

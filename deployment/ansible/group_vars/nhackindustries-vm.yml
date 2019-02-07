@@ -1,0 +1,7 @@
+---
+docker_users:
+  - "vagrant"
+  - "jenkins"
+
+gitlab_deploy_token_username: "{{ lookup('env','GITLAB_DEPLOY_TOKEN_USERNAME') }}"
+gitlab_deploy_token_password: "{{ lookup('env','GITLAB_DEPLOY_TOKEN_PASSWORD') }}"

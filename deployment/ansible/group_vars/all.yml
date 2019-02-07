@@ -1,0 +1,8 @@
+---
+docker_version: "*"
+docker_compose_version: "*"
+ansible_install_method: pip
+ansible_install_version_pip: "2.7.*"
+
+docker_users:
+  - "root"

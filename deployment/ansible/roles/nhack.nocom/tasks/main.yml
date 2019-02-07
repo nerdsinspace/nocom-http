@@ -1,0 +1,33 @@
+---
+
+- name: Create the application folder
+  file:
+    name: "/opt/nocom-http"
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Install the production compose file
+  copy:
+    src: "docker-compose.production.yml"
+    dest: "/opt/nocom-http/docker-compose.production.yml"
+    mode: 0640
+    owner: root
+    group: root
+
+- name: Log into the docker registry
+  docker_login:
+    registry: "registry.gitlab.com"
+    username: "{{ gitlab_deploy_token_username }}"
+    password: "{{ gitlab_deploy_token_password }}"
+
+- name: Update the docker service
+  docker_service:
+    project_src: /opt/nocom-http/
+    files: docker-compose.production.yml
+    state: present
+    recreate: smart
+    pull: yes
+    remove_orphans: yes
+  

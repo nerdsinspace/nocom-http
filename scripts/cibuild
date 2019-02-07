@@ -19,6 +19,12 @@ else
     GIT_COMMIT="$(git rev-parse --short HEAD)"
 fi
 
+if [[ -n "${GIT_BRANCH}" ]]; then
+    :
+else
+    GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+fi
+
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     if [ "${1:-}" = "--help" ]; then
         usage
@@ -27,6 +33,11 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             -f docker-compose.ci.yml \
             run --rm \
             nocom-http build
-        docker build -t "registry.gitlab.com/fr1kin/nocom-http:latest" .
+
+        if [ "x${GIT_BRANCH}" = "xmaster" ]; then
+            docker build -t "registry.gitlab.com/fr1kin/nocom-http:master" -t "registry.gitlab.com/fr1kin/nocom-http:latest" .
+        else
+            docker build -t "registry.gitlab.com/fr1kin/nocom-http:${GIT_BRANCH}" .
+        fi
     fi
 fi

@@ -38,6 +38,16 @@ node {
                 }
             }
         }
+        stage('deploy') {
+            wrap([$class: 'AnsiColorBuildWrapper']) {
+                withCredentials([
+                    usernamePassword(credentialsId: 'nocom-gitlab-registry', usernameVariable: 'GITLAB_DEPLOY_TOKEN_USERNAME', passwordVariable: 'GITLAB_DEPLOY_TOKEN_PASSWORD'),
+                    sshUserPrivateKey(credentialsId: 'linuxauto-private-key-nhack', keyFileVariable: 'SSH_PRIVATE_KEY_PATH', passphraseVariable: 'SSH_PRIVATE_KEY_PASSWORD', usernameVariable: 'SSH_USERNAME')
+                ]) {
+                    sh './scripts/deploy'
+                }
+            }
+        }
 	} catch (err) {
 	    // Update the commit status in GitLab.
 	    updateGitlabCommitStatus name: 'build', state: 'failed'
