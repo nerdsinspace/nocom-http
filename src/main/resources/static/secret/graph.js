@@ -8,6 +8,7 @@ const ViewGraph = (function() {
   const jStartDate = $('#startDate');
   const jEndDate = $('#endDate');
   const jSubmit = $('#submit');
+  const jSelectedPos = $('#selectedPos');
 
   const settings = [jServer, jDimension, jRange, jDelta, jHits, jStartDate, jEndDate];
 
@@ -38,16 +39,27 @@ const ViewGraph = (function() {
     scrollZoom: true,
   };
 
+  const setupLayout = () => {
+    const m = document.getElementById('map');
+
+    Plotly.react(m, markers, plotLayout, plotConfig);
+
+    m.on('plotly_click', function(data) {
+      const point = data.points[0];
+      jSelectedPos.val(point.x + ' ' + point.y);
+    });
+  };
+
   const initialize = () => {
     plotLayout.width = (map.width);
     plotLayout.height = (map.height);
 
-    Plotly.react(map, markers, plotLayout, plotConfig);
+    setupLayout();
     recenter();
   };
 
   const recenter = () => {
-    Plotly.relayout(map, {
+    Plotly.relayout('map', {
       'xaxis.autorange': true,
       'yaxis.autorange': true
     });
@@ -127,7 +139,7 @@ const ViewGraph = (function() {
         type: 'scattergl',
       });
 
-      Plotly.react(map, markers, plotLayout, plotConfig);
+      setupLayout();
       recenter();
     });
   };
