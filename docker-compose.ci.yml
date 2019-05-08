@@ -2,7 +2,7 @@ version: '2.3'
 services:
     nocom-http:
         image: gradle:4.10-jdk8-slim
-        user: root
+        user: "jenkins:jenkins"
         environment:
           - GIT_COMMIT=${GIT_COMMIT:-latest}
           - NOCOM-HTTP_DEBUG=1
