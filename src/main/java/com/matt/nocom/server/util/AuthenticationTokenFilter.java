@@ -2,6 +2,7 @@ package com.matt.nocom.server.util;
 
 import com.matt.nocom.server.service.LoginManagerService;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -33,7 +34,7 @@ public class AuthenticationTokenFilter extends GenericFilterBean {
     String provided = findAuthorization(request);
 
     if(provided != null) {
-      login.getUsernameByToken(UUID.fromString(provided), Util.stringToAddress(request.getRemoteAddr()))
+      login.getUsernameByToken(UUID.fromString(provided), Util.getRemoteAddr(request))
           .map(login::loadUserByUsername)
           .filter(UserDetails::isEnabled)
           .filter(UserDetails::isAccountNonExpired)
