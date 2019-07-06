@@ -74,7 +74,7 @@ public class UserController implements Logging {
     Authentication authentication = auth.authenticate(user.toAuthenticationToken());
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    AccessToken token = AccessTokenFactory.generate(Util.stringToAddress(request.getRemoteAddr()));
+    AccessToken token = AccessTokenFactory.generate(Util.getRemoteAddr(request));
     login.addUserToken(user.getUsername(), token);
 
     return ResponseEntity.ok(UsernameToken.builder()
