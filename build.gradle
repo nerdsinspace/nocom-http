@@ -1,15 +1,18 @@
 import org.apache.tools.ant.filters.ReplaceTokens
+import groovy.io.FileType
 
 buildscript {
     ext {
         dependencyManagementPluginVersion = project.property('bs.spring.dependency.management.version')
         springBootVersion = project.property('bs.spring.boot.plugin.version')
         jooqPluginVersion = project.property('bs.jooq.plugin')
+        flywayPluginVersion = project.property('bs.flyway.version')
 
         log4jVersion = project.property('log4j.version')
         guavaVersion = project.property('guava.version')
         apachePoiVersion = project.property('apache.poi.version')
         xerialSqliteVersion = project.property('xerial.sqlite.version')
+        flywayCoreVersion = project.property('flyway.core.version')
     }
     repositories {
         mavenCentral()
@@ -27,7 +30,6 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'org.springframework.boot'
 apply plugin: 'nu.studer.jooq'
 
 group 'com.matt.nocom'
@@ -37,10 +39,6 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-
-    /*flatDir {
-        dirs 'libs'
-    }*/
 }
 
 configurations {
@@ -56,10 +54,10 @@ dependencyManagement {
 jooq {
     version = '3.11.8'
     edition = 'OSS'
-    sqlite(sourceSets.main) {
+    locations(sourceSets.main) {
         jdbc {
             driver = 'org.sqlite.JDBC'
-            url = "jdbc:sqlite:${System.properties['user.dir']}/${project.property('db.path')}"
+            url = "jdbc:sqlite:./${project.property('db.path')}"
         }
         generator {
             name = 'org.jooq.codegen.DefaultGenerator'
@@ -72,7 +70,7 @@ jooq {
                 properties {
                     property {
                         key = 'scripts'
-                        value = 'src/main/resources/database.schema.sql'
+                        value = project.property('sql.folder.tmp') + '/*' // TODO: when jOOQ 3.12 comes this wont be needed anymore
                     }
                     property {
                         key = 'sort'
@@ -125,12 +123,14 @@ dependencies {
     compile group: 'org.jooq', name: 'jooq'
     compile group: 'org.jooq', name: 'jooq-meta'
     compile group: 'org.jooq', name: 'jooq-codegen'
+    
+    // flyway
+    compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
 
     // minecraft jar
     //compile name: 'minecraft-vanilla'
     compile files("$rootDir/libs/minecraft-vanilla.jar")
     //compile group: 'it.unimi.dsi', name: 'fastutil', version: '8.2.2'
-
 
     compileOnly('org.projectlombok:lombok')
 
@@ -149,3 +149,40 @@ processResources {
 bootRun {
     jvmArgs = ['-Dnocom.auth.debug=true']
 }
+
+task filterAndCopySqlSchemas {
+    def dir = new File(rootProject.projectDir, project.property('sql.folder'))
+    
+    def temp = new File(rootProject.projectDir, project.property('sql.folder.tmp'))
+    // delete folder if it still exists
+    if(temp.exists()) temp.deleteDir()
+    temp.mkdirs()
+    
+    dir.eachFile(FileType.FILES) { file ->
+        def tempFile = new File(temp, file.name)
+        tempFile.write('')
+        
+        Scanner scanner = new Scanner(file.text)
+        def skip = false
+        while(scanner.hasNextLine()) {
+            def line = scanner.nextLine()
+            def trim = line.trim()
+            if(trim.startsWith('--')) {
+                def comment = trim.substring(2)
+                if(comment.contains('[jooq ignore start]'))
+                    skip = true
+                else if(comment.contains('[jooq ignore stop]'))
+                    skip = false
+            }
+            
+            if(!skip)
+                tempFile.append('\n' + line)
+        }
+    }
+}
+
+// make the task always run
+filterAndCopySqlSchemas.outputs.upToDateWhen { false }
+
+// make the codegen depend on the sql filter running
+tasks.generateLocationsJooqSchemaSource.dependsOn(filterAndCopySqlSchemas)
