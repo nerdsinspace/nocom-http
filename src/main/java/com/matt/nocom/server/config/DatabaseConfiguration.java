@@ -7,6 +7,7 @@ import com.matt.nocom.server.util.JOOQToSpringExceptionTransformer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.sql.DataSource;
+import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
@@ -96,6 +97,17 @@ public class DatabaseConfiguration implements Logging {
   @Bean
   public DataSourceInitializer dataSourceInitializer() {
     DataSourceInitializer initializer = new DataSourceInitializer();
+
+    DataSource dataSource = dataSource();
+
+    // start with flyway migration
+    Flyway flyway = Flyway.configure()
+        .dataSource(dataSource)
+        .baselineOnMigrate(true)
+        .baselineVersion("2") // version 1 will overwrite the existing tables (not good)
+        .load();
+    flyway.migrate();
+
     initializer.setDataSource(dataSource());
     initializer.setDatabasePopulator(databaseInitializer);
     return initializer;
