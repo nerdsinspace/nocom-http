@@ -22,10 +22,7 @@ import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jdbc.datasource.init.ScriptException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -34,9 +31,6 @@ import org.springframework.stereotype.Component;
 public class DatabaseInitializer implements Logging, DatabasePopulator {
   private final PasswordEncoder passwordEncoder;
 
-  @Value("classpath:database.init.sql")
-  private Resource schemaSql;
-
   @Autowired
   public DatabaseInitializer(PasswordEncoder passwordEncoder) {
     this.passwordEncoder = passwordEncoder;
@@ -44,9 +38,10 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
 
   @Override
   public void populate(Connection connection) throws SQLException, ScriptException {
-    ResourceDatabasePopulator pop = new ResourceDatabasePopulator();
-    pop.addScript(schemaSql);
-    pop.populate(connection);
+    // do not apply schema - use flyway instead
+    //ResourceDatabasePopulator pop = new ResourceDatabasePopulator();
+    //pop.addScript(schemaSql);
+    //pop.populate(connection);
 
     DSLContext dsl = new DefaultDSLContext(connection, Properties.SQL_DIALECT);
     LoginManagerService login = new LoginManagerService(dsl);

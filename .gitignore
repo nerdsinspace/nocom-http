@@ -4,8 +4,10 @@ build/*
 logs/*
 out/*
 waypoints/*
+old/*
 
 locations.db*
+locations*.db
 
 cuckstantiam.txt
 output.*.log
