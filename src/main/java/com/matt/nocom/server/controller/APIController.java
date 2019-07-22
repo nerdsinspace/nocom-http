@@ -3,7 +3,6 @@ package com.matt.nocom.server.controller;
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.data.worlds.MinecraftWorld;
-import com.matt.nocom.server.data.worlds.MinecraftWorld.Type;
 import com.matt.nocom.server.model.game.Dimension;
 import com.matt.nocom.server.model.game.Location;
 import com.matt.nocom.server.model.game.LocationGroup;
@@ -16,11 +15,14 @@ import com.matt.nocom.server.util.factory.LocationGroupFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -36,11 +38,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("api")
+@PropertySource("database.properties")
 public class APIController implements Logging {
-
+  private final Environment env;
   private final APIService api;
 
-  public APIController(APIService api) {
+  public APIController(Environment env, APIService api) {
+    this.env = env;
     this.api = api;
   }
 
@@ -165,4 +169,20 @@ public class APIController implements Logging {
     }
   }
 
+  @RequestMapping(value = "/database/download",
+      method = RequestMethod.GET)
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<Resource> databaseDownload() throws IOException {
+    Path path = Paths.get("")
+        .resolve(env.getRequiredProperty("db.file"));
+
+    ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+    return ResponseEntity.ok()
+        .header("Content-Disposition", "attachment; filename=" + path.getFileName().toString())
+        .contentLength(Files.size(path))
+        .contentType(MediaType.parseMediaType("application/octet-stream"))
+        .body(resource);
+  }
 }

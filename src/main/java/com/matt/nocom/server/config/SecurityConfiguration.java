@@ -38,7 +38,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
   };
   private static final String[] ADMIN_ONLY_URIS = new String[] {
       "/user/**",
-      "/manager"
+      "/manager",
+      "/api/database/download"
   };
 
   private static final List<RequestMatcher> REST_API_MATCHERS = Util.antMatchers("/api/**", "/user/**");
