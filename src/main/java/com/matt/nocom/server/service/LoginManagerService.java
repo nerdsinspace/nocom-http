@@ -85,6 +85,7 @@ public class LoginManagerService implements UserDetailsService, Logging {
         .from(AUTH_USERS)
         .where(conditions)
         .fetch(record -> User.builder()
+            .id(record.getValue(AUTH_USERS.ID))
             .username(record.getValue(AUTH_USERS.USERNAME))
             .password(record.getValue(AUTH_USERS.PASSWORD))
             .enabled(record.getValue(AUTH_USERS.ENABLED) > 0)
@@ -106,6 +107,14 @@ public class LoginManagerService implements UserDetailsService, Logging {
 
   public Optional<User> getUserById(int id) {
     return getUsers(DSL.and(AUTH_USERS.ID.eq(id))).stream().findFirst();
+  }
+
+  public Optional<Integer> getUserIdByName(String name) {
+    return dsl.select(AUTH_USERS.ID)
+        .from(AUTH_USERS)
+        .where(AUTH_USERS.USERNAME.equalIgnoreCase(name))
+        .limit(1)
+        .fetchOptional(AUTH_USERS.ID);
   }
 
   public List<String> getUsernames() {

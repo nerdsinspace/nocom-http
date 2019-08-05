@@ -9,8 +9,10 @@ import com.matt.nocom.server.model.auth.UsernamePassword;
 import com.matt.nocom.server.model.auth.UsernameToken;
 import com.matt.nocom.server.auth.AccessToken;
 import com.matt.nocom.server.auth.User;
+import com.matt.nocom.server.service.EventService;
 import com.matt.nocom.server.service.LoginManagerService;
 import com.matt.nocom.server.util.CredentialsChecker;
+import com.matt.nocom.server.util.EventTypeRegistry;
 import com.matt.nocom.server.util.Util;
 import com.matt.nocom.server.util.factory.AccessTokenFactory;
 import java.util.Comparator;
@@ -39,14 +41,17 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserController implements Logging {
   private final AuthenticationManager auth;
   private final LoginManagerService login;
+  private final EventService events;
 
   private final PasswordEncoder passwordEncoder;
 
   @Autowired
   public UserController(AuthenticationManager auth,
-      LoginManagerService login, PasswordEncoder passwordEncoder) {
+      LoginManagerService login, EventService events,
+      PasswordEncoder passwordEncoder) {
     this.auth = auth;
     this.login = login;
+    this.events = events;
     this.passwordEncoder = passwordEncoder;
   }
 
@@ -61,6 +66,7 @@ public class UserController implements Logging {
     User user = login.getUser(details.getUsername())
         .filter(User::isNotDebugUser)
         .map(u -> User.builder()
+            .id(u.getId())
             .username(u.getUsername())
             .password(details.getPassword())
             .enabled(u.isEnabled())
@@ -74,13 +80,19 @@ public class UserController implements Logging {
     Authentication authentication = auth.authenticate(user.toAuthenticationToken());
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    AccessToken token = AccessTokenFactory.generate(Util.getRemoteAddr(request));
-    login.addUserToken(user.getUsername(), token);
+    events.publishInfo(authentication, EventTypeRegistry.USER__LOGIN, "Logged in via API");
 
-    return ResponseEntity.ok(UsernameToken.builder()
-        .username(user.getUsername())
-        .token(token.getToken())
-        .build());
+    AccessToken token = AccessTokenFactory.generate(Util.getRemoteAddr(request));
+
+    if(login.addUserToken(user.getUsername(), token) > 0) {
+      events.publishInfo(EventTypeRegistry.USER__LOGIN__CREATE_TOKEN, "Created new access token");
+
+      return ResponseEntity.ok(UsernameToken.builder()
+          .username(user.getUsername())
+          .token(token.getToken())
+          .build());
+    }
+    else throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Access token could not be created");
   }
 
   @RequestMapping(value = "/registered",
@@ -116,6 +128,8 @@ public class UserController implements Logging {
       // add the user to the database
       login.addUser(user);
 
+      events.publishInfo(EventTypeRegistry.USER__REGISTER, "Registered a new user '%s'", details.getUsername());
+
       // add the user to any groups provided
       login.addUserToGroups(user.getUsername(), user.getGroups().toArray(new UserGroup[0]));
     } catch (IllegalUsernameException | ShortPasswordException e) {
@@ -129,7 +143,8 @@ public class UserController implements Logging {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public void unregister(@PathVariable("username") String username) {
-    login.removeUser(username);
+    if(login.removeUser(username) > 0)
+      events.publishInfo(EventTypeRegistry.USER__UNREGISTER, "Unregistered user '%s'", username);
   }
 
   @RequestMapping(value = "/tokens",
@@ -158,7 +173,9 @@ public class UserController implements Logging {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public void expireUserTokens(@PathVariable("username") String username) {
-    login.expireUserTokens(username);
+    int n = login.expireUserTokens(username);
+    if(n > 0)
+      events.publishInfo(EventTypeRegistry.USER__EXPIRE_TOKENS, "Expired all (%d) of %s's access token(s)", n, username);
   }
 
   @RequestMapping(value = "/tokens/expire/{uuid}",
@@ -167,7 +184,8 @@ public class UserController implements Logging {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public void expireUuid(@PathVariable("uuid") String uuid) {
-    login.expireToken(UUID.fromString(uuid));
+    if(login.expireToken(UUID.fromString(uuid)) > 0)
+      events.publishInfo(EventTypeRegistry.USER__EXPIRE_ONE_TOKEN, "Expired single token");
   }
 
   @RequestMapping(value = "/set/enabled/{username}",
@@ -177,6 +195,7 @@ public class UserController implements Logging {
   @ResponseBody
   public void setUserEnabled(@PathVariable("username") String username,
       @RequestParam("enabled") boolean enabled) {
-    login.setUserEnabled(username, enabled);
+    if(login.setUserEnabled(username, enabled) > 0)
+      events.publishInfo(EventTypeRegistry.USER__SET_ENABLE, "%s user %s", enabled ? "Enabled" : "Disabled", username);
   }
 }

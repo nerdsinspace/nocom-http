@@ -11,6 +11,8 @@ import com.matt.nocom.server.model.game.RegionFileFilter;
 import com.matt.nocom.server.model.game.Position;
 import com.matt.nocom.server.model.game.SearchFilter;
 import com.matt.nocom.server.service.APIService;
+import com.matt.nocom.server.service.EventService;
+import com.matt.nocom.server.util.EventTypeRegistry;
 import com.matt.nocom.server.util.factory.LocationGroupFactory;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,10 +44,13 @@ import org.springframework.web.server.ResponseStatusException;
 public class APIController implements Logging {
   private final Environment env;
   private final APIService api;
+  private final EventService events;
 
-  public APIController(Environment env, APIService api) {
+  public APIController(Environment env, APIService api,
+      EventService events) {
     this.env = env;
     this.api = api;
+    this.events = events;
   }
 
   @RequestMapping(value = "/upload/locations",
@@ -59,16 +64,33 @@ public class APIController implements Logging {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "Must contain at least one location object.");
 
-    api.addServers(Arrays.stream(locations)
-        .map(Location::getServer)
-        .map(String::toLowerCase)
-        .collect(Collectors.toSet()));
+    int n; // count of inserts
 
-    api.addPositions(Arrays.stream(locations)
-        .map(Location::toPosition)
-        .collect(Collectors.toSet()));
+    n = Arrays.stream(
+        api.addServers(Arrays.stream(locations)
+            .map(Location::getServer)
+            .map(String::toLowerCase)
+            .collect(Collectors.toSet()))
+    ).sum();
 
-    api.addLocations(Arrays.asList(locations));
+    if(n > 0)
+      events.publishInfo(EventTypeRegistry.API__ADD_LOCATION__SERVERS, "Added %d new servers", n);
+
+    n = Arrays.stream(
+        api.addPositions(Arrays.stream(locations)
+            .map(Location::toPosition)
+            .collect(Collectors.toSet()))
+    ).sum();
+
+    if(n > 0)
+      events.publishInfo(EventTypeRegistry.API__ADD_LOCATION__POSITIONS, "Added %d new unique coordinates", n);
+
+    n = Arrays.stream(
+        api.addLocations(Arrays.asList(locations))
+    ).sum();
+
+    if(n > 0)
+      events.publishInfo(EventTypeRegistry.API__ADD_LOCATION, "Added %d total locations", n);
   }
 
   @RequestMapping(value = "/search/locations",
@@ -174,6 +196,8 @@ public class APIController implements Logging {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<Resource> databaseDownload() throws IOException {
+    events.publishInfo(EventTypeRegistry.API__DOWNLOAD_DATABASE, "Downloaded the database");
+
     Path path = Paths.get("")
         .resolve(env.getRequiredProperty("db.file"));
 
