@@ -169,10 +169,13 @@ task filterAndCopySqlSchemas {
             def trim = line.trim()
             if(trim.startsWith('--')) {
                 def comment = trim.substring(2)
-                if(comment.contains('[jooq ignore start]'))
+                if(comment.contains('[jooq ignore start]')) {
                     skip = true
-                else if(comment.contains('[jooq ignore stop]'))
+                    continue
+                } else if(comment.contains('[jooq ignore stop]')) {
                     skip = false
+                    continue // skip this line because its a comment
+                }
             }
             
             if(!skip)
