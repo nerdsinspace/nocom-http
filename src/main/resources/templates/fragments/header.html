@@ -3,31 +3,44 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <body>
 <th:block th:fragment="header">
-  <nav class="navbar navbar-inverse navbar-static-top">
-    <div class="container">
-      <div class="navbar-header">
-      </div>
-      <div id="navbar" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav">
-          <li class="active" sec:authorize="!isFullyAuthenticated()">
-            <a th:href="@{/}">Login</a>
-          </li>
-          <li sec:authorize="isFullyAuthenticated()">
-            <a th:href="@{/logout}">Logout</a>
-          </li>
-          <li sec:authorize="hasAnyAuthority('ADMIN', 'DEBUG')">
-            <a th:href="@{/manager}">Account Manager</a>
-          </li>
-          <li sec:authorize="isFullyAuthenticated()">
-            <a th:href="@{/overview}">Overview</a>
-          </li>
-          <li sec:authorize="isFullyAuthenticated()">
-            <a th:href="@{/listview}">ListView</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">&#129313;</a>
+  <div id="navbarSupportedContent" class="collapse navbar-collapse justify-content-between">
+    <ul class="navbar-nav">
+      <li class="nav-item"
+          th:classappend="${(#httpServletRequest.getRequestURI().equals('/') || #httpServletRequest.getRequestURI().startsWith('/login')) ? 'active' : ''}"
+          sec:authorize="!isFullyAuthenticated()">
+        <a class="nav-link" th:href="@{/}">Login</a>
+      </li>
+      <li class="nav-item"
+          th:classappend="${#httpServletRequest.getRequestURI().startsWith('/manager') ? 'active' : ''}"
+          sec:authorize="hasAnyAuthority('ADMIN', 'DEBUG')">
+        <a class="nav-link" th:href="@{/manager}">Manager</a>
+      </li>
+      <li class="nav-item"
+          th:classappend="${#httpServletRequest.getRequestURI().startsWith('/events') ? 'active' : ''}"
+          sec:authorize="hasAnyAuthority('ADMIN', 'DEBUG')">
+        <a class="nav-link" th:href="@{/events}">Events</a>
+      </li>
+      <li class="nav-item"
+          th:classappend="${#httpServletRequest.getRequestURI().startsWith('/overview') ? 'active' : ''}"
+          sec:authorize="isFullyAuthenticated()">
+        <a class="nav-link" th:href="@{/overview}">Overview</a>
+      </li>
+      <li class="nav-item"
+          th:classappend="${#httpServletRequest.getRequestURI().startsWith('/listview') ? 'active' : ''}"
+          sec:authorize="isFullyAuthenticated()">
+        <a class="nav-link" th:href="@{/listview}">Listview</a>
+      </li>
+    </ul>
+
+    <ul class="navbar-nav ml-auto" sec:authorize="isFullyAuthenticated()">
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/logout}">Logout</a>
+      </li>
+    </ul>
+  </div>
+</nav>
 </th:block>
 </body>
 </html>
