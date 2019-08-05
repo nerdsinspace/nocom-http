@@ -2,12 +2,15 @@ package com.matt.nocom.server.service;
 
 import static com.matt.nocom.server.sqlite.Tables.AUTH_GROUPS;
 import static com.matt.nocom.server.sqlite.Tables.DIMENSIONS;
+import static com.matt.nocom.server.sqlite.Tables.EVENT_TYPES;
 
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.auth.User;
 import com.matt.nocom.server.auth.UserGroup;
+import com.matt.nocom.server.model.event.EventType;
 import com.matt.nocom.server.model.game.Dimension;
+import com.matt.nocom.server.util.EventTypeRegistry;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,6 +53,8 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
     loadGroups(dsl);
 
     initializeAccounts(dsl, login);
+
+    addAllEventTypes(dsl);
   }
 
   private void loadDimensions(DSLContext dsl) {
@@ -177,5 +182,29 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
 
       LOGGER.trace("Admins file successfully parsed");
     }
+  }
+
+  private void addAllEventTypes(DSLContext dsl) {
+    for(EventType type : EventTypeRegistry.all()) {
+      if(!dsl.select(EVENT_TYPES.HASH)
+          .from(EVENT_TYPES)
+          .where(EVENT_TYPES.HASH.eq(type.getHash()))
+          .limit(1)
+          .fetchOptional().isPresent()) {
+        // event type is missing from database, add it now
+        dsl.insertInto(EVENT_TYPES, EVENT_TYPES.NAME, EVENT_TYPES.HASH)
+            .values(type.getType(), type.getHash())
+            .execute();
+      }
+
+      // update existing event types id with the one that is in the database
+      type.__set_id(dsl.select(EVENT_TYPES.ID)
+          .from(EVENT_TYPES)
+          .where(EVENT_TYPES.HASH.eq(type.getHash()))
+          .limit(1)
+          .fetchOne(EVENT_TYPES.ID));
+    }
+
+    LOGGER.trace("EventTypes initialized");
   }
 }

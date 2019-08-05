@@ -23,6 +23,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
+  @Default
+  private int id = -1;
+
   private String username;
   private String password; // encrypted
 

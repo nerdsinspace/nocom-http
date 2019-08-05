@@ -8,6 +8,7 @@ import org.jooq.SQLDialect;
 public interface Properties {
   SQLDialect SQL_DIALECT  = SQLDialect.SQLITE;
 
+  boolean DEV_MODE        = Boolean.valueOf(System.getProperty("nocom.dev", "false"));
   boolean DEBUG_AUTH      = Boolean.valueOf(System.getProperty("nocom.auth.debug", "false"));
 
   String DEBUG_USERNAME   = System.getProperty("nocom.auth.debug.username", "root");
