@@ -39,7 +39,9 @@ public class Util implements Logging {
   }
 
   public static UsernamePasswordAuthenticationToken toAuthenticationToken(UserDetails details) {
-    return new UsernamePasswordAuthenticationToken(details.getUsername(), details.getPassword(), details.getAuthorities());
+    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(details.getUsername(), details.getPassword(), details.getAuthorities());
+    token.setDetails(details);
+    return token;
   }
 
   public static List<RequestMatcher> antMatchers(String... uris) {
