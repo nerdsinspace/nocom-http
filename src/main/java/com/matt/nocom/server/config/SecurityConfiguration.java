@@ -34,13 +34,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
       "/",
       "/user/login",
       "/js/**",
+      "/webjars/**",
       "/css/**",
       "/fonts/**",
       "/img/**"
   };
   private static final String[] ADMIN_ONLY_URIS = new String[] {
       "/user/**",
-      "/manager",
+      "/accounts",
+      "/events**",
       "/api/database/download"
   };
 
