@@ -111,8 +111,8 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: guavaVersion
     
     // Spread sheet building
-    compile group: 'org.apache.poi', name: 'poi', version: apachePoiVersion
-    compile group: 'org.apache.poi', name: 'poi-ooxml', version: apachePoiVersion
+    //compile group: 'org.apache.poi', name: 'poi', version: apachePoiVersion
+    //compile group: 'org.apache.poi', name: 'poi-ooxml', version: apachePoiVersion
     
     // SQLite driver
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
@@ -134,6 +134,16 @@ dependencies {
 
     compileOnly('org.projectlombok:lombok')
 
+    //compile group: 'org.webjars', name: 'requirejs', version: '2.1.5'
+    compile group: 'org.webjars', name: 'webjars-locator', version: '0.30'
+
+    compile 'org.webjars:jquery:3.4.1'
+    compile 'org.webjars:popper.js:1.15.0'
+    compile 'org.webjars:bootstrap:4.3.1'
+    compile 'org.webjars:momentjs:2.24.0'
+    compile 'org.webjars.bower:fontawesome:4.7.0'
+    compile 'org.webjars.bower:plotly.js:1.48.3'
+
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
@@ -141,7 +151,7 @@ dependencies {
 processResources {
     filesMatching('**/*.properties') {
         filter ReplaceTokens, tokens: [
-                'db.path': project.property('db.path')
+            'db.path': project.property('db.path')
         ]
     }
 }

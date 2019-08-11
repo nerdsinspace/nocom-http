@@ -7,11 +7,13 @@ import com.matt.nocom.server.service.LoginManagerService;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Controller
 public class UIController {
@@ -52,11 +54,11 @@ public class UIController {
     return "secret/listview";
   }
 
-  @GetMapping("/manager")
-  public String manager(Model model) {
+  @GetMapping("/accounts")
+  public String accounts(Model model) {
     model.addAttribute("usersData", login.getUserData());
     model.addAttribute("authGroups", UserGroup.production());
-    return "secret/manager";
+    return "secret/accounts";
   }
 
   @GetMapping("/events/{page}")
@@ -73,6 +75,7 @@ public class UIController {
     int _type = type.orElse(-1);
     long _beginTime = beginTime.orElse(-1L);
     long _endTime = endTime.orElse(-1L);
+
     model.addAttribute("events", events.getEvents(_view, page, _level, _type, _beginTime, _endTime));
     model.addAttribute("levels", events.getEventLevels());
     model.addAttribute("types", events.getEventTypes().stream()
