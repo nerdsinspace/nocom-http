@@ -13,6 +13,14 @@ buildscript {
         apachePoiVersion = project.property('apache.poi.version')
         xerialSqliteVersion = project.property('xerial.sqlite.version')
         flywayCoreVersion = project.property('flyway.core.version')
+
+        webjarsVersion = project.property('webjars.version')
+        webjarsJqueryVersion = project.property('webjars.jquery.version')
+        webjarsPopperVersion = project.property('webjars.popper.version')
+        webjarsBootstrapVersion = project.property('webjars.bootstrap.version')
+        webjarsMomentjsVersion = project.property('webjars.momentjs.version')
+        webjarsFontawesomeVersion = project.property('webjars.fontawesome.version')
+        webjarsPlotlyVersion = project.property('webjars.plotly.version')
     }
     repositories {
         mavenCentral()
@@ -125,7 +133,7 @@ dependencies {
     compile group: 'org.jooq', name: 'jooq-codegen'
     
     // flyway
-    compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
+    compile group: 'org.flywaydb', name: 'flyway-core', version: flywayCoreVersion
 
     // minecraft jar
     //compile name: 'minecraft-vanilla'
@@ -134,15 +142,18 @@ dependencies {
 
     compileOnly('org.projectlombok:lombok')
 
-    //compile group: 'org.webjars', name: 'requirejs', version: '2.1.5'
-    compile group: 'org.webjars', name: 'webjars-locator', version: '0.30'
+    // webjars
 
-    compile 'org.webjars:jquery:3.4.1'
-    compile 'org.webjars:popper.js:1.15.0'
-    compile 'org.webjars:bootstrap:4.3.1'
-    compile 'org.webjars:momentjs:2.24.0'
-    compile 'org.webjars.bower:fontawesome:4.7.0'
-    compile 'org.webjars.bower:plotly.js:1.48.3'
+    // locator - used for locating assets without the version
+    compile group: 'org.webjars', name: 'webjars-locator', version: webjarsVersion
+
+    // web assets
+    compile group: 'org.webjars', name: 'jquery', version: webjarsJqueryVersion
+    compile group: 'org.webjars', name: 'popper', version: webjarsPopperVersion
+    compile group: 'org.webjars', name: 'bootstrap', version: webjarsBootstrapVersion
+    compile group: 'org.webjars', name: 'momentjs', version: webjarsMomentjsVersion
+    compile group: 'org.webjars.bower', name: 'fontawesome', version: webjarsFontawesomeVersion
+    compile group: 'org.webjars.bower', name: 'plotly', version: webjarsPlotlyVersion
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testCompile group: 'junit', name: 'junit', version: '4.12'
