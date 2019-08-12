@@ -1,6 +1,7 @@
 package com.matt.nocom.server.util;
 
 import com.matt.nocom.server.Logging;
+import com.matt.nocom.server.Properties;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -16,10 +17,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
 
 public class Util implements Logging {
-  private static final String[] REMOTE_IP_HEADERS = {
-      "X-REAL-IP"
-  };
-
   public static boolean arraysSameLength(Object[]... arrays) {
     if (arrays.length > 0) {
       int len = arrays[0].length;
@@ -62,7 +59,7 @@ public class Util implements Logging {
     return Optional.of(request)
         .map(req -> {
           // for reverse proxy compatibility
-          for(String header : REMOTE_IP_HEADERS) {
+          for(String header : Properties.HTTP_REAL_IP_HEADERS) {
             String content = req.getHeader(header);
             if(content != null)
               return content; // return first valid header
@@ -84,7 +81,7 @@ public class Util implements Logging {
     return Optional.of(request)
         .map(req -> {
           // for reverse proxy compatibility
-          for(String header : REMOTE_IP_HEADERS) {
+          for(String header : Properties.HTTP_REAL_IP_HEADERS) {
             String content = req.getHeader(header);
             if(content != null) {
               try {
