@@ -149,11 +149,10 @@ dependencies {
 
     // web assets
     compile group: 'org.webjars', name: 'jquery', version: webjarsJqueryVersion
-    compile group: 'org.webjars', name: 'popper', version: webjarsPopperVersion
     compile group: 'org.webjars', name: 'bootstrap', version: webjarsBootstrapVersion
     compile group: 'org.webjars', name: 'momentjs', version: webjarsMomentjsVersion
     compile group: 'org.webjars.bower', name: 'fontawesome', version: webjarsFontawesomeVersion
-    compile group: 'org.webjars.bower', name: 'plotly', version: webjarsPlotlyVersion
+    compile group: 'org.webjars.bower', name: 'plotly.js', version: webjarsPlotlyVersion
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testCompile group: 'junit', name: 'junit', version: '4.12'
