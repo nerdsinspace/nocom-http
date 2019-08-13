@@ -1,6 +1,6 @@
-package com.matt.nocom.server.model.game;
+package com.matt.nocom.server.model.sql.data;
 
-import com.matt.nocom.server.data.worlds.MinecraftWorld;
+import com.matt.nocom.server.minecraft.world.MinecraftWorld;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

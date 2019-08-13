@@ -6,10 +6,10 @@ import static com.matt.nocom.server.sqlite.Tables.EVENT_TYPES;
 
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.Properties;
-import com.matt.nocom.server.auth.User;
-import com.matt.nocom.server.auth.UserGroup;
-import com.matt.nocom.server.model.event.EventType;
-import com.matt.nocom.server.model.game.Dimension;
+import com.matt.nocom.server.model.sql.auth.User;
+import com.matt.nocom.server.model.sql.auth.UserGroup;
+import com.matt.nocom.server.model.sql.event.EventType;
+import com.matt.nocom.server.model.sql.data.Dimension;
 import com.matt.nocom.server.util.EventTypeRegistry;
 import java.io.IOException;
 import java.nio.file.Files;

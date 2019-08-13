@@ -1,7 +1,7 @@
 package com.matt.nocom.server.util;
 
 import com.google.common.collect.Lists;
-import com.matt.nocom.server.model.event.EventLevel;
+import com.matt.nocom.server.model.sql.event.EventLevel;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

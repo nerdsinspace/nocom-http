@@ -1,9 +1,9 @@
-package com.matt.nocom.server.model.game;
+package com.matt.nocom.server.model.http.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.MoreObjects;
+import com.matt.nocom.server.model.sql.data.Position;
 import com.matt.nocom.server.util.Region;
 import com.matt.nocom.server.util.WorldEntry;
 import com.matt.nocom.server.util.VectorXZ;
@@ -11,9 +11,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.matt.nocom.server.data.worlds.MinecraftWorld;
-import com.matt.nocom.server.data.worlds.MinecraftWorld.Type;
-import com.matt.nocom.server.model.game.LocationGroup.Serializer;
+import com.matt.nocom.server.minecraft.world.MinecraftWorld;
+import com.matt.nocom.server.minecraft.world.MinecraftWorld.Type;
+import com.matt.nocom.server.model.http.data.LocationGroup.Serializer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -24,7 +24,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
-import org.springframework.http.ResponseEntity;
 
 @Getter
 @Setter

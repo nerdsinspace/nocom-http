@@ -2,7 +2,7 @@ package com.matt.nocom.server.util.factory;
 
 import com.google.common.collect.Lists;
 import com.matt.nocom.server.Properties;
-import com.matt.nocom.server.auth.AccessToken;
+import com.matt.nocom.server.model.sql.auth.AccessToken;
 import com.matt.nocom.server.util.Util;
 import java.net.InetAddress;
 import java.util.List;

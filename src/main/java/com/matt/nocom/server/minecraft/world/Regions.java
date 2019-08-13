@@ -1,4 +1,4 @@
-package com.matt.nocom.server.data.worlds;
+package com.matt.nocom.server.minecraft.world;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
