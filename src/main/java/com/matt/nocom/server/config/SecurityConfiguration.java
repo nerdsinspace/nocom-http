@@ -1,7 +1,7 @@
 package com.matt.nocom.server.config;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.auth.UserGroup;
+import com.matt.nocom.server.model.sql.auth.UserGroup;
 import com.matt.nocom.server.listeners.auth.UserAccessDeniedHandler;
 import com.matt.nocom.server.listeners.auth.UserLoginSuccessfulHandler;
 import com.matt.nocom.server.service.EventService;

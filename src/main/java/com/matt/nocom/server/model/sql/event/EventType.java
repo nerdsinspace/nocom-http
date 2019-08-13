@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model.event;
+package com.matt.nocom.server.model.sql.event;
 
 import com.google.common.hash.Hashing;
 import lombok.AllArgsConstructor;

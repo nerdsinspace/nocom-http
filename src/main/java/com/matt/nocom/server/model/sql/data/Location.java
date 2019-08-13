@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model.game;
+package com.matt.nocom.server.model.sql.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.matt.nocom.server.minecraft.BiomeSupplier;

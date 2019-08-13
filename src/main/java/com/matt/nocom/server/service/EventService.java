@@ -1,9 +1,9 @@
 package com.matt.nocom.server.service;
 
-import com.matt.nocom.server.auth.User;
-import com.matt.nocom.server.model.event.Event;
-import com.matt.nocom.server.model.event.EventLevel;
-import com.matt.nocom.server.model.event.EventType;
+import com.matt.nocom.server.model.sql.auth.User;
+import com.matt.nocom.server.model.sql.event.Event;
+import com.matt.nocom.server.model.sql.event.EventLevel;
+import com.matt.nocom.server.model.sql.event.EventType;
 import com.matt.nocom.server.util.EventLevelRegistry;
 import com.matt.nocom.server.util.EventTypeRegistry;
 import java.util.Collection;
