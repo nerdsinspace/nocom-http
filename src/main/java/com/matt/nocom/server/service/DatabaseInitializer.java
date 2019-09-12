@@ -132,11 +132,7 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
 
   private void addAllEventTypes(DSLContext dsl) {
     for(EventType type : EventTypeRegistry.all()) {
-      if(!dsl.select(EVENT_TYPES.HASH)
-          .from(EVENT_TYPES)
-          .where(EVENT_TYPES.HASH.eq(type.getHash()))
-          .limit(1)
-          .fetchOptional().isPresent()) {
+      if (!dsl.fetchExists(EVENT_TYPES, EVENT_TYPES.HASH.eq(type.getHash()))) {
         // event type is missing from database, add it now
         dsl.insertInto(EVENT_TYPES, EVENT_TYPES.NAME, EVENT_TYPES.HASH)
             .values(type.getType(), type.getHash())
