@@ -14,9 +14,9 @@
       </li>
       <li class="nav-item dropdown"
           th:classappend="${(#httpServletRequest.getRequestURI().startsWith('/account') || #httpServletRequest.getRequestURI().startsWith('/events')) ? 'active' : ''}"
-          sec:authorize="hasAnyAuthority('ADMIN', 'DEBUG')">
+          sec:authorize="hasAnyAuthority(@adminAuthorities)">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <label class="col-form-label">Manage</label>
+          Manage
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item px-2" th:href="@{/accounts}">

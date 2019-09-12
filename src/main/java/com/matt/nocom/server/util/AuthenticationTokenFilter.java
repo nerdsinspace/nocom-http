@@ -1,8 +1,8 @@
 package com.matt.nocom.server.util;
 
-import com.matt.nocom.server.service.LoginManagerService;
+import com.matt.nocom.server.service.auth.LoginService;
+import com.matt.nocom.server.service.auth.UserAuthenticationProvider;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -18,13 +18,16 @@ import org.springframework.web.filter.GenericFilterBean;
 
 public class AuthenticationTokenFilter extends GenericFilterBean {
   private static final String AUTHORIZATION_IDENTIFIER = "Authorization";
-
-  private final LoginManagerService login;
+  
+  private final LoginService login;
+  private final UserAuthenticationProvider authProvider;
   private final AuthenticationManager authentication;
-
-  public AuthenticationTokenFilter(LoginManagerService login,
+  
+  public AuthenticationTokenFilter(LoginService login,
+      UserAuthenticationProvider authProvider,
       AuthenticationManager authentication) {
     this.login = login;
+    this.authProvider = authProvider;
     this.authentication = authentication;
   }
 
@@ -35,7 +38,7 @@ public class AuthenticationTokenFilter extends GenericFilterBean {
 
     if(provided != null) {
       login.getUsernameByToken(UUID.fromString(provided), Util.getRemoteAddr(request))
-          .map(login::loadUserByUsername)
+          .map(authProvider::loadUserByUsername)
           .filter(UserDetails::isEnabled)
           .filter(UserDetails::isAccountNonExpired)
           .filter(UserDetails::isAccountNonLocked)

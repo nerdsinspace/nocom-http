@@ -2,6 +2,7 @@ package com.matt.nocom.server.util;
 
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.Properties;
+import com.matt.nocom.server.model.sql.auth.User;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -11,10 +12,11 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.util.AntPathMatcher;
 
 public class Util implements Logging {
   public static boolean arraysSameLength(Object[]... arrays) {
@@ -36,9 +38,8 @@ public class Util implements Logging {
   }
 
   public static UsernamePasswordAuthenticationToken toAuthenticationToken(UserDetails details) {
-    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(details.getUsername(), details.getPassword(), details.getAuthorities());
-    token.setDetails(details);
-    return token;
+    return new UsernamePasswordAuthenticationToken(details, details.getPassword(),
+        details.getAuthorities());
   }
 
   public static List<RequestMatcher> antMatchers(String... uris) {
@@ -94,5 +95,12 @@ public class Util implements Logging {
           return null;
         })
         .orElse(stringToAddress(request.getRemoteAddr()));
+  }
+  
+  public static Optional<User> getCurrentUserContext() {
+    return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+        .map(Authentication::getPrincipal)
+        .filter(User.class::isInstance)
+        .map(User.class::cast);
   }
 }
