@@ -1,9 +1,11 @@
 package com.matt.nocom.server.controller;
 
-import com.matt.nocom.server.model.sql.auth.UserGroup;
+import com.matt.nocom.server.model.shared.auth.UserGroup;
+import com.matt.nocom.server.model.sql.auth.User;
 import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.service.EventService;
-import com.matt.nocom.server.service.LoginManagerService;
+import com.matt.nocom.server.service.auth.LoginService;
+import com.matt.nocom.server.util.Util;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,11 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class UIController {
   private final APIService api;
-  private final LoginManagerService login;
+  private final LoginService login;
   private final EventService events;
-
-  public UIController(APIService api, LoginManagerService login,
-      EventService events) {
+  
+  public UIController(APIService api, LoginService login, EventService events) {
     this.api = api;
     this.login = login;
     this.events = events;
@@ -54,9 +55,27 @@ public class UIController {
 
   @GetMapping("/accounts")
   public String accounts(Model model) {
-    model.addAttribute("usersData", login.getUserData());
-    model.addAttribute("authGroups", UserGroup.production());
+    model.addAttribute("usersData", login.getUsers());
+    model.addAttribute("authGroups", UserGroup.all());
     return "secret/accounts";
+  }
+  
+  @GetMapping("/account/{username}")
+  public String account(@PathVariable("username") String username, Model model) {
+    final User accessUser = Util.getCurrentUserContext()
+        .map(User::getUsername)
+        .flatMap(login::getUser) // get the current user data
+        .orElseThrow(NullPointerException::new);
+    model.addAttribute("accessUser", accessUser);
+    model.addAttribute("user",
+        login.getUser(username).orElseThrow(NullPointerException::new));
+    model.addAttribute("authGroups",
+        UserGroup.all().stream()
+            .filter(v -> v.getLevel() <= accessUser.getLevel())
+            .sorted(Comparator.comparing(UserGroup::getLevel).reversed())
+            .collect(Collectors.toList()));
+    model.addAttribute("activeTokens", login.getUserTokens(username));
+    return "secret/account";
   }
 
   @GetMapping("/events/{page}")

@@ -1,9 +1,14 @@
 package com.matt.nocom.server.service;
 
+import static com.matt.nocom.server.sqlite.Tables.EVENTS;
+import static com.matt.nocom.server.sqlite.Tables.EVENT_LEVELS;
+import static com.matt.nocom.server.sqlite.Tables.EVENT_TYPES;
+
 import com.matt.nocom.server.model.sql.auth.User;
 import com.matt.nocom.server.model.sql.event.Event;
 import com.matt.nocom.server.model.sql.event.EventLevel;
 import com.matt.nocom.server.model.sql.event.EventType;
+import com.matt.nocom.server.service.auth.LoginService;
 import com.matt.nocom.server.util.EventLevelRegistry;
 import com.matt.nocom.server.util.EventTypeRegistry;
 import java.util.Collection;
@@ -18,8 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import static com.matt.nocom.server.sqlite.Tables.*;
-
 @Component
 public class EventService {
   private static final int SYSTEM_ID = -1;
@@ -33,10 +36,10 @@ public class EventService {
   }
 
   private final DSLContext dsl;
-  private final LoginManagerService login;
+  private final LoginService login;
 
   @Autowired
-  public EventService(DSLContext dsl, LoginManagerService login) {
+  public EventService(DSLContext dsl, LoginService login) {
     this.dsl = dsl;
     this.login = login;
   }
@@ -77,8 +80,9 @@ public class EventService {
   public int publish(EventLevel level, EventType type, Authentication auth, String format, Object... args) {
     return publish(level, type,
         Optional.ofNullable(auth)
-            .flatMap(au -> login.getUser(au.getName()))
-            .orElse(system()),
+            .map(Authentication::getName)
+            .flatMap(login::getUser)
+            .orElseThrow(() -> new Error("No matching user found")),
         format, args);
   }
 
@@ -90,12 +94,7 @@ public class EventService {
     return publish(EventLevelRegistry.INFO, type, user, format, args);
   }
   public int publishInfo(Authentication auth, EventType type, String format, Object... args) {
-    return publishInfo(
-        Optional.ofNullable(auth)
-            .flatMap(au -> login.getUser(au.getName()))
-            .orElse(system()),
-        type, format, args
-    );
+    return publish(EventLevelRegistry.INFO, type, auth, format, args);
   }
   public int publishInfo(EventType type, String format, Object... args) {
     return publishInfo(SecurityContextHolder.getContext().getAuthentication(), type, format, args);
@@ -145,8 +144,9 @@ public class EventService {
     return EventTypeRegistry.getByHash(hash)
         .orElseGet(() -> EventTypeRegistry.create(id, name, hash));
   }
-
-  public List<Event> getEvents(int view, int page, int level, int type, long beginDate, long endDate) {
+  
+  public List<Event> getEvents(int view, int page, int level, int type,
+      long beginDate, long endDate) {
     view = Math.max(1, view);
     page = Math.max(1, page);
 
@@ -173,10 +173,7 @@ public class EventService {
   }
 
   public Collection<EventType> getEventTypes() {
-    return dsl.select(EVENT_TYPES.ID,
-        EVENT_TYPES.NAME,
-        EVENT_TYPES.HASH)
-        .from(EVENT_TYPES)
+    return dsl.selectFrom(EVENT_TYPES)
         .fetch(record -> getOrCreateEventType(
             record.getValue(EVENT_TYPES.ID),
             record.getValue(EVENT_TYPES.NAME),
@@ -186,7 +183,7 @@ public class EventService {
   public Collection<EventLevel> getEventLevels() {
     return EventLevelRegistry.all();
   }
-
+  
   public int getEventCount() {
     return dsl.fetchCount(EVENTS);
   }

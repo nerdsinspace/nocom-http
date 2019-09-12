@@ -1,15 +1,14 @@
 package com.matt.nocom.server.service;
 
-import static com.matt.nocom.server.sqlite.Tables.AUTH_GROUPS;
+import static com.matt.nocom.server.sqlite.Tables.AUTH_USERS;
 import static com.matt.nocom.server.sqlite.Tables.DIMENSIONS;
 import static com.matt.nocom.server.sqlite.Tables.EVENT_TYPES;
 
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.Properties;
-import com.matt.nocom.server.model.sql.auth.User;
-import com.matt.nocom.server.model.sql.auth.UserGroup;
-import com.matt.nocom.server.model.sql.event.EventType;
+import com.matt.nocom.server.model.shared.auth.UserGroup;
 import com.matt.nocom.server.model.sql.data.Dimension;
+import com.matt.nocom.server.model.sql.event.EventType;
 import com.matt.nocom.server.util.EventTypeRegistry;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
@@ -47,12 +45,10 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
     //pop.populate(connection);
 
     DSLContext dsl = new DefaultDSLContext(connection, Properties.SQL_DIALECT);
-    LoginManagerService login = new LoginManagerService(dsl);
-
+  
     loadDimensions(dsl);
-    loadGroups(dsl);
-
-    initializeAccounts(dsl, login);
+  
+    loadUsers(dsl);
 
     addAllEventTypes(dsl);
   }
@@ -78,80 +74,27 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
 
     LOGGER.trace("Dimensions initialized");
   }
-
-  private void loadGroups(DSLContext dsl) {
-    final EnumSet<UserGroup> active = UserGroup.active();
-
-    // find existing groups
-    List<UserGroup> existing = dsl.select(AUTH_GROUPS.NAME)
-        .from(AUTH_GROUPS)
-        .fetch(record -> UserGroup.valueOf(record.getValue(AUTH_GROUPS.NAME)));
-
-    // add groups that do not exist in the current database
-    // doing it this way will prevent the table increment from incrementing the id
-    dsl.batch(
-        active.stream()
-            .filter(g -> !existing.contains(g))
-            .sorted()
-            .map(ug -> dsl.insertInto(AUTH_GROUPS, AUTH_GROUPS.NAME, AUTH_GROUPS.LEVEL)
-                .values(ug.getName(), ug.getLevel()))
-            .collect(Collectors.toList())
-    ).execute();
-
-    LOGGER.trace("UserGroups initialized");
-  }
-
-  private void addOrUpdateUser(LoginManagerService login, String username, String password, UserGroup... groups) {
-    User user = login.getUser(username).orElse(null);
-    if(user != null) {
-      // update existing user with provided password
-      login.setUserPassword(username, passwordEncoder.encode(password));
-      // enable just in case
-      login.setUserEnabled(username, true);
-    } else {
-      login.addUser(User.builder()
-          .username(username)
-          .password(passwordEncoder.encode(password))
-          .enabled(true)
-          .build());
-    }
-
-    // add debug user back to groups just in case they have been removed from them
-    if(user == null || !user.getGroups().containsAll(Arrays.asList(groups))) {
-      login.addUserToGroups(username, groups);
-    }
-  }
-
-  private void deleteDebugUsers(LoginManagerService login) {
-    login.getUsers().stream()
-        .filter(user -> user.getGroups().contains(UserGroup.DEBUG))
-        .forEach(user -> {
-          login.removeUser(user.getUsername());
-          LOGGER.trace("Removed debug user " + user.getUsername());
-        });
-
-    LOGGER.trace("Debug users removed from database");
-  }
-
-  private void initializeAccounts(DSLContext dsl, LoginManagerService login) {
-    if(Properties.DEBUG_AUTH) {
-      // debug authentication
-      addOrUpdateUser(login, Properties.DEBUG_USERNAME, Properties.DEBUG_PASSWORD, UserGroup.DEBUG);
-      LOGGER.trace("Debug user initialized");
-    } else {
-      // remove any debug users in the database
-      deleteDebugUsers(login);
+  
+  private void loadUsers(DSLContext dsl) {
+    if (!Properties.DEBUG_AUTH) {
+      // remove any debug users in the database or reversed usernames
+      int n = dsl.deleteFrom(AUTH_USERS)
+          .where(AUTH_USERS.IS_DEBUG.ge(0))
+          .execute();
+      if (n > 0) {
+        LOGGER.warn("{} debug user(s) removed from the database", n);
+      }
 
       // obtain accounts from an accounts file
       Path admins = Paths.get("").resolve(Properties.ADMINS_FILE);
 
       if(!Files.exists(admins)) {
-        LOGGER.trace("No admins file named '" + Properties.ADMINS_FILE + "' found, skipping...");
+        LOGGER.trace("No admins file named '{}' found (this is fine). path={}",
+            Properties.ADMINS_FILE, admins.toString());
         return;
       }
 
       Scanner scanner;
-
       try {
         scanner = new Scanner(new String(Files.readAllBytes(admins)));
       } catch (IOException e) {
@@ -164,20 +107,23 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
 
         if(line.trim().isEmpty())
           continue;
-
-        String[] ss = line.split(" ");
-
-        if(ss.length < 2) {
-          LOGGER.error("Error parsing admins file: expected 2 arguments, got " + ss.length);
+  
+        int i = line.indexOf(':');
+  
+        if (i == -1) {
+          LOGGER.error("Error parsing admins file: expected user:pass arguments, got: " + line);
           continue;
         }
-
-        String username = ss[0];
-        String password = String.join(" ", Arrays.copyOfRange(ss, 1, ss.length));
-
-        addOrUpdateUser(login, username, password, UserGroup.ADMIN);
-
-        LOGGER.trace("Added admin " + username);
+  
+        String username = line.substring(0, i);
+        String password = line.substring(i + 1);
+  
+        if (dsl.insertInto(AUTH_USERS, AUTH_USERS.USERNAME, AUTH_USERS.PASSWORD,
+            AUTH_USERS.LEVEL, AUTH_USERS.ENABLED)
+            .values(username, passwordEncoder.encode(password), UserGroup.ROOT.getLevel(), 1)
+            .execute() > 0) {
+          LOGGER.trace("Added user {} as root", username);
+        }
       }
 
       LOGGER.trace("Admins file successfully parsed");

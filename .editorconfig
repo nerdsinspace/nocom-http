@@ -1,0 +1,17 @@
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[{*.java, *.gradle, *.properties, *.html, *.xml}]
+indent_style = space
+indent_size = 2
+continuation_indent_size = 4
+
+[*.sql]
+indent_style = space
+indent_size = 4
+continuation_indent_size = 8

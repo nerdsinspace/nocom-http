@@ -1,6 +1,7 @@
 package com.matt.nocom.server.model.http.auth;
 
 import java.io.Serializable;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsernamePassword implements Serializable {
+public class HttpUsernameToken implements Serializable {
   private String username;
-  private String password;
+  private UUID token;
 }

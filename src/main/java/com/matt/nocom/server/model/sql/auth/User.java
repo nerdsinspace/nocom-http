@@ -1,25 +1,23 @@
 package com.matt.nocom.server.model.sql.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.matt.nocom.server.Properties;
+import com.matt.nocom.server.model.shared.auth.UserGroup;
 import com.matt.nocom.server.util.Util;
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collections;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Singular;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
@@ -28,22 +26,33 @@ public class User implements UserDetails {
 
   private String username;
   private String password; // encrypted
+  private String passwordPlaintext;
 
   @Default
   private boolean enabled = true;
-
-  @Singular
-  private Set<UserGroup> groups;
+  
+  @Default
+  private int level = 0;
+  
+  @Default
+  private boolean debugUser = false;
+  
+  @Default
+  private long lastLogin = 0L;
+  
+  public UserGroup getGroup() {
+    return UserGroup.fromLevel(getLevel());
+  }
 
   @JsonIgnore
   public boolean isNotDebugUser() {
-    return Properties.DEBUG_AUTH || !getGroups().contains(UserGroup.DEBUG);
+    return !isDebugUser();
   }
 
   @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return getGroups();
+    return Collections.singleton(getGroup());
   }
 
   @JsonIgnore
@@ -70,9 +79,13 @@ public class User implements UserDetails {
 
   @Override
   public String toString() {
-    return username
-        + ", authorities=["
-        + getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(", "))
-        + "]";
+    return username + ", authorities=[" + getGroup().name() + "]";
+  }
+  
+  public static class UserBuilder {
+    
+    public UserBuilder group(UserGroup group) {
+      return level(group.getLevel());
+    }
   }
 }

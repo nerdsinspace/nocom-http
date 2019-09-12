@@ -59,6 +59,8 @@ public class EventTypeRegistry implements Logging {
   public static final EventType USER__EXPIRE_TOKENS                 = create("/user/tokens/user/{username}/expire");
   public static final EventType USER__EXPIRE_ONE_TOKEN              = create("/user/tokens/expire/{uuid}");
   public static final EventType USER__SET_ENABLE                    = create("/user/set/enabled/{username}");
+  public static final EventType USER__SET_PASSWORD = create("/user/set/password/{username}");
+  public static final EventType USER__SET_LEVEL = create("/user/set/level/{username}");
 
   // /
   public static final EventType LOGIN                               = create("/login");

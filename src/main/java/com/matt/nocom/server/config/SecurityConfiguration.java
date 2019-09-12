@@ -1,12 +1,13 @@
 package com.matt.nocom.server.config;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.model.sql.auth.UserGroup;
 import com.matt.nocom.server.listeners.auth.UserAccessDeniedHandler;
 import com.matt.nocom.server.listeners.auth.UserLoginSuccessfulHandler;
-import com.matt.nocom.server.service.EventService;
-import com.matt.nocom.server.service.LoginManagerService;
 import com.matt.nocom.server.listeners.auth.UserLogoutSuccessfulHandler;
+import com.matt.nocom.server.model.shared.auth.UserGroup;
+import com.matt.nocom.server.service.EventService;
+import com.matt.nocom.server.service.auth.LoginService;
+import com.matt.nocom.server.service.auth.UserAuthenticationProvider;
 import com.matt.nocom.server.util.AuthenticationTokenFilter;
 import com.matt.nocom.server.util.Util;
 import java.util.List;
@@ -49,21 +50,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
   private static final List<RequestMatcher> REST_API_MATCHERS = Util.antMatchers("/api/**", "/user/**");
 
   private final PasswordEncoder passwordEncoder;
-  private final LoginManagerService login;
+  private final LoginService login;
+  private final UserAuthenticationProvider authProvider;
   private final EventService events;
 
   @Autowired
-  public SecurityConfiguration(LoginManagerService login, PasswordEncoder passwordEncoder,
-      EventService events) {
+  public SecurityConfiguration(LoginService login, PasswordEncoder passwordEncoder,
+      UserAuthenticationProvider authProvider, EventService events) {
     this.login = login;
     this.passwordEncoder = passwordEncoder;
+    this.authProvider = authProvider;
     this.events = events;
   }
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     auth
-        .userDetailsService(login)
+        .userDetailsService(authProvider)
         .passwordEncoder(passwordEncoder);
   }
 
@@ -80,7 +83,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
 
   @Bean
   public AuthenticationSuccessHandler successHandler() {
-    return new UserLoginSuccessfulHandler(events);
+    return new UserLoginSuccessfulHandler(events, login);
   }
 
   @Bean
@@ -92,15 +95,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
   public AccessDeniedHandler accessDeniedHandler() {
     return new UserAccessDeniedHandler(events);
   }
-
-  private static String[] allAuthorities() {
-    return UserGroup.active().stream()
+  
+  @Bean
+  public String[] allAuthorities() {
+    return UserGroup.privileged().stream()
         .map(UserGroup::getName)
         .toArray(String[]::new);
   }
-
-  private static String[] adminAuthorities() {
-    return UserGroup.highestPrivileges().stream()
+  
+  @Bean
+  public String[] adminAuthorities() {
+    return UserGroup.admins().stream()
         .map(UserGroup::getName)
         .toArray(String[]::new);
   }
@@ -138,6 +143,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
           }))
         .and()
           .csrf().disable()
-          .addFilterBefore(new AuthenticationTokenFilter(login, authenticationManager()), BasicAuthenticationFilter.class);
+        .addFilterBefore(
+            new AuthenticationTokenFilter(login, authProvider, authenticationManager()),
+            BasicAuthenticationFilter.class);
   }
 }
