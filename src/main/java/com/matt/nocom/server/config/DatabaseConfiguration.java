@@ -18,7 +18,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
@@ -29,27 +28,21 @@ import org.sqlite.SQLiteDataSource;
 @Configuration
 @ComponentScan({"com.matt.nocom.server.service"})
 @EnableTransactionManagement
-@PropertySource("database.properties")
 public class DatabaseConfiguration implements Logging {
-  private final Environment env;
+  private final Path sqliteDatabasePath;
   private final DatabaseInitializer databaseInitializer;
 
   @Autowired
-  public DatabaseConfiguration(Environment env,
+  public DatabaseConfiguration(Path sqliteDatabasePath,
       DatabaseInitializer databaseInitializer) {
-    this.env = env;
+    this.sqliteDatabasePath = sqliteDatabasePath;
     this.databaseInitializer = databaseInitializer;
-  }
-
-  private Path getDatabasePath() {
-    return Paths.get("")
-        .resolve(env.getRequiredProperty("db.file"));
   }
 
   @Bean
   public DataSource dataSource() {
     SQLiteDataSource src = new SQLiteDataSource();
-    src.setUrl("jdbc:sqlite:" + getDatabasePath().toAbsolutePath().toString());
+    src.setUrl("jdbc:sqlite:" + sqliteDatabasePath.toAbsolutePath().toString());
     return src;
   }
 
