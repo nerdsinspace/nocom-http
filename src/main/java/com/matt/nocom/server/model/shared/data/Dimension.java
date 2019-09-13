@@ -1,4 +1,4 @@
-package com.matt.nocom.server.model.sql.data;
+package com.matt.nocom.server.model.shared.data;
 
 import java.util.EnumSet;
 import lombok.AllArgsConstructor;
@@ -9,13 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public enum Dimension {
-  NETHER("Nether", -1),
-  OVERWORLD("Overworld", 0),
-  END("End", 1)
+  NETHER(1, -1, "Nether"),
+  OVERWORLD(2, 0, "Overworld"),
+  END(3, 1, "End")
   ;
 
-  private String name;
+  private int id;
   private int ordinal;
+  private String name;
 
   public static Dimension from(int ordinal) {
     for (Dimension d : values()) {

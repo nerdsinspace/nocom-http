@@ -3,7 +3,7 @@ package com.matt.nocom.server.controller;
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.minecraft.world.MinecraftWorld;
-import com.matt.nocom.server.model.sql.data.Dimension;
+import com.matt.nocom.server.model.shared.data.Dimension;
 import com.matt.nocom.server.model.sql.data.Location;
 import com.matt.nocom.server.model.http.data.LocationGroup;
 import com.matt.nocom.server.model.sql.data.RegionFileData;
