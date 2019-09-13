@@ -1,13 +1,11 @@
 package com.matt.nocom.server.service;
 
 import static com.matt.nocom.server.sqlite.Tables.AUTH_USERS;
-import static com.matt.nocom.server.sqlite.Tables.DIMENSIONS;
 import static com.matt.nocom.server.sqlite.Tables.EVENT_TYPES;
 
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.model.shared.auth.UserGroup;
-import com.matt.nocom.server.model.sql.data.Dimension;
 import com.matt.nocom.server.model.sql.event.EventType;
 import com.matt.nocom.server.util.EventTypeRegistry;
 import java.io.IOException;
@@ -16,10 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.impl.DefaultDSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,34 +40,10 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
     //pop.populate(connection);
 
     DSLContext dsl = new DefaultDSLContext(connection, Properties.SQL_DIALECT);
-  
-    loadDimensions(dsl);
-  
+    
     loadUsers(dsl);
 
     addAllEventTypes(dsl);
-  }
-
-  private void loadDimensions(DSLContext dsl) {
-    final EnumSet<Dimension> all = Dimension.all();
-
-    // find existing dimensions
-    List<Dimension> existing = dsl.select(DIMENSIONS.ORDINAL)
-        .from(DIMENSIONS)
-        .fetch(record -> Dimension.from(record.getValue(DIMENSIONS.ORDINAL)));
-
-    // add dimensions that do not exist in the current database
-    // doing it this way will prevent the table increment from incrementing the id
-    dsl.batch(
-        all.stream()
-            .filter(existing::contains)
-            .sorted()
-            .map(d -> dsl.insertInto(DIMENSIONS, DIMENSIONS.ORDINAL, DIMENSIONS.NAME)
-                .values(d.getOrdinal(), d.getName()))
-            .collect(Collectors.toList())
-    ).execute();
-
-    LOGGER.trace("Dimensions initialized");
   }
   
   private void loadUsers(DSLContext dsl) {

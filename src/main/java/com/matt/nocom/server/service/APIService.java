@@ -5,7 +5,7 @@ import static com.matt.nocom.server.sqlite.Tables.LOCATIONS;
 import static com.matt.nocom.server.sqlite.Tables.POSITIONS;
 import static com.matt.nocom.server.sqlite.Tables.SERVERS;
 
-import com.matt.nocom.server.model.sql.data.Dimension;
+import com.matt.nocom.server.model.shared.data.Dimension;
 import com.matt.nocom.server.model.sql.data.Location;
 import com.matt.nocom.server.model.sql.data.Position;
 import com.matt.nocom.server.model.http.data.SearchFilter;
