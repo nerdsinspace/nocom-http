@@ -173,13 +173,6 @@ public class DatabaseLoginService implements LoginService {
     return dsl.fetchExists(AUTH_USERS, AUTH_USERS.USERNAME.equalIgnoreCase(username));
   }
   
-  private List<AccessToken> getTokens(Condition condition) {
-    return dsl.select(AUTH_TOKENS.TOKEN, AUTH_TOKENS.ADDRESS, AUTH_TOKENS.EXPIRES_ON)
-        .from(AUTH_TOKENS)
-        .where(condition)
-        .fetch(this::createAccessTokenObject);
-  }
-  
   @Override
   public List<AccessToken> getTokens() {
     return dsl.selectFrom(AUTH_TOKENS).fetch(this::createAccessTokenObject);
@@ -272,7 +265,6 @@ public class DatabaseLoginService implements LoginService {
   
   @Override
   public int clearExpiredTokens() {
-    LOGGER.info("Expired tokens cleared");
     return dsl.deleteFrom(AUTH_TOKENS)
         .where(AUTH_TOKENS.EXPIRES_ON.le(System.currentTimeMillis()))
         .execute();
