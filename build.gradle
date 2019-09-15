@@ -131,6 +131,7 @@ dependencies {
 
   // SQLite driver
   compile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
+  testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
   jooqRuntime group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
   jooqRuntime group: 'org.jooq', name: 'jooq-meta-extensions'
 
@@ -165,7 +166,6 @@ dependencies {
 
   testCompile group: 'junit', name: 'junit', version: junitVersion
   testCompile group: 'org.spockframework', name: 'spock-core', version: spockCoreVersion
-  testCompile group: 'com.h2database', name: 'h2', version: h2databaseVersion
 
   testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
