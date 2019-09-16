@@ -1,4 +1,4 @@
-package com.matt.nocom.server.config;
+package com.matt.nocom.server.config.profiles;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

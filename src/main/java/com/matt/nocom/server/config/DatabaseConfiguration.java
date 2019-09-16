@@ -1,11 +1,10 @@
 package com.matt.nocom.server.config;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.Properties;
+import com.matt.nocom.server.service.ApplicationSettings;
 import com.matt.nocom.server.service.DatabaseInitializer;
 import com.matt.nocom.server.util.JOOQToSpringExceptionTransformer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.impl.DataSourceConnectionProvider;
@@ -17,7 +16,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
@@ -29,20 +27,23 @@ import org.sqlite.SQLiteDataSource;
 @ComponentScan({"com.matt.nocom.server.service"})
 @EnableTransactionManagement
 public class DatabaseConfiguration implements Logging {
-  private final Path sqliteDatabasePath;
-  private final DatabaseInitializer databaseInitializer;
+  private final Path database;
+  private final ApplicationSettings settings;
+  private final DatabaseInitializer initializer;
 
   @Autowired
-  public DatabaseConfiguration(Path sqliteDatabasePath,
-      DatabaseInitializer databaseInitializer) {
-    this.sqliteDatabasePath = sqliteDatabasePath;
-    this.databaseInitializer = databaseInitializer;
+  public DatabaseConfiguration(Path database,
+      ApplicationSettings settings,
+      DatabaseInitializer initializer) {
+    this.database = database;
+    this.settings = settings;
+    this.initializer = initializer;
   }
 
   @Bean
   public DataSource dataSource() {
     SQLiteDataSource src = new SQLiteDataSource();
-    src.setUrl("jdbc:sqlite:" + sqliteDatabasePath.toAbsolutePath().toString());
+    src.setUrl("jdbc:sqlite:" + database.toAbsolutePath().toString());
     return src;
   }
 
@@ -76,7 +77,7 @@ public class DatabaseConfiguration implements Logging {
     DefaultConfiguration config = new DefaultConfiguration();
     config.set(connectionProvider());
     config.set(new DefaultExecuteListenerProvider(jooqToSpringExceptionTransformer()));
-    config.set(Properties.SQL_DIALECT);
+    config.set(settings.getDialect());
     return config;
   }
 
@@ -90,7 +91,7 @@ public class DatabaseConfiguration implements Logging {
   public DataSourceInitializer dataSourceInitializer() {
     DataSourceInitializer initializer = new DataSourceInitializer();
     initializer.setDataSource(dataSource());
-    initializer.setDatabasePopulator(databaseInitializer);
+    initializer.setDatabasePopulator(this.initializer);
     return initializer;
   }
 }

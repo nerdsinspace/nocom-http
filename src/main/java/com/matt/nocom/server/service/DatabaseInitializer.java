@@ -4,14 +4,12 @@ import static com.matt.nocom.server.sqlite.Tables.AUTH_USERS;
 import static com.matt.nocom.server.sqlite.Tables.EVENT_TYPES;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.model.shared.auth.UserGroup;
 import com.matt.nocom.server.model.sql.event.EventType;
 import com.matt.nocom.server.util.EventTypeRegistry;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -25,80 +23,75 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DatabaseInitializer implements Logging, DatabasePopulator {
+  private final ApplicationSettings settings;
   private final PasswordEncoder passwordEncoder;
 
   @Autowired
-  public DatabaseInitializer(PasswordEncoder passwordEncoder) {
+  public DatabaseInitializer(ApplicationSettings settings,
+      PasswordEncoder passwordEncoder) {
+    this.settings = settings;
     this.passwordEncoder = passwordEncoder;
   }
 
   @Override
   public void populate(Connection connection) throws SQLException, ScriptException {
-    // do not apply schema - use flyway instead
-    //ResourceDatabasePopulator pop = new ResourceDatabasePopulator();
-    //pop.addScript(schemaSql);
-    //pop.populate(connection);
-
-    DSLContext dsl = new DefaultDSLContext(connection, Properties.SQL_DIALECT);
+    DSLContext dsl = new DefaultDSLContext(connection, settings.getDialect());
     
     loadUsers(dsl);
-
     addAllEventTypes(dsl);
   }
   
   private void loadUsers(DSLContext dsl) {
-    if (!Properties.DEBUG_AUTH) {
-      // remove any debug users in the database or reversed usernames
-      int n = dsl.deleteFrom(AUTH_USERS)
-          .where(AUTH_USERS.IS_DEBUG.ge(0))
-          .execute();
-      if (n > 0) {
-        LOGGER.warn("{} debug user(s) removed from the database", n);
-      }
-
-      // obtain accounts from an accounts file
-      Path admins = Paths.get("").resolve(Properties.ADMINS_FILE);
-
-      if(!Files.exists(admins)) {
-        LOGGER.trace("No admins file named '{}' found (this is fine). path={}",
-            Properties.ADMINS_FILE, admins.toString());
-        return;
-      }
-
-      Scanner scanner;
-      try {
-        scanner = new Scanner(new String(Files.readAllBytes(admins)));
-      } catch (IOException e) {
-        LOGGER.error("Failed to read admins file", e);
-        return;
-      }
-
-      while(scanner.hasNextLine()) {
-        String line = scanner.nextLine();
-
-        if(line.trim().isEmpty())
-          continue;
-  
-        int i = line.indexOf(':');
-  
-        if (i == -1) {
-          LOGGER.error("Error parsing admins file: expected user:pass arguments, got: " + line);
-          continue;
-        }
-  
-        String username = line.substring(0, i);
-        String password = line.substring(i + 1);
-  
-        if (dsl.insertInto(AUTH_USERS, AUTH_USERS.USERNAME, AUTH_USERS.PASSWORD,
-            AUTH_USERS.LEVEL, AUTH_USERS.ENABLED)
-            .values(username, passwordEncoder.encode(password), UserGroup.ROOT.getLevel(), 1)
-            .execute() > 0) {
-          LOGGER.trace("Added user {} as root", username);
-        }
-      }
-
-      LOGGER.trace("Admins file successfully parsed");
+    // remove any debug users in the database or reversed usernames
+    int n = dsl.deleteFrom(AUTH_USERS)
+        .where(AUTH_USERS.IS_DEBUG.ne(0))
+        .execute();
+    if (n > 0) {
+      LOGGER.warn("{} debug user(s) removed from the database", n);
     }
+
+    // obtain accounts from an accounts file
+    Path admins = settings.getAdmins();
+
+    if(!Files.exists(admins)) {
+      LOGGER.info("No admins file named '{}' found (this is fine). path={}",
+          settings.getAdmins().toString(), admins.toString());
+      return;
+    }
+
+    Scanner scanner;
+    try {
+      scanner = new Scanner(new String(Files.readAllBytes(admins)));
+    } catch (IOException e) {
+      LOGGER.error("Failed to read admins file", e);
+      return;
+    }
+
+    while(scanner.hasNextLine()) {
+      String line = scanner.nextLine();
+
+      if(line.trim().isEmpty())
+        continue;
+
+      int i = line.indexOf(':');
+
+      if (i == -1) {
+        LOGGER.error("Error parsing admins file: expected user:pass arguments, got: " + line);
+        continue;
+      }
+
+      String username = line.substring(0, i);
+      String password = line.substring(i + 1);
+
+      if (dsl.insertInto(AUTH_USERS, AUTH_USERS.USERNAME, AUTH_USERS.PASSWORD,
+          AUTH_USERS.LEVEL, AUTH_USERS.ENABLED)
+          .values(username, passwordEncoder.encode(password), UserGroup.ROOT.getLevel(), 1)
+          .execute() > 0) {
+        LOGGER.trace("Added user {} as root", username);
+      }
+    }
+
+    LOGGER.trace("Admins file successfully parsed");
   }
 
   private void addAllEventTypes(DSLContext dsl) {

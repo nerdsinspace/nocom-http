@@ -1,4 +1,4 @@
-package com.matt.nocom.server.config;
+package com.matt.nocom.server.config.profiles;
 
 import com.matt.nocom.server.Logging;
 import java.io.IOException;

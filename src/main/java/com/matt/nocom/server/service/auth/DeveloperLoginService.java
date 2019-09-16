@@ -1,13 +1,12 @@
 package com.matt.nocom.server.service.auth;
 
 import com.google.common.collect.Lists;
-import com.matt.nocom.server.Properties;
 import com.matt.nocom.server.exception.InvalidPasswordException;
 import com.matt.nocom.server.exception.InvalidUsernameException;
 import com.matt.nocom.server.model.shared.auth.UserGroup;
 import com.matt.nocom.server.model.sql.auth.AccessToken;
 import com.matt.nocom.server.model.sql.auth.User;
-import com.matt.nocom.server.util.CredentialsChecker;
+import com.matt.nocom.server.service.ApplicationSettings;
 import java.net.InetAddress;
 import java.util.Collection;
 import java.util.Comparator;
@@ -22,12 +21,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("dev")
-public class DevLoginService extends DatabaseLoginService {
+public class DeveloperLoginService extends DatabaseLoginService {
   
   private final User root = User.builder()
       .id(-1)
-      .username(Properties.DEBUG_USERNAME)
-      .passwordPlaintext(Properties.DEBUG_PASSWORD)
+      .username("")
+      .passwordPlaintext("")
       .group(UserGroup.ROOT)
       .enabled(true)
       .debugUser(true)
@@ -35,9 +34,12 @@ public class DevLoginService extends DatabaseLoginService {
   private final List<AccessToken> tokens = Lists.newArrayList();
   
   @Autowired
-  public DevLoginService(DSLContext dsl, PasswordEncoder passwordEncoder) {
-    super(dsl, passwordEncoder);
-    root.setPassword(passwordEncoder.encode(root.getPasswordPlaintext()));
+  public DeveloperLoginService(DSLContext dsl, PasswordEncoder passwordEncoder,
+      ApplicationSettings settings) {
+    super(dsl, passwordEncoder, settings);
+  
+    root.setUsername(settings.getDevUsername());
+    root.setPassword(passwordEncoder.encode(settings.getDevPassword()));
   }
   
   @Override
@@ -62,7 +64,7 @@ public class DevLoginService extends DatabaseLoginService {
   @Override
   public int setUserPassword(String username, String plaintextPassword) {
     if (root.getUsername().equalsIgnoreCase(username)) {
-      CredentialsChecker.checkPassword(plaintextPassword);
+      settings.checkPassword(plaintextPassword);
       root.setPassword(passwordEncoder.encode(plaintextPassword));
       return 1;
     } else {

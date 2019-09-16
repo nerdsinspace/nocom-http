@@ -7,8 +7,8 @@ import com.matt.nocom.server.exception.InvalidPasswordException;
 import com.matt.nocom.server.exception.InvalidUsernameException;
 import com.matt.nocom.server.model.sql.auth.AccessToken;
 import com.matt.nocom.server.model.sql.auth.User;
-import com.matt.nocom.server.util.CredentialsChecker;
-import com.matt.nocom.server.util.Util;
+import com.matt.nocom.server.service.ApplicationSettings;
+import com.matt.nocom.server.util.StaticUtils;
 import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
@@ -29,20 +29,19 @@ public class DatabaseLoginService implements LoginService {
   
   private final DSLContext dsl;
   protected final PasswordEncoder passwordEncoder;
+  protected final ApplicationSettings settings;
   
   @Autowired
   public DatabaseLoginService(DSLContext dsl,
-      PasswordEncoder passwordEncoder) {
+      PasswordEncoder passwordEncoder, ApplicationSettings settings) {
     this.dsl = dsl;
     this.passwordEncoder = passwordEncoder;
+    this.settings = settings;
   }
   
   @Override
   public int addUser(String username, String plaintextPassword, int level, boolean enabled)
       throws InvalidUsernameException, InvalidPasswordException {
-    CredentialsChecker.checkUsername(username);
-    CredentialsChecker.checkPassword(plaintextPassword);
-    
     return dsl.insertInto(AUTH_USERS,
         AUTH_USERS.USERNAME,
         AUTH_USERS.PASSWORD,
@@ -61,7 +60,6 @@ public class DatabaseLoginService implements LoginService {
   
   @Override
   public int setUserPassword(String username, String plaintextPassword) {
-    CredentialsChecker.checkPassword(plaintextPassword);
     return dsl.update(AUTH_USERS)
         .set(AUTH_USERS.PASSWORD, passwordEncoder.encode(plaintextPassword))
         .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
@@ -285,7 +283,7 @@ public class DatabaseLoginService implements LoginService {
   private AccessToken createAccessTokenObject(Record record) {
     return AccessToken.builder()
         .token(UUID.fromString(record.getValue(AUTH_TOKENS.TOKEN)))
-        .address(Util.stringToAddress(record.getValue(AUTH_TOKENS.ADDRESS)))
+        .address(StaticUtils.stringToAddress(record.getValue(AUTH_TOKENS.ADDRESS)))
         .expiresOn(record.getValue(AUTH_TOKENS.EXPIRES_ON))
         .build();
   }

@@ -1,6 +1,6 @@
 package com.matt.nocom.server.config;
 
-import com.matt.nocom.server.Properties;
+import com.matt.nocom.server.service.ApplicationSettings;
 import com.matt.nocom.server.service.auth.LoginService;
 import java.time.Instant;
 import java.util.Date;
@@ -19,9 +19,12 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 @EnableScheduling
 public class TokenExpirationSchedulerConfiguration implements SchedulingConfigurer {
   
+  private final ApplicationSettings settings;
   private final LoginService login;
   
-  public TokenExpirationSchedulerConfiguration(LoginService login) {
+  public TokenExpirationSchedulerConfiguration(
+      ApplicationSettings settings, LoginService login) {
+    this.settings = settings;
     this.login = login;
   }
   
@@ -42,7 +45,7 @@ public class TokenExpirationSchedulerConfiguration implements SchedulingConfigur
             .map(Date::from)
             .orElseGet(() -> Optional.ofNullable(context.lastActualExecutionTime())
                 .map(Date::toInstant)
-                .map(time -> time.plusMillis(Properties.TOKEN_EXPIRATION)) // a new token will never be under this time
+                .map(time -> time.plusMillis(settings.getTokenExpiration())) // a new token will never be under this time
                 .map(Date::from)
                     .orElseGet(() -> Date.from(Instant.now().plusSeconds(5)))
                 // run expire tokens once on startup
