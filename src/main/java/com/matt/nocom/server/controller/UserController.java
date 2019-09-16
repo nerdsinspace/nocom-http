@@ -1,7 +1,5 @@
 package com.matt.nocom.server.controller;
 
-import static com.matt.nocom.server.util.CredentialsChecker.checkIfNullUsername;
-
 import com.google.common.base.Strings;
 import com.matt.nocom.server.Logging;
 import com.matt.nocom.server.exception.InvalidUsernameException;
@@ -10,12 +8,12 @@ import com.matt.nocom.server.model.http.auth.HttpUserRegistration;
 import com.matt.nocom.server.model.http.auth.HttpUsernameToken;
 import com.matt.nocom.server.model.sql.auth.AccessToken;
 import com.matt.nocom.server.model.sql.auth.User;
+import com.matt.nocom.server.service.ApplicationSettings;
 import com.matt.nocom.server.service.EventService;
 import com.matt.nocom.server.service.auth.LoginService;
 import com.matt.nocom.server.service.auth.UserAuthenticationProvider;
 import com.matt.nocom.server.util.EventTypeRegistry;
-import com.matt.nocom.server.util.Util;
-import com.matt.nocom.server.util.factory.AccessTokenFactory;
+import com.matt.nocom.server.util.StaticUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,14 +40,18 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("user")
 public class UserController implements Logging {
+  
+  private final ApplicationSettings settings;
   private final AuthenticationManager auth;
   private final LoginService login;
   private final UserAuthenticationProvider authProvider;
   private final EventService events;
 
   @Autowired
-  public UserController(AuthenticationManager auth, LoginService login,
+  public UserController(ApplicationSettings settings,
+      AuthenticationManager auth, LoginService login,
       UserAuthenticationProvider authProvider, EventService events) {
+    this.settings = settings;
     this.auth = auth;
     this.login = login;
     this.authProvider = authProvider;
@@ -71,7 +73,11 @@ public class UserController implements Logging {
     User user = (User) authProvider.loadUserByUsername(details.getUsername());
     SecurityContextHolder.getContext().setAuthentication(user.toAuthenticationToken());
   
-    AccessToken token = AccessTokenFactory.generate(Util.getRemoteAddr(request));
+    AccessToken token = AccessToken.builder()
+        .token(UUID.randomUUID())
+        .expiresOn(System.currentTimeMillis() + settings.getTokenExpiration())
+        .address(settings.getRemoteAddr(request))
+        .build();
   
     events.publishInfo(authentication, EventTypeRegistry.USER__LOGIN, "Logged in via API");
     login.setUserLastLogin(user.getUsername(), System.currentTimeMillis());
@@ -105,13 +111,15 @@ public class UserController implements Logging {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public void register(@RequestBody HttpUserRegistration details) {
-    checkIfNullUsername(details.getUsername());
+    settings.checkIfNullUsername(details.getUsername());
     checkAllowedLevel(details.getLevel());
     
     if(login.usernameExists(details.getUsername()))
       throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Username already exists.");
   
     // add the user to the database
+    settings.checkUsername(details.getUsername());
+    settings.checkPassword(details.getPassword());
     if (login.addUser(details.getUsername(), details.getPassword(),
         details.getLevel(), true) > 0) {
       events.publishInfo(EventTypeRegistry.USER__REGISTER,
@@ -127,7 +135,7 @@ public class UserController implements Logging {
   public void unregister(
       @PathVariable("username") String username,
       @RequestParam("verificationPassword") Optional<String> verificationPassword) {
-    checkIfNullUsername(username);
+    settings.checkIfNullUsername(username);
     checkAccessPrivileges(username, verificationPassword);
   
     if (login.removeUser(username) > 0) {
@@ -147,7 +155,7 @@ public class UserController implements Logging {
       @PathVariable("username") String username,
       @RequestParam("uuids[]") List<UUID> uuids,
       @RequestParam("verificationPassword") Optional<String> verificationPassword) {
-    checkIfNullUsername(username);
+    settings.checkIfNullUsername(username);
     checkAccessPrivileges(username, verificationPassword);
     
     int n;
@@ -168,9 +176,10 @@ public class UserController implements Logging {
       @PathVariable("username") String username,
       @RequestParam("password") String plaintextPassword,
       @RequestParam("verificationPassword") Optional<String> verificationPassword) {
-    checkIfNullUsername(username);
+    settings.checkIfNullUsername(username);
     checkAccessPrivileges(username, verificationPassword);
     
+    settings.checkPassword(plaintextPassword);
     if (login.setUserPassword(username, plaintextPassword) > 0) {
       events.publishInfo(EventTypeRegistry.USER__SET_PASSWORD,
           "Changed password for %s", username);
@@ -188,7 +197,7 @@ public class UserController implements Logging {
       @PathVariable("username") String username,
       @RequestParam("enabled") boolean enabled,
       @RequestParam("verificationPassword") Optional<String> verificationPassword) {
-    checkIfNullUsername(username);
+    settings.checkIfNullUsername(username);
     checkAccessPrivileges(username);
     
     if (login.setUserEnabled(username, enabled) > 0) {
@@ -212,7 +221,7 @@ public class UserController implements Logging {
       @PathVariable("username") String username,
       @RequestParam("level") int level,
       @RequestParam("currentPassword") Optional<String> verificationPassword) {
-    checkIfNullUsername(username);
+    settings.checkIfNullUsername(username);
     checkAccessPrivileges(username, verificationPassword);
     checkAllowedLevel(level);
     
@@ -232,7 +241,7 @@ public class UserController implements Logging {
   
   private void checkAccessPrivileges(String username, Optional<String> plaintextPassword) {
     // the user invoking this api
-    String accessor = Util.getCurrentUserContext()
+    String accessor = StaticUtils.getCurrentUserContext()
         .map(User::getUsername)
         .filter(login::usernameExists)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -279,7 +288,7 @@ public class UserController implements Logging {
     }
     
     // get current user accessing  this api
-    int maxLevel = Util.getCurrentUserContext()
+    int maxLevel = StaticUtils.getCurrentUserContext()
         .map(User::getUsername)
         .flatMap(login::getUserLevel)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));

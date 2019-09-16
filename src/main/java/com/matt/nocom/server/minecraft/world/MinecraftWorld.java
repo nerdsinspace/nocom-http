@@ -1,6 +1,5 @@
 package com.matt.nocom.server.minecraft.world;
 
-import com.matt.nocom.server.Properties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.AccessLevel;
@@ -12,7 +11,7 @@ public class MinecraftWorld {
   private final Path path;
 
   public MinecraftWorld(String name) {
-    this.path = Paths.get(Properties.WORLDS_PATH).resolve(name);
+    this.path = Paths.get("worlds").resolve(name);
   }
 
   public Dimensions ofType(Type type) {

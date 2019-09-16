@@ -1,7 +1,6 @@
 package com.matt.nocom.server.model.shared.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.matt.nocom.server.Properties;
 import java.util.EnumSet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,10 +9,10 @@ import org.springframework.security.core.GrantedAuthority;
 @Getter
 @AllArgsConstructor
 public enum UserGroup implements GrantedAuthority {
-  ROOT(Properties.USER_LEVEL_MAX),
+  ROOT(100),
   ADMIN(90),
   DEV(50),
-  UNPRIVILEGED(Properties.USER_LEVEL_MIN)
+  UNPRIVILEGED(0)
   ;
 
   private int level;

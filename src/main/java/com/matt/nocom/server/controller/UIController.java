@@ -5,7 +5,7 @@ import com.matt.nocom.server.model.sql.auth.User;
 import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.service.EventService;
 import com.matt.nocom.server.service.auth.LoginService;
-import com.matt.nocom.server.util.Util;
+import com.matt.nocom.server.util.StaticUtils;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,7 +62,7 @@ public class UIController {
   
   @GetMapping("/account/{username}")
   public String account(@PathVariable("username") String username, Model model) {
-    final User accessUser = Util.getCurrentUserContext()
+    final User accessUser = StaticUtils.getCurrentUserContext()
         .map(User::getUsername)
         .flatMap(login::getUser) // get the current user data
         .orElseThrow(NullPointerException::new);

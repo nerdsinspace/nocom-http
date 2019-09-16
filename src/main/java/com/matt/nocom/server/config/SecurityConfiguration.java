@@ -1,16 +1,18 @@
 package com.matt.nocom.server.config;
 
 import com.matt.nocom.server.Logging;
+import com.matt.nocom.server.listeners.auth.AuthenticationTokenFilter;
 import com.matt.nocom.server.listeners.auth.UserAccessDeniedHandler;
 import com.matt.nocom.server.listeners.auth.UserLoginSuccessfulHandler;
 import com.matt.nocom.server.listeners.auth.UserLogoutSuccessfulHandler;
 import com.matt.nocom.server.model.shared.auth.UserGroup;
+import com.matt.nocom.server.service.ApplicationSettings;
 import com.matt.nocom.server.service.EventService;
 import com.matt.nocom.server.service.auth.LoginService;
 import com.matt.nocom.server.service.auth.UserAuthenticationProvider;
-import com.matt.nocom.server.util.AuthenticationTokenFilter;
-import com.matt.nocom.server.util.Util;
+import com.matt.nocom.server.util.StaticUtils;
 import java.util.List;
+import javax.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -47,16 +49,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
       "/api/database/download"
   };
 
-  private static final List<RequestMatcher> REST_API_MATCHERS = Util.antMatchers("/api/**", "/user/**");
-
+  private static final List<RequestMatcher> REST_API_MATCHERS = StaticUtils
+      .antMatchers("/api/**", "/user/**");
+  
+  private final ApplicationSettings settings;
   private final PasswordEncoder passwordEncoder;
   private final LoginService login;
   private final UserAuthenticationProvider authProvider;
   private final EventService events;
 
   @Autowired
-  public SecurityConfiguration(LoginService login, PasswordEncoder passwordEncoder,
-      UserAuthenticationProvider authProvider, EventService events) {
+  public SecurityConfiguration(ApplicationSettings settings,
+      LoginService login,
+      PasswordEncoder passwordEncoder,
+      UserAuthenticationProvider authProvider,
+      EventService events) {
+    this.settings = settings;
     this.login = login;
     this.passwordEncoder = passwordEncoder;
     this.authProvider = authProvider;
@@ -65,9 +73,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth
-        .userDetailsService(authProvider)
-        .passwordEncoder(passwordEncoder);
+    auth.userDetailsService(authProvider).passwordEncoder(passwordEncoder);
   }
 
   @Bean
@@ -79,6 +85,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
   @Bean
   public DefaultAuthenticationEventPublisher authenticationEventPublisher() {
     return new DefaultAuthenticationEventPublisher();
+  }
+  
+  @Bean
+  public Filter authenticationTokenFilter() {
+    return new AuthenticationTokenFilter(settings, login, authProvider);
   }
 
   @Bean
@@ -143,8 +154,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
           }))
         .and()
           .csrf().disable()
-        .addFilterBefore(
-            new AuthenticationTokenFilter(login, authProvider, authenticationManager()),
-            BasicAuthenticationFilter.class);
+        .addFilterBefore(authenticationTokenFilter(), BasicAuthenticationFilter.class);
   }
 }

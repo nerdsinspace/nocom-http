@@ -2,7 +2,7 @@ package com.matt.nocom.server.model.sql.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.matt.nocom.server.model.shared.auth.UserGroup;
-import com.matt.nocom.server.util.Util;
+import com.matt.nocom.server.util.StaticUtils;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.AllArgsConstructor;
@@ -74,7 +74,7 @@ public class User implements UserDetails {
   }
 
   public UsernamePasswordAuthenticationToken toAuthenticationToken() {
-    return Util.toAuthenticationToken(this);
+    return StaticUtils.toAuthenticationToken(this);
   }
 
   @Override

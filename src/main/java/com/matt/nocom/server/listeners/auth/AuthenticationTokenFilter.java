@@ -1,7 +1,9 @@
-package com.matt.nocom.server.util;
+package com.matt.nocom.server.listeners.auth;
 
+import com.matt.nocom.server.service.ApplicationSettings;
 import com.matt.nocom.server.service.auth.LoginService;
 import com.matt.nocom.server.service.auth.UserAuthenticationProvider;
+import com.matt.nocom.server.util.StaticUtils;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +13,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.GenericFilterBean;
@@ -19,16 +20,15 @@ import org.springframework.web.filter.GenericFilterBean;
 public class AuthenticationTokenFilter extends GenericFilterBean {
   private static final String AUTHORIZATION_IDENTIFIER = "Authorization";
   
+  private final ApplicationSettings settings;
   private final LoginService login;
   private final UserAuthenticationProvider authProvider;
-  private final AuthenticationManager authentication;
   
-  public AuthenticationTokenFilter(LoginService login,
-      UserAuthenticationProvider authProvider,
-      AuthenticationManager authentication) {
+  public AuthenticationTokenFilter(ApplicationSettings settings, LoginService login,
+      UserAuthenticationProvider authProvider) {
+    this.settings = settings;
     this.login = login;
     this.authProvider = authProvider;
-    this.authentication = authentication;
   }
 
   @Override
@@ -37,14 +37,14 @@ public class AuthenticationTokenFilter extends GenericFilterBean {
     String provided = findAuthorization(request);
 
     if(provided != null) {
-      login.getUsernameByToken(UUID.fromString(provided), Util.getRemoteAddr(request))
+      login.getUsernameByToken(UUID.fromString(provided), settings.getRemoteAddr(request))
           .map(authProvider::loadUserByUsername)
           .filter(UserDetails::isEnabled)
           .filter(UserDetails::isAccountNonExpired)
           .filter(UserDetails::isAccountNonLocked)
           .filter(UserDetails::isCredentialsNonExpired)
-          .map(Util::toAuthenticationToken)
-          .ifPresent(auth -> SecurityContextHolder.getContext().setAuthentication(auth));
+          .map(StaticUtils::toAuthenticationToken)
+          .ifPresent(SecurityContextHolder.getContext()::setAuthentication);
     }
 
     chain.doFilter(request, response);
