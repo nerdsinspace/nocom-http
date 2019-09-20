@@ -37,7 +37,6 @@ public class DeveloperLoginService extends DatabaseLoginService {
   public DeveloperLoginService(DSLContext dsl, PasswordEncoder passwordEncoder,
       ApplicationSettings settings) {
     super(dsl, passwordEncoder, settings);
-  
     root.setUsername(settings.getDevUsername());
     root.setPassword(passwordEncoder.encode(settings.getDevPassword()));
   }

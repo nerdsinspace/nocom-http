@@ -42,6 +42,8 @@ public class DatabaseLoginService implements LoginService {
   @Override
   public int addUser(String username, String plaintextPassword, int level, boolean enabled)
       throws InvalidUsernameException, InvalidPasswordException {
+    settings.checkUsername(username);
+    settings.checkPassword(plaintextPassword);
     return dsl.insertInto(AUTH_USERS,
         AUTH_USERS.USERNAME,
         AUTH_USERS.PASSWORD,
@@ -60,6 +62,7 @@ public class DatabaseLoginService implements LoginService {
   
   @Override
   public int setUserPassword(String username, String plaintextPassword) {
+    settings.checkPassword(plaintextPassword);
     return dsl.update(AUTH_USERS)
         .set(AUTH_USERS.PASSWORD, passwordEncoder.encode(plaintextPassword))
         .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
