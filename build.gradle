@@ -179,7 +179,7 @@ processResources {
 }
 
 bootRun {
-  jvmArgs = ['-Dnocom.auth.debug=true -Dspring.profiles.active=dev']
+  jvmArgs = ['-Dspring.profiles.active=dev']
 }
 
 task filterAndCopySqlSchemas {
