@@ -118,8 +118,6 @@ public class UserController implements Logging {
       throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Username already exists.");
   
     // add the user to the database
-    settings.checkUsername(details.getUsername());
-    settings.checkPassword(details.getPassword());
     if (login.addUser(details.getUsername(), details.getPassword(),
         details.getLevel(), true) > 0) {
       events.publishInfo(EventTypeRegistry.USER__REGISTER,
@@ -179,7 +177,6 @@ public class UserController implements Logging {
     settings.checkIfNullUsername(username);
     checkAccessPrivileges(username, verificationPassword);
     
-    settings.checkPassword(plaintextPassword);
     if (login.setUserPassword(username, plaintextPassword) > 0) {
       events.publishInfo(EventTypeRegistry.USER__SET_PASSWORD,
           "Changed password for %s", username);
