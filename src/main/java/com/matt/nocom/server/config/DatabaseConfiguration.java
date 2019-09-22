@@ -1,26 +1,21 @@
 package com.matt.nocom.server.config;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.Properties;
+import com.matt.nocom.server.service.ApplicationSettings;
 import com.matt.nocom.server.service.DatabaseInitializer;
 import com.matt.nocom.server.util.JOOQToSpringExceptionTransformer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.sql.DataSource;
-import org.flywaydb.core.Flyway;
 import org.jooq.DSLContext;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultDSLContext;
 import org.jooq.impl.DefaultExecuteListenerProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
@@ -31,27 +26,24 @@ import org.sqlite.SQLiteDataSource;
 @Configuration
 @ComponentScan({"com.matt.nocom.server.service"})
 @EnableTransactionManagement
-@PropertySource("database.properties")
 public class DatabaseConfiguration implements Logging {
-  private final Environment env;
-  private final DatabaseInitializer databaseInitializer;
+  private final Path database;
+  private final ApplicationSettings settings;
+  private final DatabaseInitializer initializer;
 
   @Autowired
-  public DatabaseConfiguration(Environment env,
-      DatabaseInitializer databaseInitializer) {
-    this.env = env;
-    this.databaseInitializer = databaseInitializer;
-  }
-
-  private Path getDatabasePath() {
-    return Paths.get("")
-        .resolve(env.getRequiredProperty("db.file"));
+  public DatabaseConfiguration(Path database,
+      ApplicationSettings settings,
+      DatabaseInitializer initializer) {
+    this.database = database;
+    this.settings = settings;
+    this.initializer = initializer;
   }
 
   @Bean
   public DataSource dataSource() {
     SQLiteDataSource src = new SQLiteDataSource();
-    src.setUrl("jdbc:sqlite:" + getDatabasePath().toAbsolutePath().toString());
+    src.setUrl("jdbc:sqlite:" + database.toAbsolutePath().toString());
     return src;
   }
 
@@ -85,7 +77,7 @@ public class DatabaseConfiguration implements Logging {
     DefaultConfiguration config = new DefaultConfiguration();
     config.set(connectionProvider());
     config.set(new DefaultExecuteListenerProvider(jooqToSpringExceptionTransformer()));
-    config.set(Properties.SQL_DIALECT);
+    config.set(settings.getDialect());
     return config;
   }
 
@@ -95,21 +87,11 @@ public class DatabaseConfiguration implements Logging {
   }
 
   @Bean
+  @DependsOn({"flyway", "flywayInitializer"})
   public DataSourceInitializer dataSourceInitializer() {
     DataSourceInitializer initializer = new DataSourceInitializer();
-
-    DataSource dataSource = dataSource();
-
-    // start with flyway migration
-    Flyway flyway = Flyway.configure()
-        .dataSource(dataSource)
-        .baselineOnMigrate(true)
-        .baselineVersion("2") // version 1 will overwrite the existing tables (not good)
-        .load();
-    flyway.migrate();
-
     initializer.setDataSource(dataSource());
-    initializer.setDatabasePopulator(databaseInitializer);
+    initializer.setDatabasePopulator(this.initializer);
     return initializer;
   }
 }

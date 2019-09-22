@@ -4,6 +4,8 @@ server:
     context-path: /
 
 spring:
+  flyway:
+    locations: classpath:/db/migration
   thymeleaf:
     cache: false
     check-template: true

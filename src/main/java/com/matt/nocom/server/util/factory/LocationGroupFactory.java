@@ -1,9 +1,9 @@
 package com.matt.nocom.server.util.factory;
 
 import com.google.common.collect.Lists;
-import com.matt.nocom.server.model.game.Location;
-import com.matt.nocom.server.model.game.LocationGroup;
-import com.matt.nocom.server.model.game.Position;
+import com.matt.nocom.server.model.sql.data.Location;
+import com.matt.nocom.server.model.http.data.LocationGroup;
+import com.matt.nocom.server.model.sql.data.Position;
 import com.matt.nocom.server.util.kdtree.KdNode;
 import com.matt.nocom.server.util.kdtree.KdTree;
 import java.util.Collections;

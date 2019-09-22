@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <body>
-<th:block th:fragment="header">
+<th:block th:fragment="header" th:remove="tag">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <a class="navbar-brand" href="#">&#129313;</a>
   <div id="navbarSupportedContent" class="collapse navbar-collapse justify-content-between">
@@ -12,15 +12,26 @@
           sec:authorize="!isFullyAuthenticated()">
         <a class="nav-link" th:href="@{/}">Login</a>
       </li>
-      <li class="nav-item"
-          th:classappend="${#httpServletRequest.getRequestURI().startsWith('/manager') ? 'active' : ''}"
-          sec:authorize="hasAnyAuthority('ADMIN', 'DEBUG')">
-        <a class="nav-link" th:href="@{/manager}">Manager</a>
-      </li>
-      <li class="nav-item"
-          th:classappend="${#httpServletRequest.getRequestURI().startsWith('/events') ? 'active' : ''}"
-          sec:authorize="hasAnyAuthority('ADMIN', 'DEBUG')">
-        <a class="nav-link" th:href="@{/events}">Events</a>
+      <li class="nav-item dropdown"
+          th:classappend="${(#httpServletRequest.getRequestURI().startsWith('/account') || #httpServletRequest.getRequestURI().startsWith('/events')) ? 'active' : ''}"
+          sec:authorize="hasAnyAuthority(@adminAuthorities)">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Manage
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item px-2" th:href="@{/accounts}">
+            <i class="fa fa-user-circle-o mx-2" aria-hidden="true"></i>
+            <label class="col-form-label">Manage Accounts</label>
+          </a>
+          <a class="dropdown-item px-2" th:href="@{/events}">
+            <i class="fa fa-book mx-2" aria-hidden="true"></i>
+            <label class="col-form-label">Event Logger</label>
+          </a>
+          <a class="dropdown-item px-2" th:href="@{/api/database/download}">
+            <i class="fa fa-download mx-2" aria-hidden="true"></i>
+            <label class="col-form-label">Database</label>
+          </a>
+        </div>
       </li>
       <li class="nav-item"
           th:classappend="${#httpServletRequest.getRequestURI().startsWith('/overview') ? 'active' : ''}"
