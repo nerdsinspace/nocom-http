@@ -2,6 +2,8 @@ server:
   use-forward-headers: true
   servlet:
     context-path: /
+    session:
+      timeout: 86400s
 
 spring:
   flyway:
