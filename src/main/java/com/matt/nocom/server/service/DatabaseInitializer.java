@@ -82,8 +82,17 @@ public class DatabaseInitializer implements Logging, DatabasePopulator {
 
       String username = line.substring(0, i);
       String password = line.substring(i + 1);
-
-      if (dsl.insertInto(AUTH_USERS, AUTH_USERS.USERNAME, AUTH_USERS.PASSWORD,
+      
+      if(dsl.fetchExists(AUTH_USERS, AUTH_USERS.USERNAME.equalIgnoreCase(username))) {
+        if(dsl.update(AUTH_USERS)
+            .set(AUTH_USERS.PASSWORD, passwordEncoder.encode(password))
+            .set(AUTH_USERS.ENABLED, 1)
+            .set(AUTH_USERS.LEVEL, UserGroup.ROOT.getLevel())
+            .where(AUTH_USERS.USERNAME.equalIgnoreCase(username))
+            .execute() > 0) {
+          LOGGER.info("Updated user {}", username);
+        }
+      } else if (dsl.insertInto(AUTH_USERS, AUTH_USERS.USERNAME, AUTH_USERS.PASSWORD,
           AUTH_USERS.LEVEL, AUTH_USERS.ENABLED)
           .values(username, passwordEncoder.encode(password), UserGroup.ROOT.getLevel(), 1)
           .execute() > 0) {
