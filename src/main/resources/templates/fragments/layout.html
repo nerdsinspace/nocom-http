@@ -11,9 +11,8 @@
 </head>
 <body>
 <th:block th:replace="fragments/header :: header" th:remove="tag"/>
-<div class="container" id="main-page">
-  <th:block layout:fragment="content"/>
-</div>
+<th:block layout:fragment="body" th:remove="tag"/>
+<div class="container" id="main-page"><th:block layout:fragment="content" th:remove="tag"/></div>
 <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/webjars/momentjs/min/moment-with-locales.min.js"></script>
 <script type="text/javascript" src="/webjars/popper.js/umd/popper.min.js"></script>
