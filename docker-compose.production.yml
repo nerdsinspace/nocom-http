@@ -5,7 +5,7 @@ services:
         image: registry.gitlab.com/fr1kin/nocom-http:latest
         volumes:
             - "/opt/nocom-http/locations.db:/opt/nocom-http/locations.db"
-            - "/opt/nocom-http/admins.txt:/opt/nocom-http/admins.txt"
+            - "/opt/nocom-http/users:/opt/nocom-http/users"
             - "/opt/nocom-http/logs:/opt/nocom-http/logs"
         working_dir: /opt/nocom-http
         ports:
