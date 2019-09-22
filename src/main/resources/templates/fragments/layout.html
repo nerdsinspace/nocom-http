@@ -6,20 +6,18 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-  <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
-  <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}"/>
-  <link rel="stylesheet" type="text/css" th:href="@{/css/font-awesome.min.css}">
+  <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+  <link rel="stylesheet" type="text/css" href="/webjars/fontawesome/css/font-awesome.min.css"/>
 </head>
 <body>
-<script type="text/javascript" th:src="@{/js/jquery-min-3.3.1.js}"></script>
-<script type="text/javascript" th:src="@{/js/moment-with-locales.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/popper.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
-
-<th:block th:replace="fragments/header :: header"/>
-<div class="container" id="main-page">
-  <th:block layout:fragment="content"/>
-</div>
-<th:block th:replace="fragments/footer :: footer"/>
+<th:block th:replace="fragments/header :: header" th:remove="tag"/>
+<th:block layout:fragment="body" th:remove="tag"/>
+<div class="container" id="main-page"><th:block layout:fragment="content" th:remove="tag"/></div>
+<script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/webjars/momentjs/min/moment-with-locales.min.js"></script>
+<script type="text/javascript" src="/webjars/popper.js/umd/popper.min.js"></script>
+<script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<th:block layout:fragment="scripts"/>
+<th:block th:replace="fragments/footer :: footer" th:remove="tag"/>
 </body>
 </html>

@@ -15,7 +15,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class NocomApplication {
   public static void main(String[] args) throws IOException {
-    if(Properties.DEV_MODE)
+    if("dev".equals(System.getProperty("spring.profiles.active")))
       createPropertiesFile();
 
     SpringApplication.run(NocomApplication.class, args);

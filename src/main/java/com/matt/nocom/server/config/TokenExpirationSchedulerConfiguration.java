@@ -1,9 +1,8 @@
 package com.matt.nocom.server.config;
 
-import com.matt.nocom.server.Properties;
-import com.matt.nocom.server.service.LoginManagerService;
+import com.matt.nocom.server.service.ApplicationSettings;
+import com.matt.nocom.server.service.auth.LoginService;
 import java.time.Instant;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -19,32 +18,37 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 @ComponentScan({"com.matt.nocom.server.service"})
 @EnableScheduling
 public class TokenExpirationSchedulerConfiguration implements SchedulingConfigurer {
-  private final LoginManagerService login;
-
-  public TokenExpirationSchedulerConfiguration(LoginManagerService login) {
+  
+  private final ApplicationSettings settings;
+  private final LoginService login;
+  
+  public TokenExpirationSchedulerConfiguration(
+      ApplicationSettings settings, LoginService login) {
+    this.settings = settings;
     this.login = login;
   }
-
+  
   @Bean(destroyMethod = "shutdown")
   public ExecutorService taskExecutor() {
     return Executors.newSingleThreadScheduledExecutor();
   }
-
+  
   @Override
   public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
     taskRegistrar.setScheduler(taskExecutor());
     taskRegistrar.addTriggerTask(
         login::clearExpiredTokens,
-        context -> login.getNextExpirationTime()
+        context -> login.getNextTokenExpirationTime()
             .map(time -> Math.max(time, System.currentTimeMillis()))
             .map(Instant::ofEpochMilli)
-            .map(in -> in.plusSeconds(30))
+            .map(in -> in.plusSeconds(5))
             .map(Date::from)
             .orElseGet(() -> Optional.ofNullable(context.lastActualExecutionTime())
                 .map(Date::toInstant)
-                .map(time -> time.plusMillis(Properties.TOKEN_EXPIRATION)) // a new token will never be under this time
+                .map(time -> time.plusMillis(settings.getTokenExpiration())) // a new token will never be under this time
                 .map(Date::from)
-                .orElseGet(() -> Date.from(Instant.now().plusSeconds(30))) // run expire tokens once on startup
+                    .orElseGet(() -> Date.from(Instant.now().plusSeconds(5)))
+                // run expire tokens once on startup
             )
     );
   }

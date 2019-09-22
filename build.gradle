@@ -1,33 +1,47 @@
-import org.apache.tools.ant.filters.ReplaceTokens
 import groovy.io.FileType
+import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
-    ext {
-        dependencyManagementPluginVersion = project.property('bs.spring.dependency.management.version')
-        springBootVersion = project.property('bs.spring.boot.plugin.version')
-        jooqPluginVersion = project.property('bs.jooq.plugin')
-        flywayPluginVersion = project.property('bs.flyway.version')
+  ext {
+    dependencyManagementPluginVersion = project.property('bs.spring.dependency.management.version')
+    springBootVersion = project.property('bs.spring.boot.plugin.version')
+    jooqPluginVersion = project.property('bs.jooq.plugin')
+    flywayPluginVersion = project.property('bs.flyway.version')
 
-        log4jVersion = project.property('log4j.version')
-        guavaVersion = project.property('guava.version')
-        apachePoiVersion = project.property('apache.poi.version')
-        xerialSqliteVersion = project.property('xerial.sqlite.version')
-        flywayCoreVersion = project.property('flyway.core.version')
+    log4jVersion = project.property('log4j.version')
+    guavaVersion = project.property('guava.version')
+    apachePoiVersion = project.property('apache.poi.version')
+    xerialSqliteVersion = project.property('xerial.sqlite.version')
+    flywayCoreVersion = project.property('flyway.core.version')
+    groovyAllVersion = project.property('groovy.all.version')
+
+    webjarsVersion = project.property('webjars.version')
+    webjarsJqueryVersion = project.property('webjars.jquery.version')
+    webjarsPopperVersion = project.property('webjars.popper.version')
+    webjarsBootstrapVersion = project.property('webjars.bootstrap.version')
+    webjarsMomentjsVersion = project.property('webjars.momentjs.version')
+    webjarsFontawesomeVersion = project.property('webjars.fontawesome.version')
+    webjarsPlotlyVersion = project.property('webjars.plotly.version')
+
+    junitVersion = project.property('test.junit.version')
+    spockCoreVersion = project.property('test.spock.core.version')
+    h2databaseVersion = project.property('test.h2database.version')
+  }
+  repositories {
+    mavenCentral()
+    maven {
+      url 'https://plugins.gradle.org/m2/'
     }
-    repositories {
-        mavenCentral()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath("nu.studer:gradle-jooq-plugin:${jooqPluginVersion}")
-    }
+  }
+  dependencies {
+    classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    classpath("nu.studer:gradle-jooq-plugin:${jooqPluginVersion}")
+  }
 }
 
 apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'nu.studer.jooq'
@@ -38,150 +52,167 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 configurations {
-    compile.exclude module: 'spring-boot-starter-logging'
+  compile.exclude module: 'spring-boot-starter-logging'
 }
 
 dependencyManagement {
-    imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-    }
+  imports {
+    mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+  }
 }
 
 jooq {
-    version = '3.11.8'
-    edition = 'OSS'
-    locations(sourceSets.main) {
-        jdbc {
-            driver = 'org.sqlite.JDBC'
-            url = "jdbc:sqlite:./${project.property('db.path')}"
-        }
-        generator {
-            name = 'org.jooq.codegen.DefaultGenerator'
-            strategy {
-                name = 'org.jooq.codegen.DefaultGeneratorStrategy'
-            }
-            database {
-                //name = 'org.jooq.meta.sqlite.SQLiteDatabase'
-                name = 'org.jooq.meta.extensions.ddl.DDLDatabase'
-                properties {
-                    property {
-                        key = 'scripts'
-                        value = project.property('sql.folder.tmp') + '/*' // TODO: when jOOQ 3.12 comes this wont be needed anymore
-                    }
-                    property {
-                        key = 'sort'
-                        value = 'semantic'
-                    }
-                }
-
-                inputSchema = 'PUBLIC'
-                outputSchemaToDefault = true
-            }
-            generate {}
-            target {
-                packageName = 'com.matt.nocom.server.sqlite'
-            }
-        }
+  version = '3.11.8'
+  edition = 'OSS'
+  locations(sourceSets.main) {
+    jdbc {
+      driver = 'org.sqlite.JDBC'
+      url = "jdbc:sqlite:./${project.property('db.path')}"
     }
+    generator {
+      name = 'org.jooq.codegen.DefaultGenerator'
+      strategy {
+        name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+      }
+      database {
+        //name = 'org.jooq.meta.sqlite.SQLiteDatabase'
+        name = 'org.jooq.meta.extensions.ddl.DDLDatabase'
+        properties {
+          property {
+            key = 'scripts'
+            value = project.property('sql.folder.tmp') + '/*'
+            // TODO: when jOOQ 3.12 comes this wont be needed anymore
+          }
+          property {
+            key = 'sort'
+            value = 'semantic'
+          }
+        }
+
+        inputSchema = 'PUBLIC'
+        outputSchemaToDefault = true
+      }
+      generate {}
+      target {
+        packageName = 'com.matt.nocom.server.sqlite'
+      }
+    }
+  }
 }
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter')
-    compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.springframework.boot:spring-boot-starter-log4j2')
-    compile('org.springframework.boot:spring-boot-starter-security')
-    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-    compile('org.springframework.boot:spring-boot-starter-jdbc')
+  compile('org.springframework.boot:spring-boot-starter')
+  compile('org.springframework.boot:spring-boot-starter-web')
+  compile('org.springframework.boot:spring-boot-starter-log4j2')
+  compile('org.springframework.boot:spring-boot-starter-security')
+  compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+  compile('org.springframework.boot:spring-boot-starter-jdbc')
 
-    compile group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect'
+  compile group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect'
 
-    // Thymeleaf
-    compile group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-springsecurity4', version: '3.0.4.RELEASE'
+  // Thymeleaf
+  compile group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-springsecurity4', version: '3.0.4.RELEASE'
 
-    // Log4J2
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
-    compile group: 'org.apache.logging.log4j', name: 'log4j-web', version: log4jVersion
-    
-    // Google commons
-    compile group: 'com.google.guava', name: 'guava', version: guavaVersion
-    
-    // Spread sheet building
-    compile group: 'org.apache.poi', name: 'poi', version: apachePoiVersion
-    compile group: 'org.apache.poi', name: 'poi-ooxml', version: apachePoiVersion
-    
-    // SQLite driver
-    compile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
-    jooqRuntime group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
-    jooqRuntime group: 'org.jooq', name: 'jooq-meta-extensions'
-    
-    // jOOQ
-    compile group: 'org.jooq', name: 'jooq'
-    compile group: 'org.jooq', name: 'jooq-meta'
-    compile group: 'org.jooq', name: 'jooq-codegen'
-    
-    // flyway
-    compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
+  // Log4J2
+  compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
+  compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
+  compile group: 'org.apache.logging.log4j', name: 'log4j-web', version: log4jVersion
 
-    // minecraft jar
-    //compile name: 'minecraft-vanilla'
-    compile files("$rootDir/libs/minecraft-vanilla.jar")
-    //compile group: 'it.unimi.dsi', name: 'fastutil', version: '8.2.2'
+  // Google commons
+  compile group: 'com.google.guava', name: 'guava', version: guavaVersion
 
-    compileOnly('org.projectlombok:lombok')
+  // Spread sheet building
+  //compile group: 'org.apache.poi', name: 'poi', version: apachePoiVersion
+  //compile group: 'org.apache.poi', name: 'poi-ooxml', version: apachePoiVersion
 
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+  // SQLite driver
+  compile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
+  testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
+  jooqRuntime group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
+  jooqRuntime group: 'org.jooq', name: 'jooq-meta-extensions'
+
+  // jOOQ
+  compile group: 'org.jooq', name: 'jooq'
+  compile group: 'org.jooq', name: 'jooq-meta'
+  compile group: 'org.jooq', name: 'jooq-codegen'
+
+  // flyway
+  compile group: 'org.flywaydb', name: 'flyway-core', version: flywayCoreVersion
+
+  // minecraft jar
+  //compile name: 'minecraft-vanilla'
+  compile files("$rootDir/libs/minecraft-vanilla.jar")
+  //compile group: 'it.unimi.dsi', name: 'fastutil', version: '8.2.2'
+
+  compileOnly('org.projectlombok:lombok')
+
+  // webjars
+
+  // locator - used for locating assets without the version
+  compile group: 'org.webjars', name: 'webjars-locator', version: webjarsVersion
+
+  // web assets
+  compile group: 'org.webjars', name: 'jquery', version: webjarsJqueryVersion
+  compile group: 'org.webjars', name: 'bootstrap', version: webjarsBootstrapVersion
+  compile group: 'org.webjars', name: 'momentjs', version: webjarsMomentjsVersion
+  compile group: 'org.webjars.bower', name: 'fontawesome', version: webjarsFontawesomeVersion
+  compile group: 'org.webjars.bower', name: 'plotly.js', version: webjarsPlotlyVersion
+  
+  testCompile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyAllVersion
+  
+  testCompile group: 'junit', name: 'junit', version: junitVersion
+  testCompile group: 'org.spockframework', name: 'spock-core', version: spockCoreVersion
+
+  testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
 processResources {
-    filesMatching('**/*.properties') {
-        filter ReplaceTokens, tokens: [
-                'db.path': project.property('db.path')
-        ]
-    }
+  filesMatching('**/*.properties') {
+    filter ReplaceTokens, tokens: [
+        'db.path': project.property('db.path')
+    ]
+  }
 }
 
 bootRun {
-    jvmArgs = ['-Dnocom.auth.debug=true']
+  jvmArgs = ['-Dspring.profiles.active=dev']
 }
 
 task filterAndCopySqlSchemas {
-    def dir = new File(rootProject.projectDir, project.property('sql.folder'))
-    
-    def temp = new File(rootProject.projectDir, project.property('sql.folder.tmp'))
-    // delete folder if it still exists
-    if(temp.exists()) temp.deleteDir()
-    temp.mkdirs()
-    
-    dir.eachFile(FileType.FILES) { file ->
-        def tempFile = new File(temp, file.name)
-        tempFile.write('')
-        
-        Scanner scanner = new Scanner(file.text)
-        def skip = false
-        while(scanner.hasNextLine()) {
-            def line = scanner.nextLine()
-            def trim = line.trim()
-            if(trim.startsWith('--')) {
-                def comment = trim.substring(2)
-                if(comment.contains('[jooq ignore start]')) {
-                    skip = true
-                    continue
-                } else if(comment.contains('[jooq ignore stop]')) {
-                    skip = false
-                    continue // skip this line because its a comment
-                }
-            }
-            
-            if(!skip)
-                tempFile.append('\n' + line)
+  def dir = new File(rootProject.projectDir, project.property('sql.folder'))
+
+  def temp = new File(rootProject.projectDir, project.property('sql.folder.tmp'))
+  // delete folder if it still exists
+  if (temp.exists()) temp.deleteDir()
+  temp.mkdirs()
+
+  dir.eachFile(FileType.FILES) { file ->
+    def tmp = new File(temp, file.name)
+    tmp.bytes = new byte[0];
+
+    Scanner scanner = new Scanner(file.text)
+    def skip = false
+    while (scanner.hasNextLine()) {
+      def line = scanner.nextLine()
+      def trim = line.trim()
+      if (trim.startsWith('--')) {
+        def comment = trim.substring(2)
+        if (comment.contains('[jooq ignore start]')) {
+          skip = true
+        } else if (comment.contains('[jooq ignore stop]')) {
+          skip = false
         }
+        continue // skip all comments
+      }
+
+      if (!skip)
+        tmp.append('\n' + line)
     }
+  }
 }
 
 // make the task always run
