@@ -131,6 +131,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
         .and()
           .headers()
             .frameOptions().disable() // allows iframes to work
+            .cacheControl().disable()
         .and()
           .formLogin()
           .loginPage("/login")
