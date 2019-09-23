@@ -7,6 +7,7 @@ import com.matt.nocom.server.service.EventService;
 import com.matt.nocom.server.service.auth.LoginService;
 import com.matt.nocom.server.util.StaticUtils;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Controller;
@@ -55,7 +56,9 @@ public class UIController {
 
   @GetMapping("/accounts")
   public String accounts(Model model) {
-    model.addAttribute("usersData", login.getUsers());
+    List<User> users = login.getUsers();
+    users.sort(Comparator.comparing(User::getLevel).reversed());
+    model.addAttribute("usersData", users);
     model.addAttribute("authGroups", UserGroup.all());
     return "secret/accounts";
   }
