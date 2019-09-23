@@ -17,6 +17,9 @@ spring:
     mode: HTML
     prefix: classpath:/templates/
     suffix: .html
+  resources:
+    cache:
+      period: 86400s
 
 logging:
   level:
