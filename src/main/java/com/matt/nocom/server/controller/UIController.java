@@ -34,24 +34,10 @@ public class UIController {
   }
 
   @GetMapping("/overview")
-  public String overview(Model model,
-      @RequestParam("server") Optional<String> server,
-      @RequestParam("dimension") Optional<Integer> dimension,
-      @RequestParam("delta") Optional<Integer> delta,
-      @RequestParam("minHits") Optional<Integer> hits,
-      @RequestParam("range") Optional<Integer> range,
-      @RequestParam("startTime") Optional<Long> startTime,
-      @RequestParam("endTime") Optional<Long> endTime) {
+  public String overview(Model model) {
     model.addAttribute("servers", api.getServers());
     model.addAttribute("dimensions", api.getDimensions());
     return "secret/overview";
-  }
-
-  @GetMapping("/listview")
-  public String listView(Model model) {
-    model.addAttribute("servers", api.getServers());
-    model.addAttribute("dimensions", api.getDimensions());
-    return "secret/listview";
   }
 
   @GetMapping("/accounts")

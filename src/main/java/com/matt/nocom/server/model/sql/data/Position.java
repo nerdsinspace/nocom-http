@@ -25,12 +25,6 @@ public class Position implements Serializable, VectorXZ {
   @Default
   private Long uploadTime = null;
 
-  /**
-   * The biome the location is probably in
-   */
-  @Default
-  private String biome = null;
-
   @Override
   public boolean equals(Object obj) {
     return this == obj || (obj instanceof Position
