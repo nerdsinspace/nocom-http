@@ -38,11 +38,6 @@
           sec:authorize="isFullyAuthenticated()">
         <a class="nav-link" th:href="@{/overview}">Overview</a>
       </li>
-      <li class="nav-item"
-          th:classappend="${#httpServletRequest.getRequestURI().startsWith('/listview') ? 'active' : ''}"
-          sec:authorize="isFullyAuthenticated()">
-        <a class="nav-link" th:href="@{/listview}">Listview</a>
-      </li>
     </ul>
 
     <ul class="navbar-nav ml-auto" sec:authorize="isFullyAuthenticated()">
