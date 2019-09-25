@@ -2,14 +2,11 @@ package com.matt.nocom.server.controller;
 
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.minecraft.world.MinecraftWorld;
+import com.matt.nocom.server.model.http.data.LocationGroup;
+import com.matt.nocom.server.model.http.data.SearchFilter;
 import com.matt.nocom.server.model.shared.data.Dimension;
 import com.matt.nocom.server.model.sql.data.Location;
-import com.matt.nocom.server.model.http.data.LocationGroup;
-import com.matt.nocom.server.model.sql.data.RegionFileData;
-import com.matt.nocom.server.model.http.data.RegionFileFilter;
 import com.matt.nocom.server.model.sql.data.Position;
-import com.matt.nocom.server.model.http.data.SearchFilter;
 import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.service.EventService;
 import com.matt.nocom.server.util.EventTypeRegistry;
@@ -18,14 +15,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.stream.Collectors;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -140,56 +134,7 @@ public class APIController implements Logging {
   public ResponseEntity<Dimension[]> getDimensions() {
     return ResponseEntity.ok(api.getDimensions().toArray(new Dimension[0]));
   }
-
-  @RequestMapping(value = "/download/region",
-      method = RequestMethod.POST,
-      consumes = "application/json")
-  public ResponseEntity<Resource> downloadRegionFile(@RequestBody RegionFileFilter request) {
-    Path filePath = new MinecraftWorld(request.getServer())
-        .ofType(request.getType())
-        .dimension(request.getDimension())
-        .getRegionAt(request.getX(), request.getZ());
-
-    if (!Files.exists(filePath)) {
-      return ResponseEntity.notFound().build();
-    }
-
-    try {
-      Resource resource = new FileSystemResource(filePath);
-
-      return ResponseEntity.ok()
-          .contentLength(resource.contentLength())
-          .contentType(MediaType.APPLICATION_OCTET_STREAM)
-          .body(resource);
-
-    } catch (IOException ex) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .header("cause", ex.toString())
-          .build();
-    }
-  }
-
-  @RequestMapping(value = "/upload/region",
-      method = RequestMethod.POST,
-      consumes = "application/json",
-      produces = "application/json")
-  @ResponseStatus(HttpStatus.OK)
-  @ResponseBody
-  public ResponseEntity addRegionFile(@RequestBody RegionFileData regionData) {
-    final Path path = new MinecraftWorld(regionData.getServer())
-        .ofType(regionData.getType())
-        .dimension(regionData.getDimension())
-        .getRegionAt(regionData.getX(), regionData.getZ());
-
-    try {
-      // TODO: rename already existing files
-      Files.write(path, Base64.getDecoder().decode(regionData.getBase64Data()), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-      return ResponseEntity.ok().build();
-    } catch (IOException ex) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.toString());
-    }
-  }
+  
 
   @RequestMapping(value = "/database/download",
       method = RequestMethod.GET)

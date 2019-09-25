@@ -143,11 +143,6 @@ dependencies {
   // flyway
   compile group: 'org.flywaydb', name: 'flyway-core', version: flywayCoreVersion
 
-  // minecraft jar
-  //compile name: 'minecraft-vanilla'
-  compile files("$rootDir/libs/minecraft-vanilla.jar")
-  //compile group: 'it.unimi.dsi', name: 'fastutil', version: '8.2.2'
-
   compileOnly('org.projectlombok:lombok')
 
   // webjars
