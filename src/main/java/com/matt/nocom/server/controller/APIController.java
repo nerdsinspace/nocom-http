@@ -1,21 +1,26 @@
 package com.matt.nocom.server.controller;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Lists;
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.model.http.data.LocationGroup;
 import com.matt.nocom.server.model.http.data.SearchFilter;
 import com.matt.nocom.server.model.shared.data.Dimension;
+import com.matt.nocom.server.model.shared.data.LocationGroup;
 import com.matt.nocom.server.model.sql.data.Location;
 import com.matt.nocom.server.model.sql.data.Position;
-import com.matt.nocom.server.service.APIService;
 import com.matt.nocom.server.service.EventService;
+import com.matt.nocom.server.service.data.APIService;
 import com.matt.nocom.server.util.EventTypeRegistry;
-import com.matt.nocom.server.util.factory.LocationGroupFactory;
+import com.matt.nocom.server.util.kdtree.KdNode;
+import com.matt.nocom.server.util.kdtree.KdTree;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -104,7 +109,7 @@ public class APIController implements Logging {
   public ResponseEntity<LocationGroup[]> getLocationGroups(@RequestBody SearchFilter filter) {
     filter.forceGrouping();
     return ResponseEntity.ok(
-        LocationGroupFactory.translate2(api.getLocations(filter), filter.getGroupingRange()).stream()
+        cluster(api.getLocations(filter), filter.getGroupingRange()).stream()
             .filter(g -> g.getPositions().size() >= MoreObjects.firstNonNull(filter.getMinHits(), 0))
             .toArray(LocationGroup[]::new)
     );
@@ -153,5 +158,48 @@ public class APIController implements Logging {
         .contentLength(Files.size(path))
         .contentType(MediaType.parseMediaType("application/octet-stream"))
         .body(resource);
+  }
+  
+  private List<LocationGroup> cluster(List<Location> inputs, int range) {
+    if(inputs.isEmpty())
+      return Collections.emptyList();
+    
+    final int rangeSq = range*range;
+    
+    KdTree<Location> tree = new KdTree<>(inputs);
+    
+    List<LocationGroup> cluster = Lists.newArrayListWithCapacity(inputs.size());
+    final Location base = tree.getRoot().getReference();
+    
+    KdNode<Location> next;
+    while((next = tree.getRightMost()) != null) {
+      List<KdNode<Location>> nodes;
+      if(rangeSq <= 0) {
+        nodes = Collections.singletonList(next);
+      } else {
+        nodes = tree.radiusSq(next, rangeSq);
+        if(nodes.isEmpty()) {
+          tree.remove(next);
+          continue;
+        }
+      }
+      
+      LocationGroup loc = new LocationGroup();
+      loc.setServer(base.getServer());
+      loc.setDimension(base.getDimension());
+      loc.setPositions(nodes.stream()
+          .map(KdNode::getReferences)
+          .flatMap(List::stream)
+          .map(Location::toPosition)
+          .sorted(Comparator.comparingLong(Position::getTime))
+          .collect(Collectors.toList()));
+      loc.setup();
+      
+      nodes.forEach(tree::removeNode);
+      
+      cluster.add(loc);
+    }
+    
+    return cluster;
   }
 }

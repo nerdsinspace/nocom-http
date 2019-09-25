@@ -1,4 +1,4 @@
-package com.matt.nocom.server.service;
+package com.matt.nocom.server.service.data;
 
 import static com.matt.nocom.server.sqlite.Tables.DIMENSIONS;
 import static com.matt.nocom.server.sqlite.Tables.LOCATIONS;
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class APIService {
-  @Autowired
   private final DSLContext dsl;
-
+  
+  @Autowired
   public APIService(DSLContext dsl) {
     this.dsl = dsl;
   }

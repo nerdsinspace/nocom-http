@@ -1,12 +1,9 @@
-package com.matt.nocom.server.model.http.data;
+package com.matt.nocom.server.model.shared.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.model.sql.data.Position;
-import com.matt.nocom.server.util.Region;
-import com.matt.nocom.server.util.VectorXZ;
-import com.matt.nocom.server.util.WorldEntry;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;

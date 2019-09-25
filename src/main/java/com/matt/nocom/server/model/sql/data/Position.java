@@ -1,6 +1,6 @@
 package com.matt.nocom.server.model.sql.data;
 
-import com.matt.nocom.server.util.VectorXZ;
+import com.matt.nocom.server.model.shared.data.VectorXZ;
 import java.io.Serializable;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
