@@ -1,7 +1,7 @@
 package com.matt.nocom.server.util.kdtree;
 
 import com.google.common.collect.Lists;
-import com.matt.nocom.server.util.VectorXZ;
+import com.matt.nocom.server.model.shared.data.VectorXZ;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +20,7 @@ public class KdTree<T extends VectorXZ> implements Iterable<KdNode<T>> {
 
   private KdNode<T> root;
   private int size = 0;
-
+  
   public KdTree(List<T> vectors) {
     this.root = insertAll(vectors);
   }
@@ -58,11 +58,11 @@ public class KdTree<T extends VectorXZ> implements Iterable<KdNode<T>> {
       // go down the list and add duplicates from the left and right
 
       while(leftIndex >= 0 && at.isVectorEq(e = vectors.get(leftIndex))) {
-        node.addVector(e);
+        node.addReference(e);
         --leftIndex;
       }
       while(rightIndex < vectors.size() && at.isVectorEq(e = vectors.get(rightIndex))) {
-        node.addVector(e);
+        node.addReference(e);
         ++rightIndex;
       }
 
@@ -89,6 +89,7 @@ public class KdTree<T extends VectorXZ> implements Iterable<KdNode<T>> {
       if(start.isLeaf()) {
         size--;
         start.delete();
+        if(start == getRoot()) root = null; // epic edge case
         return null;
       } else if (start.getRight() != null) {
         KdNode<T> min = min(start.getRight(), d, depth + 1);
@@ -120,8 +121,14 @@ public class KdTree<T extends VectorXZ> implements Iterable<KdNode<T>> {
 
     return del;
   }
+  public KdNode<T> remove(KdNode<T> start, VectorXZ vec) {
+    return remove(start, vec, 0);
+  }
   public KdNode<T> remove(VectorXZ vec) {
-    return remove(root, vec, 0);
+    return remove(root, vec);
+  }
+  public KdNode<T> removeNode(KdNode<T> start) {
+    return remove(start, start, start.getDepth());
   }
 
   private static <T extends VectorXZ> KdNode<T> minimumOf(KdNode<T> arg1, KdNode<T> arg2, KdNode<T> arg3, final int d) {
@@ -265,6 +272,11 @@ public class KdTree<T extends VectorXZ> implements Iterable<KdNode<T>> {
     radiusSq(root, origin, radiusSq, nodes, 0);
     return nodes;
   }
+  public List<KdNode<T>> radiusSqNode(KdNode<T> origin, double radiusSq) {
+    List<KdNode<T>> nodes = Lists.newArrayList();
+    radiusSq(origin, origin, radiusSq, nodes, 0);
+    return nodes;
+  }
 
   public KdNode<T> getRoot() {
     return root;
@@ -276,6 +288,34 @@ public class KdTree<T extends VectorXZ> implements Iterable<KdNode<T>> {
 
   public int size() {
     return size;
+  }
+  
+  public KdNode<T> getRightMost(KdNode<T> node) {
+    if(node == null)
+      return null;
+    else if(node.isLeaf())
+      return node;
+    else if(node.getRight() != null)
+      return getRightMost(node.getRight());
+    else // left node must not be null
+      return getRightMost(node.getLeft());
+  }
+  public KdNode<T> getRightMost() {
+    return getRightMost(getRoot());
+  }
+  
+  public KdNode<T> getLeftMost(KdNode<T> node) {
+    if(node == null)
+      return null;
+    else if(node.isLeaf())
+      return node;
+    else if(node.getLeft() != null)
+      return getLeftMost(node.getLeft());
+    else // right node must not be null
+      return getLeftMost(node.getRight());
+  }
+  public KdNode<T> getLeftMost() {
+    return getLeftMost(getRoot());
   }
 
   private KdNode<T> createNode(T vec) {
@@ -302,13 +342,7 @@ public class KdTree<T extends VectorXZ> implements Iterable<KdNode<T>> {
   //
 
   private static int axisOf(VectorXZ vec1, int d) {
-    switch (d) {
-      case 0:
-        return vec1.getX();
-      case 1:
-        return vec1.getZ();
-      default: throw new IllegalArgumentException("dimension must be 0 or 1");
-    }
+    return d == 0 ? vec1.getX() : vec1.getZ();
   }
 
   private static int dx(VectorXZ node, VectorXZ vec, int d) {

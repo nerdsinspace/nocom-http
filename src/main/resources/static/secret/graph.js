@@ -39,16 +39,19 @@ const plotConfig = {
 };
 
 function graphInitialize() {
+  // clear selection
+  setCoordSelected();
+
+  // clear markers array
+  markers.length = 0;
+
   Plotly.newPlot(j_map[0], markers, plotLayout, plotConfig);
 
   j_map[0].on('plotly_click', function(data) {
     const point = data.points[0];
-    j_coord_selected.val(`${point.x} ${point.y}`);
-    j_coord_selected.attr('original', j_coord_selected.val());
-
+    setCoordSelected(`${point.x} ${point.y}`);
     setSelectedMarker(point.x, point.y);
   });
-  //onUpdate();
 }
 
 function graphResize() {
@@ -70,6 +73,105 @@ function graphRecenter() {
   });
 }
 
+function graphMarkers(data) {
+  if (!Array.isArray(data)) {
+    return;
+  }
+
+  const categories = [
+    {
+      min: 1,
+      color: 'rgb(70, 130, 180)',
+      size: 4,
+      points: [],
+    },
+    {
+      min: 2,
+      color: 'rgb(0, 128, 0)',
+      size: 6,
+      points: [],
+    },
+    {
+      min: 4,
+      color: 'rgb(255,215,0)',
+      size: 7,
+      points: [],
+    },
+    {
+      min: 8,
+      color: 'rgb(255,165,0)',
+      size: 8,
+      points: [],
+    },
+    {
+      min: 16,
+      color: 'rgb(255,69,0)',
+      size: 9,
+      points: [],
+    },
+    {
+      min: 32,
+      color: 'rgb(255,0,0)',
+      size: 10,
+      points: [],
+    },
+  ];
+
+  function findCategory(min) {
+    let best = undefined;
+    for(const c in categories) {
+      const o = categories[c];
+      if(o.min === min)
+        return o;
+      else if(o.min > min)
+        break;
+      else
+        best = o;
+    }
+    return best;
+  }
+
+  data.forEach(loc => {
+    const infos = [];
+    const count = loc.positions.length;
+
+    infos.push(`First hit: ${toTimeString(loc.positions[0].time)}`);
+    if (count > 1) {
+      infos.push(`Latest hit: ${toTimeString(loc.positions[count - 1].time)}`)
+    }
+    infos.push(`Hit(s): ${count}`);
+
+    const pnt = findCategory(count);
+
+    if(pnt !== undefined) {
+      pnt.points.push({
+        x: loc.x,
+        y: loc.z,
+        info: infos.join('<br>'),
+      });
+    }
+  });
+
+  categories.forEach(cat => {
+    const points = cat.points;
+    markers.push({
+      x: points.map(p => p.x),
+      y: points.map(p => p.y),
+      text: points.map(p => p.info),
+      mode: 'markers',
+      hoverinfo: "text+x+y",
+      type: 'scattergl',
+      marker: {
+        color: cat.color,
+        size: cat.size,
+      },
+    });
+  });
+
+  graphUpdate();
+  graphRecenter();
+}
+
 async function getLocations(options) {
   try {
     return await $.ajax({
@@ -84,139 +186,38 @@ async function getLocations(options) {
   }
 }
 
+function queryOptions() {
+  const start = j_start_date.val(), end = j_end_date.val();
+  return {
+    server: j_server.val(),
+    dimension: parseInt(j_dimension.val(), 10),
+    groupingRange: parseInt(j_range.val(), 10),
+    minDelta: parseInt(j_delta.val(), 10),
+    minHits: parseInt(j_hits.val(), 10),
+    startTime: isValid(start) ? toTimeMs(start) : undefined,
+    endTime: isValid(end) ? toTimeMs(end) : undefined,
+  }
+}
+
+function isValid(o) {
+  return typeof o !== 'undefined' && o !== '';
+}
+
 function toTimeString(ms) {
   return new Date(ms).toLocaleString();
 }
 
-function plotLocations() {
-  j_coord_selected.val('');
+function toTimeMs(date) {
+  return new Date(date).getTime();
+}
 
-  // clear array
-  markers.length = 0;
-
-  // remake the plot
-  graphInitialize();
-
-  const options = {
-    groupingRange: parseInt(j_range.val(), 10),
-    minDelta: parseInt(j_delta.val(), 10),
-    minHits: parseInt(j_hits.val(), 10)
-  };
-
-  if (j_server.val() !== '') {
-    options.server = j_server.val();
+function setCoordSelected(text) {
+  j_coord_selected.val(text);
+  if(typeof text == 'undefined' || text === '') {
+    j_coord_selected.removeAttr('original');
+  } else {
+    j_coord_selected.attr('original', text);
   }
-
-  if (j_dimension.val() !== 'any') {
-    options.dimension = parseInt(j_dimension.val(), 10);
-  }
-
-  if (j_start_date.val() !== '') {
-    options.startTime = new Date(j_start_date.val()).getTime();
-  }
-
-  if (j_end_date.val() !== '') {
-    options.endTime = new Date(j_end_date.val()).getTime();
-  }
-
-  getLocations(options).then(data => {
-    if (!Array.isArray(data)) {
-      return;
-    }
-
-    const categories = [
-      {
-        min: 1,
-        color: 'rgb(70, 130, 180)',
-        size: 4,
-        points: [],
-      },
-      {
-        min: 2,
-        color: 'rgb(0, 128, 0)',
-        size: 6,
-        points: [],
-      },
-      {
-        min: 4,
-        color: 'rgb(255,215,0)',
-        size: 7,
-        points: [],
-      },
-      {
-        min: 8,
-        color: 'rgb(255,165,0)',
-        size: 8,
-        points: [],
-      },
-      {
-        min: 16,
-        color: 'rgb(255,69,0)',
-        size: 9,
-        points: [],
-      },
-      {
-        min: 32,
-        color: 'rgb(255,0,0)',
-        size: 10,
-        points: [],
-      },
-    ];
-
-    function findCategory(min) {
-      let best = undefined;
-      for(const c in categories) {
-        const o = categories[c];
-        if(o.min === min)
-          return o;
-        else if(o.min > min)
-          break;
-        else
-          best = o;
-      }
-      return best;
-    }
-
-    data.forEach(loc => {
-      const infos = [];
-      const count = loc.positions.length;
-
-      infos.push(`First hit: ${toTimeString(loc.positions[0].time)}`);
-      if (count > 1) {
-        infos.push(`Latest hit: ${toTimeString(loc.positions[count - 1].time)}`)
-      }
-      infos.push(`Hit(s): ${count}`);
-
-      const pnt = findCategory(count);
-
-      if(pnt !== undefined) {
-        pnt.points.push({
-          x: loc.x,
-          y: loc.z,
-          info: infos.join('<br>'),
-        });
-      }
-    });
-
-    categories.forEach(cat => {
-      const points = cat.points;
-      markers.push({
-        x: points.map(p => p.x),
-        y: points.map(p => p.y),
-        text: points.map(p => p.info),
-        mode: 'markers',
-        hoverinfo: "text+x+y",
-        type: 'scattergl',
-        marker: {
-          color: cat.color,
-          size: cat.size,
-        },
-      });
-    });
-
-    graphUpdate();
-    graphRecenter();
-  });
 }
 
 function setSelectedMarker(x, z) {
@@ -245,8 +246,25 @@ function setSelectedMarker(x, z) {
 }
 
 function onSubmit(o) {
+  const $this = $(o);
+  $this.attr('disabled', true);
+  $this.tooltip('hide');
+
+  // hide settings
   $('#settings-collapse').collapse('hide');
-  plotLocations();
+
+  // reinitialize the graph
+  graphInitialize();
+
+  const onFinish = (e) => $this.attr('disabled', false);
+
+  try {
+    return getLocations(queryOptions())
+        .then(graphMarkers)
+        .finally(onFinish);
+  } catch (e) {
+    onFinish(e);
+  }
 }
 
 function onCoordinateScale(o, mode) {

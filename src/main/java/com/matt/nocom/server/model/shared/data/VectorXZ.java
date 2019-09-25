@@ -1,4 +1,4 @@
-package com.matt.nocom.server.util;
+package com.matt.nocom.server.model.shared.data;
 
 public interface VectorXZ {
   VectorXZ ORIGIN = new VectorXZ() {

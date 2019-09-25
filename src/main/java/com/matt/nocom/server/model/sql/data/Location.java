@@ -1,8 +1,8 @@
 package com.matt.nocom.server.model.sql.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.matt.nocom.server.util.VectorXZ;
-import com.matt.nocom.server.util.WorldEntry;
+import com.matt.nocom.server.model.shared.data.VectorXZ;
+import com.matt.nocom.server.model.shared.data.WorldEntry;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.annotation.Nullable;
