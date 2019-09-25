@@ -19,7 +19,7 @@ spring:
     suffix: .html
   resources:
     cache:
-      period: 86400s
+      period: 3600s
 
 logging:
   level:

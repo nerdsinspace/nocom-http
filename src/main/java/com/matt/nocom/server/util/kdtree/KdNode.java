@@ -2,7 +2,7 @@ package com.matt.nocom.server.util.kdtree;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.matt.nocom.server.util.VectorXZ;
+import com.matt.nocom.server.model.shared.data.VectorXZ;
 import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class KdNode<T extends VectorXZ> implements VectorXZ {
     this(first, null, null, null);
   }
 
-  public KdNode<T> addVector(T duplicate) {
+  public KdNode<T> addReference(T duplicate) {
     references.add(duplicate);
     return this;
   }
@@ -78,6 +78,16 @@ public class KdNode<T extends VectorXZ> implements VectorXZ {
 
   public boolean isLeaf() {
     return getLeft() == null && getRight() == null;
+  }
+  
+  public int getDepth() {
+    int count = 0;
+    KdNode<T> next = getParent();
+    while(next != null) {
+      count++;
+      next = next.getParent();
+    }
+    return count;
   }
 
   public void delete() {
@@ -138,21 +148,20 @@ public class KdNode<T extends VectorXZ> implements VectorXZ {
   }
 
   private void buildStringTree(StringBuilder builder, int tabs) {
-    builder.append("pos(");
-    builder.append(getX());
-    builder.append(", ");
-    builder.append(getZ());
-    builder.append(") count=");
-    builder.append(getRefCount());
-    builder.append('\n');
+    builder.append("pos(")
+        .append(getX())
+        .append(", ")
+        .append(getZ())
+        .append(") count=")
+        .append(getRefCount())
+        .append('\n');
+    
     if(getLeft() != null) {
-      builder.append(Strings.repeat("\t", tabs));
-      builder.append("-> [L] ");
+      builder.append(Strings.repeat("\t", tabs)).append("-> [L] ");
       getLeft().buildStringTree(builder, tabs + 1);
     }
     if(getRight() != null) {
-      builder.append(Strings.repeat("\t", tabs));
-      builder.append("-> [R] ");
+      builder.append(Strings.repeat("\t", tabs)).append("-> [R] ");
       getRight().buildStringTree(builder, tabs + 1);
     }
   }

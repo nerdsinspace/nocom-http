@@ -3,7 +3,7 @@ package com.matt.nocom.server.util.kdtree;
 import static org.junit.Assert.*;
 
 import com.google.common.collect.Sets;
-import com.matt.nocom.server.util.Vector;
+import com.matt.nocom.server.model.shared.data.Vector;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
