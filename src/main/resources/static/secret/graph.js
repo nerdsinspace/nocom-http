@@ -333,6 +333,70 @@ function copyToClipboard(text) {
   }
 }
 
+let stomp;
+let updateInterval;
+
+function connectSocket() {
+  const socket = new SockJS('/websocket');
+  stomp = Stomp.over(socket);
+  stomp.connect({}, function (frame) {
+    console.log("Connected to websocket");
+
+    stomp.subscribe('/nocom/subscribe/tracker', function (response) {
+      // console.log('recieved message', tracks);
+      const tracks = JSON.parse(response.body);
+
+      const data = {
+        overworld: {
+          x: [],
+          z: [],
+          color: 'rgb(0,255,0)'
+        },
+        nether: {
+          x: [],
+          z: [],
+          color: 'rgb(255,0,0)'
+        }
+      }
+
+      tracks.forEach(track => {
+        const tbl = track.dimension === "OVERWORLD" ? data.overworld : data.nether;
+        tbl.x.push(track.overworldBlockX);
+        tbl.z.push(track.overworldBlockZ);
+      });
+
+      markers.length = 0;
+      [data.overworld, data.nether].forEach(e => {
+        markers.push({
+          x: e.x,
+          y: e.z,
+          // text: points.map(p => p.info),
+          mode: 'markers',
+          hoverinfo: "text+x+y",
+          type: 'scattergl',
+          marker: {
+            color: e.color,
+            size: 7,
+          },
+        });
+      });
+
+      graphUpdate();
+    })
+
+    if(updateInterval === undefined) {
+      updateData();
+      updateInterval = window.setInterval(updateData, 100);
+    }
+  });
+}
+
+function updateData() {
+  stomp.send('/nocom/sock/tracking', {}, JSON.stringify({
+    server: j_server.val()
+  }));
+}
+
 $(function() {
   $('[data-toggle="tooltip"]').tooltip({
     trigger : 'hover'
@@ -353,6 +417,8 @@ $(function() {
 
   graphInitialize();
   graphResize();
+
+  connectSocket();
 });
 
 $(window).resize(graphResize);

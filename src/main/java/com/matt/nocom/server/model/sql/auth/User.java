@@ -3,6 +3,8 @@ package com.matt.nocom.server.model.sql.auth;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.matt.nocom.server.model.shared.auth.UserGroup;
 import com.matt.nocom.server.util.StaticUtils;
+
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.AllArgsConstructor;
@@ -38,7 +40,7 @@ public class User implements UserDetails {
   private boolean debugUser = false;
   
   @Default
-  private long lastLogin = 0L;
+  private Instant lastLogin = null;
   
   public UserGroup getGroup() {
     return UserGroup.fromLevel(getLevel());
@@ -83,7 +85,6 @@ public class User implements UserDetails {
   }
   
   public static class UserBuilder {
-    
     public UserBuilder group(UserGroup group) {
       return level(group.getLevel());
     }

@@ -1,13 +1,18 @@
 server:
-  use-forward-headers: true
   servlet:
     context-path: /
     session:
       timeout: 86400s
+  forward-headers-strategy: framework
 
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
   flyway:
-    locations: classpath:/db/migration
+    locations: classpath:db/h2
   thymeleaf:
     cache: false
     check-template: true
@@ -17,9 +22,29 @@ spring:
     mode: HTML
     prefix: classpath:/templates/
     suffix: .html
-  resources:
-    cache:
-      period: 3600s
+
+nocom:
+  ssh-tunnel:
+    enabled: true
+    host-address:
+    host-port:
+    username:
+    private-key-file:
+  authentication:
+    debug-users:
+      - 'debug:pass'
+    reserved-usernames:
+      - 'debug'
+  datasource:
+    h2:
+      database: ./data
+      mode: file
+    postgres:
+      hostname:
+      port:
+      database:
+      username:
+      password:
 
 logging:
   level:
@@ -27,3 +52,4 @@ logging:
     com.memorynotfound: INFO
     org.springframework.web: INFO
     org.springframework.security: INFO
+
