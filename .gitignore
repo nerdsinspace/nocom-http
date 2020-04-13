@@ -1,17 +1,10 @@
-.gradle/*
-.idea/*
-build/*
-logs/*
-out/*
-waypoints/*
-old/*
+.gradle/
+.idea/
+build/
+logs/
+out/
+ssh/
 
 locations.db*
 locations*.db
-
-cuckstantiam.txt
-output.*.log
-output*.xlsx
-random_coords.txt
-
-src/main/java/com/matt/nocom/Main.java
+data.*.db

@@ -5,6 +5,7 @@ import com.matt.nocom.server.model.sql.auth.User;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class StaticUtils implements Logging {
   public static List<RequestMatcher> antMatchers(String... uris) {
     return Arrays.stream(uris)
         .map(uri -> new AntPathRequestMatcher(uri, null))
-        .collect(Collectors.toList());
+        .collect(Collectors.toUnmodifiableList());
   }
   
   public static Optional<User> getCurrentUserContext() {

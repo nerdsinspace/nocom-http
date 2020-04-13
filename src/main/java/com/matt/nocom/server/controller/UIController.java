@@ -2,14 +2,18 @@ package com.matt.nocom.server.controller;
 
 import com.matt.nocom.server.model.shared.auth.UserGroup;
 import com.matt.nocom.server.model.sql.auth.User;
-import com.matt.nocom.server.service.EventService;
-import com.matt.nocom.server.service.auth.LoginService;
-import com.matt.nocom.server.service.data.APIService;
+import com.matt.nocom.server.service.EventRepository;
+import com.matt.nocom.server.service.auth.UserRepository;
+import com.matt.nocom.server.service.data.NocomRepository;
 import com.matt.nocom.server.util.StaticUtils;
+
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,16 +21,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
+@RequiredArgsConstructor
 public class UIController {
-  private final APIService api;
-  private final LoginService login;
-  private final EventService events;
-  
-  public UIController(APIService api, LoginService login, EventService events) {
-    this.api = api;
-    this.login = login;
-    this.events = events;
-  }
+  private final NocomRepository nocom;
+  private final UserRepository login;
+  private final EventRepository events;
 
   @GetMapping({"/", "/login"})
   public String index() {
@@ -35,8 +34,8 @@ public class UIController {
 
   @GetMapping("/overview")
   public String overview(Model model) {
-    model.addAttribute("servers", api.getServers());
-    model.addAttribute("dimensions", api.getDimensions());
+    model.addAttribute("servers", nocom.getServers());
+    model.addAttribute("dimensions", nocom.getDimensions());
     return "secret/overview";
   }
 
@@ -71,37 +70,29 @@ public class UIController {
   public String events(Model model,
       @PathVariable("page") Integer page,
       @RequestParam("view") Optional<Integer> view,
-      @RequestParam("level") Optional<Integer> level,
-      @RequestParam("type") Optional<Integer> type,
+      @RequestParam("type") Optional<String> type,
       @RequestParam("beginTime") Optional<Long> beginTime,
       @RequestParam("endTime") Optional<Long> endTime) {
     final int DEFAULT_VIEW = 20;
-    int _view = view.orElse(DEFAULT_VIEW);
-    int _level = level.orElse(-1);
-    int _type = type.orElse(-1);
-    long _beginTime = beginTime.orElse(-1L);
-    long _endTime = endTime.orElse(-1L);
-
-    model.addAttribute("events", events.getEvents(_view, page, _level, _type, _beginTime, _endTime));
-    model.addAttribute("levels", events.getEventLevels());
-    model.addAttribute("types", events.getEventTypes().stream()
-        .sorted(Comparator.comparing(e -> e.getType().toLowerCase()))
-        .collect(Collectors.toList()));
+    model.addAttribute("events", events.getEvents(view.orElse(DEFAULT_VIEW), page,
+        type.orElse(null),
+        beginTime.map(Instant::ofEpochMilli).orElse(null),
+        endTime.map(Instant::ofEpochMilli).orElse(null)));
+    model.addAttribute("types", events.getEventTypes());
     model.addAttribute("default_view", DEFAULT_VIEW);
-    model.addAttribute("current_view", _view);
-    model.addAttribute("current_level", _level);
-    model.addAttribute("current_type", _type);
+    model.addAttribute("current_view", view.orElse(DEFAULT_VIEW));
+    model.addAttribute("current_type", type.orElse(null));
     model.addAttribute("current_page", page);
-    model.addAttribute("current_beginTime", _beginTime);
-    model.addAttribute("current_endTime", _endTime);
-    model.addAttribute("max_pages", Math.ceil((float)(events.getEventCount()) / (float)(_view)));
+    model.addAttribute("current_beginTime", beginTime.orElse(-1L));
+    model.addAttribute("current_endTime", endTime.orElse(-1L));
+    model.addAttribute("max_pages",
+        Math.ceil((float)(events.getEventCount()) / (float)(view.orElse(DEFAULT_VIEW))));
 
     StringBuilder builder = new StringBuilder("?");
-    if(_view != DEFAULT_VIEW) builder.append("&view=").append(_view);
-    if(_level != -1) builder.append("&level=").append(_level);
-    if(_type != -1) builder.append("&type=").append(_type);
-    if(_beginTime != -1) builder.append("&beginTime=").append(_beginTime);
-    if(_endTime != -1) builder.append("&endTime=").append(_endTime);
+    view.filter(v -> v != DEFAULT_VIEW).ifPresent(s -> builder.append("&view=").append(s));
+    type.ifPresent(s -> builder.append("&type=").append(s));
+    beginTime.ifPresent(s -> builder.append("&beginTime=").append(s));
+    endTime.ifPresent(s -> builder.append("&endTime=").append(s));
     model.addAttribute("url_params", builder.toString()
         .replaceFirst("\\?&", "?")
         .replaceFirst("\\?$", ""));
@@ -112,11 +103,10 @@ public class UIController {
   @GetMapping("/events")
   public String events(Model model,
       @RequestParam("view") Optional<Integer> view,
-      @RequestParam("level") Optional<Integer> level,
-      @RequestParam("type") Optional<Integer> type,
+      @RequestParam("type") Optional<String> type,
       @RequestParam("beginTime") Optional<Long> beginTime,
       @RequestParam("endTime") Optional<Long> endTime) {
-    return events(model, 1, view, level, type, beginTime, endTime);
+    return events(model, 1, view, type, beginTime, endTime);
   }
 
   @GetMapping("/access-denied")
