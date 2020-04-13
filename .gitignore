@@ -8,3 +8,5 @@ ssh/
 locations.db*
 locations*.db
 data.*.db
+
+gradle.properties
