@@ -26,30 +26,36 @@ spring:
 nocom:
   ssh-tunnel:
     enabled: true
-    host-address:
-    host-port:
-    username:
-    private-key-file:
+    host-address: nocom
+    host-port: 22
+    username: dev
+    private-key-file: ssh/id_rsa
   authentication:
     debug-users:
       - 'debug:pass'
+      - 'root:pass'
     reserved-usernames:
       - 'debug'
+      - 'root'
   datasource:
     h2:
       database: ./data
       mode: file
     postgres:
-      hostname:
-      port:
-      database:
-      username:
-      password:
+      hostname: localhost
+      port: 5432
+      database: nocom
+      username: nocom
+      password: ***REMOVED***
 
 logging:
   level:
     root: INFO
+    com.matt.nocom: DEBUG
     com.memorynotfound: INFO
     org.springframework.web: INFO
     org.springframework.security: INFO
+    org.springframework.jdbc: INFO
+    org.apache.sshd: INFO
+    org.jooq: INFO
 

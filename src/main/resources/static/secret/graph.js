@@ -13,7 +13,55 @@ const settings = [j_server, j_dimension, j_range,
   j_delta, j_hits, j_start_date, j_end_date];
 
 const j_map = $('#map');
-const markers = [];
+
+const BUFFER_SIZE = 300;
+
+const createFixedArray = () => {
+  return new Array(BUFFER_SIZE).fill(0);
+}
+
+let markersOverworld = {
+  _marker_type: 'dim',
+  _track_id: [],
+  x: [],
+  y: [],
+  // opacity: createFixedArray(),
+  mode: 'markers',
+  hoverinfo: "text+x+y",
+  type: 'scattergl',
+  marker: {
+    color: 'rgb(0,255,0)',
+    size: 7,
+  },
+};
+let markersNether = {
+  _marker_type: 'dim',
+  _track_id: [],
+  x: [],
+  y: [],
+  // opacity: createFixedArray(),
+  mode: 'markers',
+  hoverinfo: "text+x+y",
+  type: 'scattergl',
+  marker: {
+    color: 'rgb(255,0,0)',
+    size: 7,
+  },
+};
+
+const netherTraceColors = [
+    'rgb(255,111,0)',
+    'rgb(245,197,54)'
+];
+
+const overworldTraceColors = [
+  'rgb(0,34,255)',
+  'rgb(2,253,217)'
+];
+
+const markersByDimension = [markersOverworld, markersNether];
+const markersByHistory = [];
+let markers = markersByDimension;
 
 const plotLayout = {
   x: 0,
@@ -38,20 +86,128 @@ const plotConfig = {
   scrollZoom: true,
 };
 
+function createHistoryMarker() {
+  return {
+    _marker_type: 'history',
+    _current_track_id: 0,
+    x: [],
+    y: [],
+    mode: 'lines',
+    hoverinfo: 'skip',
+    type: 'scattergl',
+    marker: {},
+  };
+}
+
+let isUpdatingTrackHistory = false;
+
+async function _ajax(data, errorHandler) {
+  try {
+    return await $.ajax(data);
+  } catch (e) {
+    if (typeof errorHandler !== 'undefined') {
+      errorHandler(e);
+    }
+  }
+}
+
 function graphInitialize() {
   // clear selection
   setCoordSelected();
 
   // clear markers array
-  markers.length = 0;
+  // markers.length = 0;
 
-  Plotly.newPlot(j_map[0], markers, plotLayout, plotConfig);
+  Plotly.newPlot(j_map[0], markers, plotLayout, plotConfig).then(graphMouseListener);
 
-  j_map[0].on('plotly_click', function(data) {
+  j_map[0].on('plotly_click', function (data) {
+    console.trace();
+    if(isUpdatingTrackHistory) {
+      return;
+    }
+
     const point = data.points[0];
+    const index = point.pointIndex;
+
+    if(point.data._marker_type === 'history') {
+      console.warn('cannot track this marker');
+      return;
+    }
+
+    const trackId = point.data._track_id[index];
+
+    if(trackId === undefined || trackId === 0) {
+      console.warn("unknown track id", trackId);
+      return;
+    }
+
+    markers = markersByDimension;
+    graphUpdate();
+
     setCoordSelected(`${point.x} ${point.y}`);
-    setSelectedMarker(point.x, point.y);
+
+    isUpdatingTrackHistory = true;
+    _ajax({
+      type: 'POST',
+      url: `/api/full-track-history`,
+      data: {
+        trackId: trackId,
+        max: 0,
+        aggregationMs: 10000
+      },
+      error: function (e) {
+        console.warn("error getting track history", e)
+      }
+    }).then(data => {
+      console.log(data);
+
+      markersByHistory.length = 0;
+
+      let lastX = undefined, lastY = undefined;
+
+      data.forEach(function(track, index) {
+        const mark = createHistoryMarker();
+        mark._current_track_id = track.trackId;
+
+        const nether = track.dimension === 'NETHER';
+        mark.marker.color = !nether
+            ? overworldTraceColors[index % 2]
+            : netherTraceColors[index % 2];
+
+        mark.x = track.hits.map(hit => nether ? hit.x * 8 : hit.x);
+        mark.y = track.hits.map(hit => nether ? hit.z * 8 : hit.z);
+
+        if(lastX !== undefined) {
+          mark.x.unshift(lastX);
+          mark.y.unshift(lastY);
+        }
+
+        if(mark.x.length > 0) {
+          lastX = mark.x[mark.x.length - 1];
+          lastY = mark.y[mark.y.length - 1];
+          markersByHistory.push(mark);
+        }
+      });
+
+      markers = markersByHistory.reverse().concat(markersByDimension);
+      graphUpdate();
+    }).finally(() => isUpdatingTrackHistory = false);
+
+    // setCoordSelected(`${point.x} ${point.y}`);
+    // setSelectedMarker(point.x, point.y);
   });
+}
+
+function graphMouseListener() {
+  // j_map[0].addEventListener('mousemove', function(event) {
+  //   const gd = j_map[0];
+  //   const xaxis = gd._fullLayout.xaxis;
+  //   const yaxis = gd._fullLayout.yaxis;
+  //   const left = gd._fullLayout.margin.l;
+  //   const top = gd._fullLayout.margin.t;
+  //   const x = xaxis.p2c(event.x - left);
+  //   const y = yaxis.p2c(event.y - top);
+  // }); // TODO: shitz
 }
 
 function graphResize() {
@@ -71,119 +227,6 @@ function graphRecenter() {
     'xaxis.autorange': true,
     'yaxis.autorange': true
   });
-}
-
-function graphMarkers(data) {
-  if (!Array.isArray(data)) {
-    return;
-  }
-
-  const categories = [
-    {
-      min: 1,
-      color: 'rgb(70, 130, 180)',
-      size: 4,
-      points: [],
-    },
-    {
-      min: 2,
-      color: 'rgb(0, 128, 0)',
-      size: 6,
-      points: [],
-    },
-    {
-      min: 4,
-      color: 'rgb(255,215,0)',
-      size: 7,
-      points: [],
-    },
-    {
-      min: 8,
-      color: 'rgb(255,165,0)',
-      size: 8,
-      points: [],
-    },
-    {
-      min: 16,
-      color: 'rgb(255,69,0)',
-      size: 9,
-      points: [],
-    },
-    {
-      min: 32,
-      color: 'rgb(255,0,0)',
-      size: 10,
-      points: [],
-    },
-  ];
-
-  function findCategory(min) {
-    let best = undefined;
-    for(const c in categories) {
-      const o = categories[c];
-      if(o.min === min)
-        return o;
-      else if(o.min > min)
-        break;
-      else
-        best = o;
-    }
-    return best;
-  }
-
-  data.forEach(loc => {
-    const infos = [];
-    const count = loc.positions.length;
-
-    infos.push(`First hit: ${toTimeString(loc.positions[0].time)}`);
-    if (count > 1) {
-      infos.push(`Latest hit: ${toTimeString(loc.positions[count - 1].time)}`)
-    }
-    infos.push(`Hit(s): ${count}`);
-
-    const pnt = findCategory(count);
-
-    if(pnt !== undefined) {
-      pnt.points.push({
-        x: loc.x,
-        y: loc.z,
-        info: infos.join('<br>'),
-      });
-    }
-  });
-
-  categories.forEach(cat => {
-    const points = cat.points;
-    markers.push({
-      x: points.map(p => p.x),
-      y: points.map(p => p.y),
-      text: points.map(p => p.info),
-      mode: 'markers',
-      hoverinfo: "text+x+y",
-      type: 'scattergl',
-      marker: {
-        color: cat.color,
-        size: cat.size,
-      },
-    });
-  });
-
-  graphUpdate();
-  graphRecenter();
-}
-
-async function getLocations(options) {
-  try {
-    return await $.ajax({
-      type: 'POST',
-      url: 'api/search/group/locations',
-      data: JSON.stringify(options),
-      contentType: 'application/json',
-      dataType: 'json',
-    });
-  } catch (e) {
-    console.error(e);
-  }
 }
 
 function queryOptions() {
@@ -213,7 +256,7 @@ function toTimeMs(date) {
 
 function setCoordSelected(text) {
   j_coord_selected.val(text);
-  if(typeof text == 'undefined' || text === '') {
+  if (typeof text == 'undefined' || text === '') {
     j_coord_selected.removeAttr('original');
   } else {
     j_coord_selected.attr('original', text);
@@ -235,7 +278,7 @@ function setSelectedMarker(x, z) {
     },
   };
 
-  if(typeof m === 'undefined') {
+  if (typeof m === 'undefined') {
     markers.splice(0, 0, data);
   } else {
     m.x = data.x;
@@ -246,39 +289,39 @@ function setSelectedMarker(x, z) {
 }
 
 function onSubmit(o) {
-  const $this = $(o);
-  $this.attr('disabled', true);
-  $this.tooltip('hide');
-
-  // hide settings
-  $('#settings-collapse').collapse('hide');
-
-  // reinitialize the graph
-  graphInitialize();
-
-  const onFinish = (e) => $this.attr('disabled', false);
-
-  try {
-    return getLocations(queryOptions())
-        .then(graphMarkers)
-        .finally(onFinish);
-  } catch (e) {
-    onFinish(e);
-  }
+  // const $this = $(o);
+  // $this.attr('disabled', true);
+  // $this.tooltip('hide');
+  //
+  // // hide settings
+  // $('#settings-collapse').collapse('hide');
+  //
+  // // reinitialize the graph
+  // graphInitialize();
+  //
+  // const onFinish = (e) => $this.attr('disabled', false);
+  //
+  // try {
+  //   return getLocations(queryOptions())
+  //       .then(graphMarkers)
+  //       .finally(onFinish);
+  // } catch (e) {
+  //   onFinish(e);
+  // }
 }
 
 function onCoordinateScale(o, mode) {
   const text = j_coord_selected.val();
 
-  if(typeof text !== 'undefined' && text !== '') {
+  if (typeof text !== 'undefined' && text !== '') {
     const match = text.match(/(-?[0-9]+)\s(-?[0-9]+)/i);
     let x = match[1], z = match[2];
 
-    if(typeof x !== 'undefined' && typeof z !== 'undefined') {
+    if (typeof x !== 'undefined' && typeof z !== 'undefined') {
       x = parseInt(x);
       z = parseInt(z);
 
-      if(mode === 0) {
+      if (mode === 0) {
         x /= 8;
         z /= 8;
       } else {
@@ -297,7 +340,7 @@ function onCoordinateScale(o, mode) {
 
 function onCoordinateReset(o) {
   const orig = j_coord_selected.attr('original');
-  if(typeof orig !== 'undefined') {
+  if (typeof orig !== 'undefined') {
     j_coord_selected.val(orig);
     console.log('Coordinate reset');
   }
@@ -306,7 +349,7 @@ function onCoordinateReset(o) {
 function onCoordinateCopy(o) {
   const text = j_coord_selected.val();
 
-  if(typeof text !== 'undefined' && text !== '') {
+  if (typeof text !== 'undefined' && text !== '') {
     copyToClipboard(text);
     console.log('Coordinate copied', text);
   }
@@ -334,72 +377,70 @@ function copyToClipboard(text) {
 }
 
 let stomp;
-let updateInterval;
+
+function graphData(tracks) {
+  markersByDimension.forEach(mark => {
+    mark._track_id = [];
+    mark.x = [];
+    mark.y = [];
+  })
+
+  tracks.forEach(track => {
+    const nether = track.dimension === 'NETHER';
+    const dim = !nether
+        ? markersOverworld
+        : markersNether;
+
+    if(dim === undefined) {
+      console.error(`unknown dimension ${track.dimension}`);
+      return;
+    }
+
+    dim._track_id.push(track.trackId);
+    dim.x.push(nether ? track.x * 8 : track.x);
+    dim.y.push(nether ? track.z * 8 : track.z);
+    // dim.markers.opacity[i] = 1;
+
+    const mark = markersByHistory.find(m => m._current_track_id === track.trackId);
+    if(mark !== undefined) {
+      mark.x.unshift(nether ? track.x * 8 : track.x);
+      mark.y.unshift(nether ? track.z * 8 : track.z);
+    }
+  });
+
+  Plotly.redraw(j_map[0]);
+  window.setTimeout(updateData, 1000);
+}
 
 function connectSocket() {
   const socket = new SockJS('/websocket');
   stomp = Stomp.over(socket);
-  stomp.connect({}, function (frame) {
+  stomp.connect({}, function (o) {
     console.log("Connected to websocket");
 
-    stomp.subscribe('/nocom/subscribe/tracker', function (response) {
-      // console.log('recieved message', tracks);
-      const tracks = JSON.parse(response.body);
+    // const url = stomp.ws._transport.url;
+    // stompSession = /ws:\/\/.*?\/websocket\/[0-9]+?\/([A-Za-z0-9]+)\/websocket/.exec(url)[1];
+    //
+    // console.log(`session id is ${stompSession}`);
 
-      const data = {
-        overworld: {
-          x: [],
-          z: [],
-          color: 'rgb(0,255,0)'
-        },
-        nether: {
-          x: [],
-          z: [],
-          color: 'rgb(255,0,0)'
-        }
-      }
+    stomp.subscribe(`/ws-user/ws-subscribe/tracker`, function (response) {
+      graphData(JSON.parse(response.body));
+    });
 
-      tracks.forEach(track => {
-        const tbl = track.dimension === "OVERWORLD" ? data.overworld : data.nether;
-        tbl.x.push(track.overworldBlockX);
-        tbl.z.push(track.overworldBlockZ);
-      });
-
-      markers.length = 0;
-      [data.overworld, data.nether].forEach(e => {
-        markers.push({
-          x: e.x,
-          y: e.z,
-          // text: points.map(p => p.info),
-          mode: 'markers',
-          hoverinfo: "text+x+y",
-          type: 'scattergl',
-          marker: {
-            color: e.color,
-            size: 7,
-          },
-        });
-      });
-
-      graphUpdate();
-    })
-
-    if(updateInterval === undefined) {
-      updateData();
-      updateInterval = window.setInterval(updateData, 100);
-    }
+    updateData();
   });
 }
 
 function updateData() {
-  stomp.send('/nocom/sock/tracking', {}, JSON.stringify({
-    server: j_server.val()
+  stomp.send('/ws-api/tracking', {}, JSON.stringify({
+    server: j_server.val(),
+    duration: 10000
   }));
 }
 
-$(function() {
+$(function () {
   $('[data-toggle="tooltip"]').tooltip({
-    trigger : 'hover'
+    trigger: 'hover'
   });
 
   $('[rel="tooltip"]').on('click', function () {
@@ -419,6 +460,10 @@ $(function() {
   graphResize();
 
   connectSocket();
+
+  window.onclose = function () {
+    stomp.disconnect();
+  };
 });
 
 $(window).resize(graphResize);

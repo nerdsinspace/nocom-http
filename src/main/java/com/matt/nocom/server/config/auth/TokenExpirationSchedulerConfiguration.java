@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import com.matt.nocom.server.service.auth.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,17 +20,11 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 @Configuration
-@ComponentScan({"com.matt.nocom.server.service"})
 @EnableScheduling
+@RequiredArgsConstructor
 public class TokenExpirationSchedulerConfiguration implements SchedulingConfigurer {
-
   private final AuthenticationProperties properties;
   private final UserRepository login;
-  
-  public TokenExpirationSchedulerConfiguration(AuthenticationProperties properties, UserRepository login) {
-    this.properties = properties;
-    this.login = login;
-  }
   
   @Bean(destroyMethod = "shutdown")
   public ExecutorService taskExecutor() {

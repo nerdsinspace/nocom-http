@@ -4,9 +4,15 @@ import com.google.common.base.Strings;
 import com.matt.nocom.server.properties.PostgresDatabaseProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.client.session.forward.PortForwardingTracker;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.*;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jooq.JooqExceptionTranslator;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
@@ -20,13 +26,18 @@ import java.net.InetSocketAddress;
 @Configuration
 @EnableConfigurationProperties(PostgresDatabaseProperties.class)
 @EnableTransactionManagement
+@Lazy
 @RequiredArgsConstructor
 public class PostgresDatabaseConfiguration {
   private final PostgresDatabaseProperties properties;
 
+  @Bean
+  public InetSocketAddress postgresSocketAddress() {
+    return InetSocketAddress.createUnresolved(properties.getHostname(), properties.getPort());
+  }
+
   @Bean(destroyMethod = "close")
-  @DependsOn("databasePortForwarder")
-  @Lazy
+  @DependsOn("sshPortTunnel")
   public BasicDataSource dataSourcePostgres() {
     BasicDataSource src = new BasicDataSource();
     src.setDriverClassName("org.postgresql.Driver");
@@ -37,7 +48,7 @@ public class PostgresDatabaseConfiguration {
     }
 
     src.setUrl("jdbc:postgresql://"
-        + InetSocketAddress.createUnresolved(properties.getHostname(), properties.getPort()).toString()
+        + postgresSocketAddress()
         + "/"
         + properties.getDatabase());
     src.setConnectionProperties("readOnly=true");
@@ -46,31 +57,26 @@ public class PostgresDatabaseConfiguration {
   }
 
   @Bean
-  @Lazy
   public LazyConnectionDataSourceProxy lazyConnectionDataSourcePostgres() {
     return new LazyConnectionDataSourceProxy(dataSourcePostgres());
   }
 
   @Bean
-  @Lazy
   public TransactionAwareDataSourceProxy transactionAwareDataSourcePostgres() {
     return new TransactionAwareDataSourceProxy(lazyConnectionDataSourcePostgres());
   }
 
   @Bean
-  @Lazy
   public DataSourceTransactionManager transactionManagerPostgres() {
     return new DataSourceTransactionManager(transactionAwareDataSourcePostgres());
   }
 
   @Bean
-  @Lazy
   public DataSourceConnectionProvider connectionProviderPostgres() {
     return new DataSourceConnectionProvider(transactionAwareDataSourcePostgres());
   }
 
   @Bean
-  @Lazy
   public DefaultConfiguration configurationPostgres() {
     DefaultConfiguration config = new DefaultConfiguration();
     config.set(connectionProviderPostgres()); // and again
@@ -80,7 +86,6 @@ public class PostgresDatabaseConfiguration {
   }
 
   @Bean(destroyMethod = "close")
-  @Lazy
   public DSLContext postgresDsl() {
     return new DefaultDSLContext(configurationPostgres());
   }

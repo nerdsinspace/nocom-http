@@ -6,7 +6,7 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 
-[{*.java, *.groovy, *.gradle, *.properties, *.html, *.xml}]
+[{*.java, *.groovy, *.gradle, *.properties, *.html, *.xml, *.js}]
 indent_style = space
 indent_size = 2
 continuation_indent_size = 4

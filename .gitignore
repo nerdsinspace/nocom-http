@@ -9,4 +9,4 @@ locations.db*
 locations*.db
 data.*.db
 
-gradle.properties
+sensitive.properties

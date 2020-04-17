@@ -16,7 +16,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    registry.enableSimpleBroker("/nocom/subscribe");
-    registry.setApplicationDestinationPrefixes("/nocom/sock/");
+    registry.enableSimpleBroker("/ws-subscribe");
+    registry.setApplicationDestinationPrefixes("/ws-api/");
+    registry.setUserDestinationPrefix("/ws-user/");
   }
 }
