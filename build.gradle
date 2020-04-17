@@ -1,36 +1,14 @@
 buildscript {
   ext {
-    dependencyManagementPluginVersion = "1.0.6.RELEASE"
-    springBootVersion = "2.2.6.RELEASE"
-    jooqPluginVersion = "4.1"
-    spawnPluginVersion = "0.8.0"
+    spawnPluginVersion = '0.8.0'
 
-    jooqVersion = "3.13.1"
-    log4jVersion = "2.11.1"
-    guavaVersion = "28.2-jre"
-    flywayCoreVersion = "6.3.2"
-    groovyAllVersion = "3.0.2"
-    thymeleafSpringSecurityVersion = "3.0.4.RELEASE"
-    sshdVersion = "2.4.0"
-    dbcpVersion = "2.7.0"
+    angularAppDir = "$projectDir/src/main/javascript/frontend"
 
-    postgresJbdcVersion = "42.2.12"
-    xerialSqliteVersion = "3.30.1"
-    h2Version = "1.4.200"
-
-    webjarsVersion = "0.30"
-    webjarsJqueryVersion = "3.4.1"
-    webjarsPopperVersion = "1.15.0"
-    webjarsBootstrapVersion = "4.3.1"
-    webjarsMomentjsVersion = "2.24.0"
-    webjarsFontawesomeVersion = "4.7.0"
-    webjarsPlotlyVersion = "1.48.3"
-    webjarsSockjsVersion = "1.4.0"
-    webjarsStompVersion = "2.3.4"
-
-    junitVersion = "4.13"
-    spockCoreVersion = "2.0-M2-groovy-3.0"
-    h2databaseVersion = "1.4.200"
+    sensitive = { ->
+      final prop = new Properties();
+      prop.load(file("sensitive.properties").newReader());
+      return prop;
+    }.call()
   }
   repositories {
     mavenCentral()
@@ -38,18 +16,18 @@ buildscript {
     maven { url 'http://dl.bintray.com/vermeulen-mp/gradle-plugins' }
   }
   dependencies {
-    classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    classpath("nu.studer:gradle-jooq-plugin:${jooqPluginVersion}")
     classpath("com.wiredforcode:gradle-spawn-plugin:${spawnPluginVersion}")
   }
 }
 
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'nu.studer.jooq'
+plugins {
+  id 'java'
+  id 'groovy'
+  id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+  id 'org.springframework.boot' version "$springBootVersion"
+  id 'nu.studer.jooq' version '4.1'
+}
+
 apply plugin: 'com.wiredforcode.spawn'
 
 group 'com.matt.nocom'
@@ -61,18 +39,53 @@ repositories {
   mavenCentral()
 }
 
+dependencyManagement {
+  imports {
+    mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+  }
+  dependencies {
+    dependency group: 'com.google.guava', name: 'guava', version: '28.2-jre'
+
+    dependency group: 'com.h2database', name: 'h2', version: '1.4.200'
+    dependency group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
+    dependency group: 'org.flywaydb', name: 'flyway-core', version: '6.3.3'
+    dependency group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.7.0'
+
+    dependency group: 'org.apache.sshd', name: 'sshd-core', version: '2.4.0'
+    dependency group: 'net.i2p.crypto', name: 'eddsa', version: '0.3.0'
+
+    dependency group: 'org.webjars', name: 'webjars-locator', version: '0.30'
+    dependency group: 'org.webjars', name: 'jquery', version: '3.4.1'
+//    dependency group: 'org.webjars', name: 'popper.js', version: '2.0.2'
+    dependency group: 'org.webjars', name: 'bootstrap', version: '4.3.1'
+    dependency group: 'org.webjars', name: 'momentjs', version: '2.24.0'
+    dependency group: 'org.webjars.bower', name: 'fontawesome', version: '4.7.0'
+    dependency group: 'org.webjars.bower', name: 'plotly.js', version: '1.52.2'
+    dependency group: 'org.webjars.bower', name: 'sockjs-client', version: '1.4.0'
+    dependency group: 'org.webjars.bower', name: 'stomp-websocket', version: '2.3.4'
+
+    dependency group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.2'
+
+    dependency group: 'junit', name: 'junit', version: '4.13'
+    dependency group: 'org.spockframework', name: 'spock-core', version: '2.0-M2-groovy-3.0'
+  }
+}
+
 configurations {
+  // we want to use log4j2 instead
   compile.exclude module: 'spring-boot-starter-logging'
 }
 
-dependencyManagement {
-  imports {
-    mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+sourceSets {
+  main {
+    resources {
+      srcDir "$angularAppDir/dist"
+    }
   }
 }
 
 jooq {
-  version = jooqVersion
+//  version = jooqVersion
   edition = 'OSS'
   h2(sourceSets.main) {
     jdbc {
@@ -110,9 +123,15 @@ jooq {
   nocom(sourceSets.main) {
     jdbc {
       driver = 'org.postgresql.Driver'
-      url = "jdbc:postgresql://${project.property('postgres.host')}:${project.property('postgres.port')}/${project.property('postgres.database')}"
-      user = project.property('postgres.user')
-      password = project.property('postgres.password')
+      url = ('jdbc:postgresql://'
+          + InetSocketAddress.createUnresolved(sensitive['postgres.host'] as String,
+          Integer.parseInt(sensitive['postgres.port'] as String))
+          + '/'
+          + sensitive['postgres.database']
+          + '?readOnly=true'
+      )
+      user = sensitive['postgres.user']
+      password = sensitive['postgres.password']
     }
     generator {
       name = 'org.jooq.codegen.DefaultGenerator'
@@ -134,93 +153,74 @@ jooq {
 }
 
 dependencies {
-  implementation('org.springframework.boot:spring-boot-starter')
-  implementation('org.springframework.boot:spring-boot-starter-web')
-  implementation('org.springframework.boot:spring-boot-starter-log4j2')
-  implementation('org.springframework.boot:spring-boot-starter-security')
-  implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
-  implementation('org.springframework.boot:spring-boot-starter-jdbc')
-  implementation('org.springframework.boot:spring-boot-starter-websocket')
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-websocket'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-cache'
 
   annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 
   compile group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect'
+  compile group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-springsecurity5'
 
-  // Thymeleaf
-  compile group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-springsecurity5', version: thymeleafSpringSecurityVersion
+  compile group: 'com.google.guava', name: 'guava'
 
-  // Log4J2
-  compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion
-  compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
-  compile group: 'org.apache.logging.log4j', name: 'log4j-web', version: log4jVersion
+  compile group: 'com.h2database', name: 'h2'
 
-  // Google commons
-  compile group: 'com.google.guava', name: 'guava', version: guavaVersion
+  compile group: 'org.postgresql', name: 'postgresql'
+  jooqRuntime group: 'org.postgresql', name: 'postgresql'
 
-  // SQLite driver
-  compile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
-  testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
-  jooqRuntime group: 'org.xerial', name: 'sqlite-jdbc', version: xerialSqliteVersion
+  compile group: 'org.flywaydb', name: 'flyway-core'
+  compile group: 'org.apache.commons', name: 'commons-dbcp2'
 
-  // H2 driver
-  compile group: 'com.h2database', name: 'h2', version: h2Version
-
-  // postgres driver
-  compile group: 'org.postgresql', name: 'postgresql', version: postgresJbdcVersion
-  jooqRuntime group: 'org.postgresql', name: 'postgresql', version: postgresJbdcVersion
-
-  // jOOQ
   compile group: 'org.jooq', name: 'jooq'
   compile group: 'org.jooq', name: 'jooq-meta'
-  compile group: 'org.jooq', name: 'jooq-codegen'
+  compileOnly group: 'org.jooq', name: 'jooq-codegen'
   jooqRuntime group: 'org.jooq', name: 'jooq-meta-extensions'
 
-  // flyway
-  compile group: 'org.flywaydb', name: 'flyway-core', version: flywayCoreVersion
+  compile group: 'org.apache.sshd', name: 'sshd-core'
+  compile group: 'net.i2p.crypto', name: 'eddsa'
 
-  // sshd
-  compile group: 'org.apache.sshd', name: 'sshd-core', version: sshdVersion
-  compile group: 'net.i2p.crypto', name: 'eddsa', version: '0.3.0'
+  compileOnly group: 'org.projectlombok', name: 'lombok'
+  annotationProcessor group: 'org.projectlombok', name: 'lombok'
 
-  // data connection pooling
-  compile group: 'org.apache.commons', name: 'commons-dbcp2', version: dbcpVersion
+  compile group: 'org.webjars', name: 'webjars-locator'
 
-  compileOnly('org.projectlombok:lombok')
-  annotationProcessor('org.projectlombok:lombok')
+  compile group: 'org.webjars', name: 'jquery'
+  compile group: 'org.webjars', name: 'bootstrap'
+  compile group: 'org.webjars', name: 'momentjs'
+  compile group: 'org.webjars.bower', name: 'fontawesome'
+  compile group: 'org.webjars.bower', name: 'plotly.js'
+  compile group: 'org.webjars.bower', name: 'sockjs-client'
+  compile group: 'org.webjars.bower', name: 'stomp-websocket'
 
-  // webjars
+  testCompile group: 'org.codehaus.groovy', name: 'groovy-all'
 
-  // locator - used for locating assets without the version
-  compile group: 'org.webjars', name: 'webjars-locator', version: webjarsVersion
+  testCompile group: 'junit', name: 'junit'
+  testCompile group: 'org.spockframework', name: 'spock-core'
 
-  // web assets
-  compile group: 'org.webjars', name: 'jquery', version: webjarsJqueryVersion
-  compile group: 'org.webjars', name: 'bootstrap', version: webjarsBootstrapVersion
-  compile group: 'org.webjars', name: 'momentjs', version: webjarsMomentjsVersion
-  compile group: 'org.webjars.bower', name: 'fontawesome', version: webjarsFontawesomeVersion
-  compile group: 'org.webjars.bower', name: 'plotly.js', version: webjarsPlotlyVersion
-  compile group: 'org.webjars.bower', name: 'sockjs-client', version: webjarsSockjsVersion
-  compile group: 'org.webjars.bower', name: 'stomp-websocket', version: webjarsStompVersion
-  
-  testCompile group: 'org.codehaus.groovy', name: 'groovy-all', version: groovyAllVersion
-  
-  testCompile group: 'junit', name: 'junit', version: junitVersion
-  testCompile group: 'org.spockframework', name: 'spock-core', version: spockCoreVersion
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+}
 
-  testImplementation('org.springframework.boot:spring-boot-starter-test')
+processResources {
+  dependsOn "buildAngular"
 }
 
 bootRun {
   jvmArgs = ['-Dspring.profiles.active=dev']
 }
 
-if(project.property('ssh.tunnel')) {
+if (sensitive['ssh.tunnel']) {
   task connectSshTunnel(type: SpawnProcessTask) {
-    final port = project.property('postgres.port')
-    final key = project.property('ssh.key')
-    final user = project.property('ssh.user')
-    final sshHost = project.property('ssh.host')
-    final sshPort = project.property('ssh.port')
+    final port = sensitive['postgres.port']
+    final key = sensitive['ssh.key']
+    final user = sensitive['ssh.user']
+    final sshHost = sensitive['ssh.host']
+    final sshPort = sensitive['ssh.port']
     command "ssh -vNL ${port}:127.0.0.1:${port} -i ${key} -p ${sshPort} ${user}@${sshHost}"
     ready 'Authentication succeeded'
   }
@@ -229,4 +229,30 @@ if(project.property('ssh.tunnel')) {
 
   generateNocomJooqSchemaSource.dependsOn connectSshTunnel
   generateNocomJooqSchemaSource.finalizedBy disconnectSshTunnel
+}
+
+task buildAngular(type: Exec) {
+  // installAngular should be run prior to this task
+  dependsOn "installAngular"
+  workingDir "$angularAppDir"
+  inputs.dir "$angularAppDir"
+  // Add task to the standard build group
+  group = BasePlugin.BUILD_GROUP
+  // ng doesn't exist as a file in windows -> ng.cmd
+  if (System.getProperty("os.name").toUpperCase().contains("WINDOWS")) {
+    commandLine "ng.cmd", "build"
+  } else {
+    commandLine "ng", "build"
+  }
+}
+
+task installAngular(type: Exec) {
+  workingDir "$angularAppDir"
+  inputs.dir "$angularAppDir"
+  group = BasePlugin.BUILD_GROUP
+  if (System.getProperty("os.name").toUpperCase().contains("WINDOWS")) {
+    commandLine "npm.cmd", "install"
+  } else {
+    commandLine "npm", "install"
+  }
 }

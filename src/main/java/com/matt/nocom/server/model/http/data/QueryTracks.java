@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateTrack {
+public class QueryTracks {
   @NonNull
   private String server;
   private long duration = 10_000;
