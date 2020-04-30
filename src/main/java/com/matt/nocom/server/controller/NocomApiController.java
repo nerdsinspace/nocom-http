@@ -1,10 +1,7 @@
 package com.matt.nocom.server.controller;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.matt.nocom.server.model.sql.data.Hit;
-import com.matt.nocom.server.model.sql.data.SimpleHit;
-import com.matt.nocom.server.model.sql.data.TrackedHits;
+import com.matt.nocom.server.model.data.SimpleHit;
+import com.matt.nocom.server.model.data.TrackedHits;
 import com.matt.nocom.server.service.data.NocomRepository;
 import com.matt.nocom.server.service.data.NocomUtility;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")

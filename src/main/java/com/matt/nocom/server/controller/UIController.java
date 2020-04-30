@@ -1,7 +1,7 @@
 package com.matt.nocom.server.controller;
 
-import com.matt.nocom.server.model.shared.auth.UserGroup;
-import com.matt.nocom.server.model.sql.auth.User;
+import com.matt.nocom.server.model.auth.UserGroup;
+import com.matt.nocom.server.model.auth.User;
 import com.matt.nocom.server.service.EventRepository;
 import com.matt.nocom.server.service.auth.UserRepository;
 import com.matt.nocom.server.service.data.NocomRepository;

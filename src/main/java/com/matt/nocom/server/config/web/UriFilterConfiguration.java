@@ -15,7 +15,9 @@ public class UriFilterConfiguration {
   public String[] publicUris() {
     return new String[]{
         "/",
+        "/login**",
         "/404",
+        "/public/**",
         "/user/login",
         "/js/**",
         "/webjars/**",

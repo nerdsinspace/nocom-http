@@ -1,13 +1,14 @@
 package com.matt.nocom.server.util;
 
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.model.sql.auth.User;
+import com.matt.nocom.server.model.auth.User;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class StaticUtils implements Logging {
+  private static final Pattern UUID_PATTERN =
+      Pattern.compile("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)");
+
   public static boolean arraysSameLength(Object[]... arrays) {
     if (arrays.length > 0) {
       int len = arrays[0].length;
@@ -44,6 +48,13 @@ public class StaticUtils implements Logging {
     return Arrays.stream(uris)
         .map(uri -> new AntPathRequestMatcher(uri, null))
         .collect(Collectors.toUnmodifiableList());
+  }
+
+  public static UUID parseUUID(String uuid) {
+    if(!uuid.contains("-")) {
+      uuid = UUID_PATTERN.matcher(uuid).replaceAll("$1-$2-$3-$4-$5");
+    }
+    return UUID.fromString(uuid);
   }
   
   public static Optional<User> getCurrentUserContext() {

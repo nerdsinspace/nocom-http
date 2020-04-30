@@ -1,9 +1,9 @@
 package com.matt.nocom.server.service.data;
 
-import com.matt.nocom.server.model.shared.data.Dimension;
-import com.matt.nocom.server.model.sql.data.Hit;
-import com.matt.nocom.server.model.sql.data.SimpleHit;
-import com.matt.nocom.server.model.sql.data.Track;
+import com.matt.nocom.server.model.data.Dimension;
+import com.matt.nocom.server.model.data.Hit;
+import com.matt.nocom.server.model.data.SimpleHit;
+import com.matt.nocom.server.model.data.Track;
 import lombok.NonNull;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -40,7 +40,7 @@ public class NocomRepository {
   public List<Dimension> getDimensions() {
     return dsl.select(DIMENSIONS.ORDINAL)
         .from(DIMENSIONS)
-        .fetch(record -> Dimension.from(record.getValue(DIMENSIONS.ORDINAL)));
+        .fetch(record -> Dimension.byOrdinal(record.getValue(DIMENSIONS.ORDINAL)));
   }
 
   @Transactional(readOnly = true)
@@ -68,13 +68,13 @@ public class NocomRepository {
                 .and(TRACKS.UPDATED_AT.gt(Instant.now().minus(duration).toEpochMilli()))))
         .fetch(record -> Track.builder()
             .trackId(record.getValue(HITS.TRACK_ID))
-            .dimension(Dimension.from(record.getValue(HITS.DIMENSION)))
+            .dimension(Dimension.byOrdinal(record.getValue(HITS.DIMENSION)))
             .x(record.getValue(HITS.X) * 16)
             .z(record.getValue(HITS.Z) * 16)
             .createAt(Instant.ofEpochMilli(record.getValue(HITS.CREATED_AT)))
             .previousTrackId(record.getValue(TRACKS.ID.as("prev_track_id")))
             .previousDimension(Optional.ofNullable(record.getValue(TRACKS.DIMENSION.as("prev_dimension")))
-                .map(Dimension::from)
+                .map(Dimension::byOrdinal)
                 .orElse(null))
             .build());
   }
@@ -119,7 +119,7 @@ public class NocomRepository {
             .createdAt(Instant.ofEpochMilli(record.getValue(HITS.CREATED_AT)))
             .x(record.getValue(HITS.X) * 16)
             .z(record.getValue(HITS.Z) * 16)
-            .dimension(Dimension.from(record.getValue(HITS.DIMENSION)))
+            .dimension(Dimension.byOrdinal(record.getValue(HITS.DIMENSION)))
             .build());
   }
 

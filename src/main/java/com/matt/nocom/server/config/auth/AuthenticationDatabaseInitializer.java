@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.nio.charset.StandardCharsets;
+
 import static com.matt.nocom.server.Logging.getLogger;
 import static com.matt.nocom.server.h2.codegen.Tables.AUTH_USERS;
 
@@ -37,7 +39,7 @@ public class AuthenticationDatabaseInitializer {
             AUTH_USERS.LEVEL,
             AUTH_USERS.ENABLED,
             AUTH_USERS.DEBUG)
-            .values(username, encoder.encode(password), 100, true, true)
+            .values(username, encoder.encode(password).getBytes(StandardCharsets.US_ASCII), 100, true, true)
             .onConflictDoNothing()
             .execute();
       }
