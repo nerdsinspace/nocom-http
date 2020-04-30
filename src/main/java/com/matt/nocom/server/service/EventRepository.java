@@ -2,7 +2,7 @@ package com.matt.nocom.server.service;
 
 import static com.matt.nocom.server.h2.codegen.tables.Event.EVENT;
 
-import com.matt.nocom.server.model.sql.event.Event;
+import com.matt.nocom.server.model.event.Event;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

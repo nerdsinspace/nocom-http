@@ -22,6 +22,12 @@ spring:
     mode: HTML
     prefix: classpath:/templates/
     suffix: .html
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: /auth/realms
+#          jwk-set-uri:
 
 nocom:
   ssh-tunnel:
@@ -30,6 +36,10 @@ nocom:
     host-port: 22
     username: dev
     private-key-file: ssh/id_rsa
+    local-host: '127.0.0.1'
+    local-port: 5432
+    remote-host: '127.0.0.1'
+    remote-port: 5432
   authentication:
     debug-users:
       - 'debug:pass'

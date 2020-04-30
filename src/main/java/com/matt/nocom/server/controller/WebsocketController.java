@@ -1,6 +1,6 @@
 package com.matt.nocom.server.controller;
 
-import com.matt.nocom.server.model.http.data.QueryTracks;
+import com.matt.nocom.server.model.data.QueryTracks;
 import com.matt.nocom.server.service.data.NocomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.MessageHeaders;

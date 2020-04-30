@@ -1,0 +1,11 @@
+<div (window:resize)="onResize()">
+  <plotly-plot divId="overview"
+               updateOnlyWithRevision="true"
+               [revision]="revision"
+               [data]="data"
+               [layout]="layout"
+               [config]="config"
+               (initialized)="onPlotInit()"
+               (plotly_click)="onClicked($event)">
+  </plotly-plot>
+</div>

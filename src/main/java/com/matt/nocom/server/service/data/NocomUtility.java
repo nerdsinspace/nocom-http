@@ -2,9 +2,9 @@ package com.matt.nocom.server.service.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.matt.nocom.server.model.sql.data.Hit;
-import com.matt.nocom.server.model.sql.data.SimpleHit;
-import com.matt.nocom.server.model.sql.data.TrackedHits;
+import com.matt.nocom.server.model.data.Hit;
+import com.matt.nocom.server.model.data.SimpleHit;
+import com.matt.nocom.server.model.data.TrackedHits;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;

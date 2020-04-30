@@ -1,43 +1,48 @@
 package com.matt.nocom.server.config.web;
 
+import com.auth0.spring.security.api.JwtWebSecurityConfigurer;
 import com.matt.nocom.server.Logging;
-import com.matt.nocom.server.model.shared.auth.UserGroup;
+import com.matt.nocom.server.model.auth.UserGroup;
 import com.matt.nocom.server.service.auth.*;
 import com.matt.nocom.server.service.web.AccessDeniedEntryPoint;
-import com.matt.nocom.server.util.StaticUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements Logging {
   private final String[] publicUris;
   private final String[] adminOnlyUris;
-  private final PasswordEncoder passwordEncoder;
+  private final CORSFilter corsFilter;
+//  private final JWTAuthenticationFilter jwtAuthenticationFilter;
+  private final JWTAuthorizationFilter jwtAuthorizationFilter;
   private final UserAuthenticationProvider authProvider;
-  private final AuthenticationTokenHandler authenticationTokenHandler;
-  private final UserAccessDeniedHandler userAccessDeniedHandler;
-  private final UserLoginSuccessfulHandler userLoginSuccessfulHandler;
-  private final UserLogoutSuccessfulHandler userLogoutSuccessfulHandler;
-  private final AccessDeniedEntryPoint accessDeniedEntryPoint;
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(authProvider).passwordEncoder(passwordEncoder);
+    auth.authenticationProvider(authProvider);
   }
 
   @Bean
@@ -65,42 +70,44 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
         .toArray(String[]::new);
   }
 
+  @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    var src = new UrlBasedCorsConfigurationSource();
+    var cfg = new CorsConfiguration().applyPermitDefaultValues();
+    cfg.setAllowCredentials(true);
+    cfg.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:4200/", "localhost:4200", "localhost"));
+    cfg.setAllowedMethods(Arrays.stream(HttpMethod.values())
+        .map(Enum::name)
+        .collect(Collectors.toList()));
+    src.registerCorsConfiguration("/**", cfg);
+    return src;
+  }
+
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http
-        .authorizeRequests()
+    JwtWebSecurityConfigurer
+        .forRS256("https://localhost/", "https://localhost/", authProvider)
+        .configure(http)
 
-        .antMatchers(publicUris).permitAll()
-        .antMatchers(adminOnlyUris).hasAnyAuthority(adminAuthorities())
-        .anyRequest().hasAnyAuthority(allAuthorities())
-
-        .and().headers()
+        .headers()
 
         // allows iframes to work
         .frameOptions().disable()
         .cacheControl().disable()
 
-        .and().formLogin()
+        .and().cors()
 
-        .loginPage("/login")
-        .successHandler(userLoginSuccessfulHandler)
-        .permitAll()
+        .configurationSource(corsConfigurationSource())
 
-        .and().logout()
+        .and().authorizeRequests()
 
-        .invalidateHttpSession(true)
-        .clearAuthentication(true)
-        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-        .logoutSuccessHandler(userLogoutSuccessfulHandler)
-        .permitAll()
+        .antMatchers(publicUris).permitAll()
+        .antMatchers(adminOnlyUris).hasAnyAuthority(adminAuthorities())
+        .anyRequest().hasAnyAuthority(allAuthorities())
 
-        .and().exceptionHandling()
+        .and()
 
-        .accessDeniedHandler(userAccessDeniedHandler)
-        .authenticationEntryPoint(accessDeniedEntryPoint)
-
-        .and().csrf().disable()
-
-        .addFilterBefore(authenticationTokenHandler, BasicAuthenticationFilter.class);
+//        .addFilter(jwtAuthenticationFilter)
+        .addFilterBefore(jwtAuthorizationFilter, BasicAuthenticationFilter.class);
   }
 }

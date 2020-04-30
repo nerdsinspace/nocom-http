@@ -2,8 +2,8 @@ package com.matt.nocom.server.service.auth;
 
 import com.matt.nocom.server.exception.InvalidPasswordException;
 import com.matt.nocom.server.exception.InvalidUsernameException;
-import com.matt.nocom.server.model.sql.auth.AccessToken;
-import com.matt.nocom.server.model.sql.auth.User;
+import com.matt.nocom.server.model.auth.AccessToken;
+import com.matt.nocom.server.model.auth.User;
 import com.matt.nocom.server.properties.AuthenticationProperties;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -11,7 +11,6 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -46,7 +47,7 @@ public class UserRepository {
         AUTH_USERS.PASSWORD,
         AUTH_USERS.LEVEL,
         AUTH_USERS.ENABLED)
-        .values(username, passwordEncoder.encode(plaintextPassword), level, enabled)
+        .values(username, passwordEncoder.encode(plaintextPassword).getBytes(StandardCharsets.US_ASCII), level, enabled)
         .execute();
   }
 
@@ -61,7 +62,15 @@ public class UserRepository {
   public int setUserPassword(String username, String plaintextPassword) {
     properties.checkPassword(plaintextPassword);
     return dsl.update(AUTH_USERS)
-        .set(AUTH_USERS.PASSWORD, passwordEncoder.encode(plaintextPassword))
+        .set(AUTH_USERS.PASSWORD, passwordEncoder.encode(plaintextPassword).getBytes(StandardCharsets.US_ASCII))
+        .where(AUTH_USERS.USERNAME.eq(username))
+        .execute();
+  }
+
+  @Transactional
+  public int setUserEncodedPassword(String username, String password) {
+    return dsl.update(AUTH_USERS)
+        .set(AUTH_USERS.PASSWORD, password.getBytes(StandardCharsets.US_ASCII))
         .where(AUTH_USERS.USERNAME.eq(username))
         .execute();
   }
@@ -72,7 +81,8 @@ public class UserRepository {
         .from(AUTH_USERS)
         .where(AUTH_USERS.USERNAME.eq(username))
         .limit(1)
-        .fetchOptional(AUTH_USERS.PASSWORD);
+        .fetchOptional(AUTH_USERS.PASSWORD)
+        .map(pw -> new String(pw, StandardCharsets.US_ASCII));
   }
 
   @Transactional
@@ -261,7 +271,7 @@ public class UserRepository {
   @Transactional
   public int clearExpiredTokens() {
     return dsl.deleteFrom(AUTH_TOKEN)
-        .where(AUTH_TOKEN.CREATED_TIME.le(Timestamp.from(oldestPossibleToken())))
+        .where(DSL.currentTimestamp().ge(AUTH_TOKEN.CREATED_TIME.add(AUTH_TOKEN.LIFESPAN)))
         .execute();
   }
 
@@ -277,7 +287,7 @@ public class UserRepository {
     return User.builder()
         .id(record.getValue(AUTH_USERS.ID))
         .username(record.getValue(AUTH_USERS.USERNAME))
-        .password(record.getValue(AUTH_USERS.PASSWORD))
+        .password(new String(record.getValue(AUTH_USERS.PASSWORD), StandardCharsets.US_ASCII))
         .enabled(record.getValue(AUTH_USERS.ENABLED))
         .level(record.getValue(AUTH_USERS.LEVEL))
         .debugUser(record.getValue(AUTH_USERS.DEBUG))
@@ -291,6 +301,7 @@ public class UserRepository {
         .token(record.getValue(AUTH_TOKEN.TOKEN))
         .address(InetAddress.getByAddress(record.getValue(AUTH_TOKEN.ADDRESS)))
         .createdOn(timestampToInstant(record.getValue(AUTH_TOKEN.CREATED_TIME)))
+        .lifespan(Duration.ofMillis(record.getValue(AUTH_TOKEN.LIFESPAN).getTime()))
         .build();
   }
 }

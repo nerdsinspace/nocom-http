@@ -38,7 +38,12 @@ public class H2DatabaseConfiguration {
   public DataSource dataSource() {
     var builder = DataSourceBuilder.create()
         .driverClassName("org.h2.Driver")
-        .url("jdbc:h2:" + properties.getMode() + ":" + properties.getDatabase());
+        .url("jdbc:h2:"
+            + properties.getMode()
+            + ":"
+            + properties.getDatabase()
+            + ";"
+            + "AUTO_SERVER=TRUE");
 
     if(properties.getUsername() != null) {
       builder.username(properties.getUsername());
