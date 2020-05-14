@@ -75,7 +75,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
     var src = new UrlBasedCorsConfigurationSource();
     var cfg = new CorsConfiguration().applyPermitDefaultValues();
     cfg.setAllowCredentials(true);
-    cfg.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:4200/", "localhost:4200", "localhost"));
+//    cfg.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:4200/", "localhost:4200", "localhost"));
     cfg.setAllowedMethods(Arrays.stream(HttpMethod.values())
         .map(Enum::name)
         .collect(Collectors.toList()));

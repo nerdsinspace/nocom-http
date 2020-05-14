@@ -12,6 +12,7 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.stereotype.Controller;
 
 import java.time.Duration;
+import java.time.Instant;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,7 +22,9 @@ public class WebsocketController {
 
   @MessageMapping("/tracking")
   public void tracks(QueryTracks track, @Header("simpSessionId") String sessionId) {
-    var payload = nocom.getMostRecentTracks(track.getServer(), Duration.ofMillis(track.getDuration()));
+    var payload = nocom.getMostRecentTracks(track.getServer(),
+        Instant.ofEpochMilli(track.getTime()),
+        Duration.ofMillis(track.getDuration()));
     messenger.convertAndSendToUser(sessionId, "/ws-subscribe/tracker", payload, createHeaders(sessionId));
   }
 

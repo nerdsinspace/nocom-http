@@ -1,19 +1,19 @@
 package com.matt.nocom.server.service.data;
 
-import com.matt.nocom.server.model.data.Dimension;
-import com.matt.nocom.server.model.data.Hit;
-import com.matt.nocom.server.model.data.SimpleHit;
-import com.matt.nocom.server.model.data.Track;
+import com.matt.nocom.server.model.data.*;
 import lombok.NonNull;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.Field;
+import org.jooq.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +44,7 @@ public class NocomRepository {
   }
 
   @Transactional(readOnly = true)
-  public List<Track> getMostRecentTracks(@NonNull String server, Duration duration) {
+  public List<Track> getMostRecentTracks(@NonNull String server, Instant time, Duration duration) {
     return dsl.select(asterisk())
         .from(select(
             HITS.CREATED_AT,
@@ -65,7 +65,7 @@ public class NocomRepository {
                     .where(SERVERS.HOSTNAME.eq(server))
                     .limit(1))
                 .and(HITS.TRACK_ID.isNotNull())
-                .and(TRACKS.UPDATED_AT.gt(Instant.now().minus(duration).toEpochMilli()))))
+                .and(TRACKS.UPDATED_AT.gt(time.minus(duration).toEpochMilli()))))
         .fetch(record -> Track.builder()
             .trackId(record.getValue(HITS.TRACK_ID))
             .dimension(Dimension.byOrdinal(record.getValue(HITS.DIMENSION)))
@@ -123,7 +123,122 @@ public class NocomRepository {
             .build());
   }
 
-  private Field<Integer> convertToOverworldCoord(Field<Integer> axis, Field<Short> dimension) {
-    return axis.times(16).times(dimension.times(-7).plus(1));
+  @Transactional(readOnly = true)
+  protected List<ClusterNode> getRootClusters(Condition condition) {
+    return dsl.select(asterisk())
+        .from(DBSCAN)
+        .where(DBSCAN.DISJOINT_RANK.gt(0)
+            .and(DBSCAN.CLUSTER_PARENT.isNull())
+            .and(condition))
+        .fetch(this::createClusterNode);
+  }
+
+  public List<ClusterNode> getRootClusters() {
+    return getRootClusters(noCondition());
+  }
+
+  public List<ClusterNode> getRootClusters(String server, Dimension dimension) {
+    var cond = noCondition();
+
+    if (server != null) {
+      cond = cond.and(DBSCAN.SERVER_ID.eq(
+          select(SERVERS.ID)
+              .from(SERVERS)
+              .where(SERVERS.HOSTNAME.eq(server))
+              .limit(1)));
+    }
+
+    if (dimension != null) {
+      cond = cond.and(DBSCAN.DIMENSION.eq((short) dimension.getOrdinal()));
+    }
+
+    return getRootClusters(cond);
+  }
+
+  @Transactional(readOnly = true)
+  public List<ClusterNode> getFullCluster(int clusterId) {
+    return dsl.withRecursive("tmp")
+        .as(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+            .from(DBSCAN)
+            .where(DBSCAN.ID.eq(clusterId)))
+        .with(name("clusters")
+            .as(select(asterisk())
+                .from(name("tmp"))
+                .union(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+                    .from(DBSCAN)
+                    .innerJoin(name("clusters"))
+                    .on(DBSCAN.CLUSTER_PARENT.eq(DBSCAN.as("clusters").ID))
+                    .where(DBSCAN.as("clusters").DISJOINT_RANK.gt(0))
+                )))
+        .select(asterisk())
+        .from(name("clusters"))
+        .innerJoin(DBSCAN)
+        .on(DBSCAN.ID.eq(DBSCAN.as("clusters").ID))
+        .fetch(this::createClusterNode);
+  }
+
+  @Transactional(readOnly = true)
+  public List<Player> getClusterPlayerAssociations(int clusterId) {
+    return dsl.withRecursive("tmp")
+        .as(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+            .from(DBSCAN)
+            .where(DBSCAN.ID.eq(clusterId)))
+        .with(name("clusters")
+            .as(select(asterisk())
+                .from(name("tmp"))
+                .union(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+                    .from(DBSCAN)
+                    .innerJoin(name("clusters"))
+                    .on(DBSCAN.CLUSTER_PARENT.eq(DBSCAN.as("clusters").ID))
+                    .where(DBSCAN.as("clusters").DISJOINT_RANK.gt(0))
+                )))
+        .select(asterisk())
+        .from(select(ASSOCIATIONS.PLAYER_ID, sum(ASSOCIATIONS.ASSOCIATION).as("strength"))
+            .from(ASSOCIATIONS)
+            .innerJoin(name("clusters"))
+            .on(ASSOCIATIONS.CLUSTER_ID.eq(DBSCAN.as("clusters").ID))
+            .groupBy(ASSOCIATIONS.PLAYER_ID).asTable("assc"))
+        .innerJoin(PLAYERS)
+        .on(field(name("assc", "player_id"), int.class).eq(PLAYERS.ID))
+        .orderBy(field(name("assc", "strength"), BigDecimal.class).desc())
+        .fetch(record -> Player.builder()
+            .username(record.get(PLAYERS.USERNAME))
+            .uuid(record.get(PLAYERS.UUID))
+            .strength(record.get(field(name("assc", "strength"), BigDecimal.class)).doubleValue())
+            .build());
+  }
+
+  private ClusterNode createClusterNode(Record record) {
+    return ClusterNode.builder()
+        .id(record.get(DBSCAN.ID))
+        .count(record.get(DBSCAN.CNT))
+        .x(record.get(DBSCAN.X) * 16)
+        .z(record.get(DBSCAN.Z) * 16)
+        .dimension(Dimension.byOrdinal(record.get(DBSCAN.DIMENSION)))
+        .core(record.get(DBSCAN.IS_CORE))
+        .clusterParent(record.get(DBSCAN.CLUSTER_PARENT))
+        .disjointRank(record.get(DBSCAN.DISJOINT_RANK))
+        .disjointSize(record.get(DBSCAN.DISJOINT_SIZE))
+        .build();
+  }
+
+  @Transactional(readOnly = true)
+  public List<PlayerStatus> getBotStatuses() {
+    return dsl.select(PLAYERS.USERNAME, PLAYERS.UUID,
+        SERVERS.HOSTNAME, STATUSES.CURR_STATUS,
+        STATUSES.UPDATED_AT, STATUSES.DATA)
+        .from(STATUSES)
+        .innerJoin(PLAYERS)
+        .on(PLAYERS.ID.eq(STATUSES.PLAYER_ID))
+        .innerJoin(SERVERS)
+        .on(SERVERS.ID.eq(STATUSES.SERVER_ID))
+        .fetch(record -> PlayerStatus.builder()
+            .playerUsername(record.get(PLAYERS.USERNAME))
+            .playerUuid(record.get(PLAYERS.UUID))
+            .server(record.get(SERVERS.HOSTNAME))
+            .state(record.get(STATUSES.CURR_STATUS))
+            .updatedAt(Instant.ofEpochMilli(record.get(STATUSES.UPDATED_AT)))
+            .data(record.get(STATUSES.DATA))
+            .build());
   }
 }

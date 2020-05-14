@@ -2,12 +2,14 @@ package com.matt.nocom.server.service.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.matt.nocom.server.model.data.ClusterNode;
 import com.matt.nocom.server.model.data.Hit;
 import com.matt.nocom.server.model.data.SimpleHit;
 import com.matt.nocom.server.model.data.TrackedHits;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 @Component
@@ -81,6 +83,30 @@ public class NocomUtility {
             .mapToInt(SimpleHit::getZ)
             .average()
             .orElseThrow()))
+        .createdAt(hits.stream()
+            .map(SimpleHit::getCreatedAt)
+            .min(Instant::compareTo)
+            .orElseThrow())
         .build();
+  }
+
+  public ClusterNode compressClusters(Collection<ClusterNode> nodes) {
+    // find the root node
+    var root = nodes.stream()
+        .filter(n -> n.getClusterParent() == null)
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Could not find the root node for the cluster"));
+
+    // remove the root node
+    nodes.remove(root);
+
+    List<ClusterNode.Leaf> leafs = Lists.newArrayList();
+    root.setLeafs(leafs);
+
+    for(var next : nodes) {
+      leafs.add(new ClusterNode.Leaf(next.getId(), next.getX(), next.getZ()));
+    }
+
+    return root;
   }
 }

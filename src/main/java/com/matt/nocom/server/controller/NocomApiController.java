@@ -1,7 +1,6 @@
 package com.matt.nocom.server.controller;
 
-import com.matt.nocom.server.model.data.SimpleHit;
-import com.matt.nocom.server.model.data.TrackedHits;
+import com.matt.nocom.server.model.data.*;
 import com.matt.nocom.server.service.data.NocomRepository;
 import com.matt.nocom.server.service.data.NocomUtility;
 import lombok.RequiredArgsConstructor;
@@ -19,22 +18,16 @@ public class NocomApiController {
   private final NocomRepository nocom;
   private final NocomUtility util;
 
-  @RequestMapping(value = "/track-history",
-      method = RequestMethod.POST,
-      produces = "application/json")
+  @PostMapping("/track-history")
   @ResponseBody
-  @ResponseStatus(HttpStatus.OK)
   public List<SimpleHit> trackHistory(@RequestParam int trackId,
       @RequestParam(defaultValue = "1000") long max,
       @RequestParam(defaultValue = "2000") long aggregationMs) {
     return util.aggregateHits(nocom.getTrackHistory(trackId, limitOf(max)), Duration.ofMillis(aggregationMs));
   }
 
-  @RequestMapping(value = "/full-track-history",
-      method = RequestMethod.POST,
-      produces = "application/json")
+  @PostMapping("/full-track-history")
   @ResponseBody
-  @ResponseStatus(HttpStatus.OK)
   public Collection<TrackedHits> fullTrackHistory(@RequestParam int trackId,
       @RequestParam(defaultValue = "1000") long max,
       @RequestParam(defaultValue = "2000") long aggregationMs) {
@@ -46,6 +39,30 @@ public class NocomApiController {
     }
 
     return hits;
+  }
+
+  @PostMapping("/root-clusters")
+  @ResponseBody
+  public Collection<ClusterNode> rootClusters(@RequestParam String server, @RequestParam int dimension) {
+    return nocom.getRootClusters(server, Dimension.byOrdinal(dimension));
+  }
+
+  @PostMapping("/cluster")
+  @ResponseBody
+  public ClusterNode clusters(@RequestParam int clusterId) {
+    return util.compressClusters(nocom.getFullCluster(clusterId));
+  }
+
+  @PostMapping("/cluster-associations")
+  @ResponseBody
+  public List<Player> clusterAssociations(@RequestParam int clusterId) {
+    return nocom.getClusterPlayerAssociations(clusterId);
+  }
+  
+  @GetMapping("/bot-statuses")
+  @ResponseBody
+  public List<PlayerStatus> botStatuses() {
+    return nocom.getBotStatuses();
   }
 
   private static long limitOf(long max) {
