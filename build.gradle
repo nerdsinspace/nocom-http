@@ -1,10 +1,13 @@
 buildscript {
   ext {
-    angularAppDir = "$projectDir/src/main/javascript/frontend"
-
     sensitive = { ->
+      final f = file('sensitive.properties');
+      if(!f.exists()) {
+        throw new Error('missing sensitive.properties file! fill in sensitive-template.properties and rename it')
+      }
+      
       final prop = new Properties();
-      prop.load(file("sensitive.properties").newReader());
+      prop.load(f.newReader());
       return prop;
     }.call()
   }
