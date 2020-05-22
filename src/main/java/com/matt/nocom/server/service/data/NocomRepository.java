@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -241,4 +240,22 @@ public class NocomRepository {
             .data(record.get(STATUSES.DATA))
             .build());
   }
+
+//  public List<PlayerSession> getPlayerSessions(@NonNull UUID playerUuid,
+//      @NonNull Instant from, @Nullable Instant to, @NonNull String server,
+//      int max) {
+//    to = MoreObjects.firstNonNull(to, Instant.now());
+//    return dsl.select(PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE, PLAYERS.UUID)
+//        .from(PLAYER_SESSIONS)
+//        .innerJoin(PLAYERS).on(PLAYERS.ID.eq(PLAYER_SESSIONS.PLAYER_ID))
+//        .where(
+//            PLAYER_SESSIONS.SERVER_ID.eq(select(SERVERS.ID)
+//                .from(SERVERS)
+//                .where(SERVERS.HOSTNAME.eq(server))
+//                .limit(1))
+//            .and(PLAYER_SESSIONS.JOIN.between(from.toEpochMilli(), to.toEpochMilli())
+//                .or(PLAYER_SESSIONS.LEAVE.between(from.toEpochMilli(), to.toEpochMilli())))
+//        )
+//        .limit(range)
+//  }
 }
