@@ -13,21 +13,6 @@ spring:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
   flyway:
     locations: classpath:db/h2
-  thymeleaf:
-    cache: false
-    check-template: true
-    check-template-location: true
-    enabled: true
-    encoding: UTF-8
-    mode: HTML
-    prefix: classpath:/templates/
-    suffix: .html
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          issuer-uri: /auth/realms
-#          jwk-set-uri:
 
 nocom:
   ssh-tunnel:
