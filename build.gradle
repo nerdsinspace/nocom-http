@@ -41,6 +41,8 @@ dependencyManagement {
     mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
   }
   dependencies {
+    dependency group: 'org.jooq', name: 'jool', version: '0.9.14'
+
     dependency group: 'com.auth0', name: 'java-jwt', version: '3.10.2'
     dependency group: 'com.auth0', name: 'auth0-spring-security-api', version: '1.3.0'
 
@@ -54,10 +56,9 @@ dependencyManagement {
     dependency group: 'org.apache.sshd', name: 'sshd-core', version: '2.4.0'
     dependency group: 'net.i2p.crypto', name: 'eddsa', version: '0.3.0'
 
-    dependency group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.2'
-
     dependency group: 'junit', name: 'junit', version: '4.13'
-    dependency group: 'org.spockframework', name: 'spock-core', version: '2.0-M2-groovy-3.0'
+    dependency group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.4'
+    dependency group: 'org.spockframework', name: 'spock-core', version: '1.3-groovy-2.5'
   }
 }
 
@@ -117,6 +118,14 @@ jooq {
       database {
         name = 'org.jooq.meta.postgres.PostgresDatabase'
 
+        forcedTypes {
+          forcedType {
+            userType = 'org.jooq.lambda.tuple.Range<Long>'
+            binding = 'space.nerdsin.nocom.server.jooq.Int8RangeJOOQBinding'
+            includeTypes = 'int8range'
+          }
+        }
+
         inputSchema = 'public'
         outputSchemaToDefault = true
       }
@@ -158,6 +167,7 @@ dependencies {
   compile group: 'org.flywaydb', name: 'flyway-core'
   compile group: 'org.apache.commons', name: 'commons-dbcp2'
 
+  compile group: 'org.jooq', name: 'jool'
   compile group: 'org.jooq', name: 'jooq'
   compile group: 'org.jooq', name: 'jooq-meta'
   compileOnly group: 'org.jooq', name: 'jooq-codegen'
@@ -175,6 +185,8 @@ dependencies {
   testCompile group: 'org.spockframework', name: 'spock-core'
 
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  testCompile group: 'org.codehaus.groovy', name: 'groovy-all'
+  testCompile group: 'org.spockframework', name: 'spock-core'
 }
 
 bootRun {

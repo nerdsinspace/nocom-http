@@ -2,10 +2,7 @@ package com.matt.nocom.server.service.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.matt.nocom.server.model.data.ClusterNode;
-import com.matt.nocom.server.model.data.Hit;
-import com.matt.nocom.server.model.data.SimpleHit;
-import com.matt.nocom.server.model.data.TrackedHits;
+import com.matt.nocom.server.model.data.*;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -108,5 +105,31 @@ public class NocomUtility {
     }
 
     return root;
+  }
+
+  public List<SessionGroup> groupSessions(List<PlayerSession> sessions) {
+    Map<UUID, SessionGroup> groups = Maps.newHashMap();
+
+    for(var pl : sessions) {
+      var grp = groups.computeIfAbsent(pl.getUuid(), id -> SessionGroup.builder()
+          .username(pl.getUsername())
+          .uuid(id)
+          .build());
+
+      // remove the excess data by creating a new object
+      grp.addSession(PlayerSession.builder()
+          .join(pl.getJoin())
+          .leave(pl.getLeave())
+          .build());
+    }
+
+    var list = Lists.newArrayList(groups.values());
+    // order groups by username
+    list.sort(Comparator.comparing(SessionGroup::getUsername, String::compareToIgnoreCase));
+
+    // order sessions in each group by time
+    list.forEach(grp -> grp.getSessions().sort(Comparator.comparing(PlayerSession::getJoin)));
+
+    return list;
   }
 }
