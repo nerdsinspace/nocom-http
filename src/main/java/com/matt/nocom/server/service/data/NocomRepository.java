@@ -15,9 +15,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.matt.nocom.server.postgres.codegen.Tables.*;
 import static org.jooq.impl.DSL.*;
+import static space.nerdsin.nocom.server.jooq.DSLRangeOperations.rangeOverlaps;
 
 @Repository
 public class NocomRepository {
@@ -241,21 +243,46 @@ public class NocomRepository {
             .build());
   }
 
-//  public List<PlayerSession> getPlayerSessions(@NonNull UUID playerUuid,
-//      @NonNull Instant from, @Nullable Instant to, @NonNull String server,
-//      int max) {
-//    to = MoreObjects.firstNonNull(to, Instant.now());
-//    return dsl.select(PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE, PLAYERS.UUID)
-//        .from(PLAYER_SESSIONS)
-//        .innerJoin(PLAYERS).on(PLAYERS.ID.eq(PLAYER_SESSIONS.PLAYER_ID))
-//        .where(
-//            PLAYER_SESSIONS.SERVER_ID.eq(select(SERVERS.ID)
-//                .from(SERVERS)
-//                .where(SERVERS.HOSTNAME.eq(server))
-//                .limit(1))
-//            .and(PLAYER_SESSIONS.JOIN.between(from.toEpochMilli(), to.toEpochMilli())
-//                .or(PLAYER_SESSIONS.LEAVE.between(from.toEpochMilli(), to.toEpochMilli())))
-//        )
-//        .limit(range)
-//  }
+  @Transactional(readOnly = true)
+  public List<PlayerSession> getPlayerSessions(String server, Instant from, Instant to, int max, UUID... players) {
+    var cond = noCondition();
+
+    if(players.length > 0) {
+      var c = noCondition();
+      for(var uuid : players) {
+        c = c.or(PLAYERS.UUID.eq(uuid));
+      }
+      cond = cond.and(c);
+    }
+    if(server != null) {
+      cond = cond.and(PLAYER_SESSIONS.SERVER_ID.eq(
+          select(SERVERS.ID)
+              .from(SERVERS)
+              .where(SERVERS.HOSTNAME.eq(server))
+              .limit(1)));
+    }
+    if(from != null && to != null) {
+      cond = cond.and(rangeOverlaps(PLAYER_SESSIONS.RANGE, from.toEpochMilli(), to.toEpochMilli()));
+    } else if(from != null) {
+      cond = cond.and(rangeOverlaps(PLAYER_SESSIONS.RANGE, from.toEpochMilli(), System.currentTimeMillis()));
+    } else if(to != null) {
+      cond = cond.and(rangeOverlaps(PLAYER_SESSIONS.RANGE, 0L, to.toEpochMilli()));
+    }
+
+    return dsl.select(PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE, PLAYERS.UUID, PLAYERS.USERNAME)
+        .from(PLAYER_SESSIONS)
+        .innerJoin(PLAYERS).on(PLAYERS.ID.eq(PLAYER_SESSIONS.PLAYER_ID))
+        .where(cond)
+        .limit(max)
+        .fetch(record -> PlayerSession.builder()
+            .username(record.get(PLAYERS.USERNAME))
+            .uuid(record.get(PLAYERS.UUID))
+            .join(Optional.ofNullable(record.get(PLAYER_SESSIONS.JOIN))
+                .map(Instant::ofEpochMilli)
+                .orElse(null))
+            .leave(Optional.ofNullable(record.get(PLAYER_SESSIONS.LEAVE))
+                .map(Instant::ofEpochMilli)
+                .orElse(null))
+            .build());
+  }
 }

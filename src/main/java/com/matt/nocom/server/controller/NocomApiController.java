@@ -4,13 +4,16 @@ import com.matt.nocom.server.model.data.*;
 import com.matt.nocom.server.service.data.NocomRepository;
 import com.matt.nocom.server.service.data.NocomUtility;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -63,6 +66,20 @@ public class NocomApiController {
   @ResponseBody
   public List<PlayerStatus> botStatuses() {
     return nocom.getBotStatuses();
+  }
+
+  @PostMapping("/player-sessions")
+  @ResponseBody
+  public List<SessionGroup> playerSessions(
+      @RequestParam UUID[] playerUuids,
+      @RequestParam(required = false) String server,
+      @RequestParam(required = false) Optional<Long> from,
+      @RequestParam(required = false) Optional<Long> to,
+      @RequestParam(defaultValue = "1000") int max) {
+    return util.groupSessions(nocom.getPlayerSessions(server,
+        from.map(Instant::ofEpochMilli).orElse(null),
+        to.map(Instant::ofEpochMilli).orElse(null),
+        max, playerUuids));
   }
 
   private static long limitOf(long max) {
