@@ -21,7 +21,7 @@ postgres.password=none
     stage('cibuild') {
       wrap([$class: 'AnsiColorBuildWrapper']) {
         sh './scripts/cibuild'
-        archiveArtifacts artifacts: 'dist/*', fingerprint: true
+        archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
       }
     }
 
