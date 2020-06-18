@@ -22,11 +22,11 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         docker \
             login -u "${GITLAB_USER}" -p "${GITLAB_PASSWORD}" registry.gitlab.com;
 
-        if [ "x${GIT_BRANCH}" = "xmaster" ]; then
-            docker push "registry.gitlab.com/fr1kin/nocom-http:master"
-            docker push "registry.gitlab.com/fr1kin/nocom-http:latest"
+        if [ "x${GIT_BRANCH}" = "xmaster" ] || [ "x${GIT_BRANCH}" = "xHEAD" ]; then
+            docker push "registry.gitlab.com/nerdsinc/nocom-http:master"
+            docker push "registry.gitlab.com/nerdsinc/nocom-http:latest"
         else
-            docker push "registry.gitlab.com/fr1kin/nocom-http:${GIT_BRANCH}"
+            docker push "registry.gitlab.com/nerdsinc/nocom-http:${GIT_BRANCH}"
         fi
     fi
 fi
