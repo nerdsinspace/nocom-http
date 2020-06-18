@@ -7,12 +7,12 @@ buildscript {
       }
       
       final prop = new Properties();
-      prop.load(f.newReader());
+      f.newReader().withCloseable { reader -> prop.load(reader) }
       return prop;
     }.call()
 
     postgresHostname = sensitive['postgres.host'] as String
-    postgresPort = Integer.parseInt(sensitive['postgres.port'] as String)
+    postgresPort = sensitive['postgres.port'].with { port -> Integer.parseInt(port as String) }
   }
   repositories {
     mavenCentral()
@@ -27,7 +27,6 @@ plugins {
   id 'io.spring.dependency-management' version '1.0.9.RELEASE'
   id 'org.springframework.boot' version "$springBootVersion"
   id 'nu.studer.jooq' version '4.1'
-  id 'com.wiredforcode.spawn' version '0.8.0'
 }
 
 group 'com.matt.nocom'
@@ -201,6 +200,7 @@ generateNocomJooqSchemaSource.onlyIf {
     new Socket(postgresHostname, postgresPort).close();
     true
   } catch (Throwable t) {
+    println 'Skipping postgres codegen - no database connection detected'
     false
   }
 }
