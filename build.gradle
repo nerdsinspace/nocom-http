@@ -10,6 +10,9 @@ buildscript {
       prop.load(f.newReader());
       return prop;
     }.call()
+
+    postgresHostname = sensitive['postgres.host'] as String
+    postgresPort = Integer.parseInt(sensitive['postgres.port'] as String)
   }
   repositories {
     mavenCentral()
@@ -101,8 +104,7 @@ jooq {
     jdbc {
       driver = 'org.postgresql.Driver'
       url = ('jdbc:postgresql://'
-          + InetSocketAddress.createUnresolved(sensitive['postgres.host'] as String,
-          Integer.parseInt(sensitive['postgres.port'] as String))
+          + InetSocketAddress.createUnresolved(postgresHostname, postgresPort)
           + '/'
           + sensitive['postgres.database']
           + '?readOnly=true'
@@ -132,6 +134,7 @@ jooq {
       generate {}
       target {
         packageName = 'com.matt.nocom.server.postgres.codegen'
+        directory = 'src/main/java'
       }
     }
   }
@@ -193,19 +196,28 @@ bootRun {
   jvmArgs = ['-Dspring.profiles.active=dev']
 }
 
-if (sensitive['ssh.tunnel']) {
-  task connectSshTunnel(type: SpawnProcessTask) {
-    final port = sensitive['postgres.port']
-    final key = sensitive['ssh.key']
-    final user = sensitive['ssh.user']
-    final sshHost = sensitive['ssh.host']
-    final sshPort = sensitive['ssh.port']
-    command "ssh -vNL ${port}:127.0.0.1:${port} -i ${key} -p ${sshPort} ${user}@${sshHost}"
-    ready 'Authentication succeeded'
+generateNocomJooqSchemaSource.onlyIf {
+  try {
+    new Socket(postgresHostname, postgresPort).close();
+    true
+  } catch (Throwable t) {
+    false
   }
-
-  task disconnectSshTunnel(type: KillProcessTask)
-
-  generateNocomJooqSchemaSource.dependsOn connectSshTunnel
-  generateNocomJooqSchemaSource.finalizedBy disconnectSshTunnel
 }
+
+//if (postgresOpened && sensitive['ssh.tunnel']) {
+//  task connectSshTunnel(type: SpawnProcessTask) {
+//    final port = sensitive['postgres.port']
+//    final key = sensitive['ssh.key']
+//    final user = sensitive['ssh.user']
+//    final sshHost = sensitive['ssh.host']
+//    final sshPort = sensitive['ssh.port']
+//    command "ssh -vNL ${port}:127.0.0.1:${port} -i ${key} -p ${sshPort} ${user}@${sshHost}"
+//    ready 'Authentication succeeded'
+//  }
+//
+//  task disconnectSshTunnel(type: KillProcessTask)
+//
+//  generateNocomJooqSchemaSource.dependsOn connectSshTunnel
+//  generateNocomJooqSchemaSource.finalizedBy disconnectSshTunnel
+//}
