@@ -1,12 +1,12 @@
 version: '2.3'
 services:
-    nocom-http:
-        image: gradle:4.10-jdk8-slim
-        environment:
-          - GIT_COMMIT=${GIT_COMMIT:-latest}
-          - NOCOM-HTTP_DEBUG=1
-        volumes:
-            - ./:/opt/nocom-http/
-            - ./.gradle:/root/.gradle
-        working_dir: /opt/nocom-http
-        entrypoint: gradle
+  nocom-http:
+    image: gradle:5.6.4-jdk11
+    environment:
+      - GIT_COMMIT=${GIT_COMMIT:-latest}
+      - NOCOM-HTTP_DEBUG=1
+    volumes:
+      - ./:/opt/nocom-http/
+      - ./.gradle:/root/.gradle
+    working_dir: /opt/nocom-http
+    entrypoint: gradle

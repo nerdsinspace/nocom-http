@@ -36,10 +36,10 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             --user "$(id -u):$(id -g)" \
             nocom-http build
 
-        if [ "x${GIT_BRANCH}" = "xmaster" ]; then
-            docker build -t "registry.gitlab.com/fr1kin/nocom-http:master" -t "registry.gitlab.com/fr1kin/nocom-http:latest" .
+        if [ "x${GIT_BRANCH}" = "xmaster" ] || [ "x${GIT_BRANCH}" = "xHEAD" ]; then
+            docker build -t "registry.gitlab.com/nerdsinc/nocom-http:master" -t "registry.gitlab.com/nerdsinc/nocom-http:latest" .
         else
-            docker build -t "registry.gitlab.com/fr1kin/nocom-http:${GIT_BRANCH}" .
+            docker build -t "registry.gitlab.com/nerdsinc/nocom-http:${GIT_BRANCH}" .
         fi
     fi
 fi
