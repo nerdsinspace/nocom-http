@@ -192,7 +192,12 @@ dependencies {
 }
 
 bootRun {
-  jvmArgs = ['-Dspring.profiles.active=dev']
+  final configs = ['classpath:/application.yml']
+  if(file('config.yml').exists()) {
+    configs.add 'file:./config.yml'
+  }
+
+  jvmArgs = ['-Dspring.profiles.active=dev', "-Dspring.config.location=${configs.join(',')}"]
 }
 
 generateNocomJooqSchemaSource.onlyIf {
@@ -204,20 +209,3 @@ generateNocomJooqSchemaSource.onlyIf {
     false
   }
 }
-
-//if (postgresOpened && sensitive['ssh.tunnel']) {
-//  task connectSshTunnel(type: SpawnProcessTask) {
-//    final port = sensitive['postgres.port']
-//    final key = sensitive['ssh.key']
-//    final user = sensitive['ssh.user']
-//    final sshHost = sensitive['ssh.host']
-//    final sshPort = sensitive['ssh.port']
-//    command "ssh -vNL ${port}:127.0.0.1:${port} -i ${key} -p ${sshPort} ${user}@${sshHost}"
-//    ready 'Authentication succeeded'
-//  }
-//
-//  task disconnectSshTunnel(type: KillProcessTask)
-//
-//  generateNocomJooqSchemaSource.dependsOn connectSshTunnel
-//  generateNocomJooqSchemaSource.finalizedBy disconnectSshTunnel
-//}
