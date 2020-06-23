@@ -33,22 +33,12 @@ import java.util.List;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DefaultSchema extends SchemaImpl {
 
-    private static final long serialVersionUID = 1789614299;
+    private static final long serialVersionUID = -518267089;
 
     /**
      * The reference instance of <code></code>
      */
     public static final DefaultSchema DEFAULT_SCHEMA = new DefaultSchema();
-
-    /**
-     * The table <code>assoc</code>.
-     */
-    public final Assoc ASSOC = com.matt.nocom.server.postgres.codegen.tables.Assoc.ASSOC;
-
-    /**
-     * The table <code>associations</code>.
-     */
-    public final Associations ASSOCIATIONS = com.matt.nocom.server.postgres.codegen.tables.Associations.ASSOCIATIONS;
 
     /**
      * The table <code>blocks</code>.
@@ -61,19 +51,9 @@ public class DefaultSchema extends SchemaImpl {
     public final Chat CHAT = com.matt.nocom.server.postgres.codegen.tables.Chat.CHAT;
 
     /**
-     * The table <code>dbscan</code>.
-     */
-    public final Dbscan DBSCAN = com.matt.nocom.server.postgres.codegen.tables.Dbscan.DBSCAN;
-
-    /**
      * The table <code>dbscan_progress</code>.
      */
     public final DbscanProgress DBSCAN_PROGRESS = com.matt.nocom.server.postgres.codegen.tables.DbscanProgress.DBSCAN_PROGRESS;
-
-    /**
-     * The table <code>dbscan_to_update</code>.
-     */
-    public final DbscanToUpdate DBSCAN_TO_UPDATE = com.matt.nocom.server.postgres.codegen.tables.DbscanToUpdate.DBSCAN_TO_UPDATE;
 
     /**
      * The table <code>dimensions</code>.
@@ -119,6 +99,36 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>notes</code>.
      */
     public final Notes NOTES = com.matt.nocom.server.postgres.codegen.tables.Notes.NOTES;
+
+    /**
+     * The table <code>old_assoc</code>.
+     */
+    public final OldAssoc OLD_ASSOC = com.matt.nocom.server.postgres.codegen.tables.OldAssoc.OLD_ASSOC;
+
+    /**
+     * The table <code>old_associations</code>.
+     */
+    public final OldAssociations OLD_ASSOCIATIONS = com.matt.nocom.server.postgres.codegen.tables.OldAssociations.OLD_ASSOCIATIONS;
+
+    /**
+     * The table <code>old_dbscan</code>.
+     */
+    public final OldDbscan OLD_DBSCAN = com.matt.nocom.server.postgres.codegen.tables.OldDbscan.OLD_DBSCAN;
+
+    /**
+     * The table <code>old_dbscan_progress</code>.
+     */
+    public final OldDbscanProgress OLD_DBSCAN_PROGRESS = com.matt.nocom.server.postgres.codegen.tables.OldDbscanProgress.OLD_DBSCAN_PROGRESS;
+
+    /**
+     * The table <code>old_dbscan_to_update</code>.
+     */
+    public final OldDbscanToUpdate OLD_DBSCAN_TO_UPDATE = com.matt.nocom.server.postgres.codegen.tables.OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE;
+
+    /**
+     * The table <code>old_track_associator_progress</code>.
+     */
+    public final OldTrackAssociatorProgress OLD_TRACK_ASSOCIATOR_PROGRESS = com.matt.nocom.server.postgres.codegen.tables.OldTrackAssociatorProgress.OLD_TRACK_ASSOCIATOR_PROGRESS;
 
     /**
      * The table <code>player_sessions</code>.
@@ -267,9 +277,9 @@ public class DefaultSchema extends SchemaImpl {
     public final Statuses STATUSES = com.matt.nocom.server.postgres.codegen.tables.Statuses.STATUSES;
 
     /**
-     * The table <code>track_associator_progress</code>.
+     * The table <code>test</code>.
      */
-    public final TrackAssociatorProgress TRACK_ASSOCIATOR_PROGRESS = com.matt.nocom.server.postgres.codegen.tables.TrackAssociatorProgress.TRACK_ASSOCIATOR_PROGRESS;
+    public final Test TEST = com.matt.nocom.server.postgres.codegen.tables.Test.TEST;
 
     /**
      * The table <code>track_sizes</code>.
@@ -319,13 +329,9 @@ public class DefaultSchema extends SchemaImpl {
 
     private final List<Table<?>> getTables0() {
         return Arrays.<Table<?>>asList(
-            Assoc.ASSOC,
-            Associations.ASSOCIATIONS,
             Blocks.BLOCKS,
             Chat.CHAT,
-            Dbscan.DBSCAN,
             DbscanProgress.DBSCAN_PROGRESS,
-            DbscanToUpdate.DBSCAN_TO_UPDATE,
             Dimensions.DIMENSIONS,
             GeographyColumns.GEOGRAPHY_COLUMNS,
             GeometryColumns.GEOMETRY_COLUMNS,
@@ -335,6 +341,12 @@ public class DefaultSchema extends SchemaImpl {
             Hits.HITS,
             LastByServer.LAST_BY_SERVER,
             Notes.NOTES,
+            OldAssoc.OLD_ASSOC,
+            OldAssociations.OLD_ASSOCIATIONS,
+            OldDbscan.OLD_DBSCAN,
+            OldDbscanProgress.OLD_DBSCAN_PROGRESS,
+            OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE,
+            OldTrackAssociatorProgress.OLD_TRACK_ASSOCIATOR_PROGRESS,
             PlayerSessions.PLAYER_SESSIONS,
             Players.PLAYERS,
             Servers.SERVERS,
@@ -345,7 +357,7 @@ public class DefaultSchema extends SchemaImpl {
             StDumprings.ST_DUMPRINGS,
             StSubdivide.ST_SUBDIVIDE,
             Statuses.STATUSES,
-            TrackAssociatorProgress.TRACK_ASSOCIATOR_PROGRESS,
+            Test.TEST,
             TrackSizes.TRACK_SIZES,
             Tracks.TRACKS);
     }

@@ -30,16 +30,6 @@ import javax.annotation.processing.Generated;
 public class Tables {
 
     /**
-     * The table <code>assoc</code>.
-     */
-    public static final Assoc ASSOC = Assoc.ASSOC;
-
-    /**
-     * The table <code>associations</code>.
-     */
-    public static final Associations ASSOCIATIONS = Associations.ASSOCIATIONS;
-
-    /**
      * The table <code>blocks</code>.
      */
     public static final Blocks BLOCKS = Blocks.BLOCKS;
@@ -50,19 +40,9 @@ public class Tables {
     public static final Chat CHAT = Chat.CHAT;
 
     /**
-     * The table <code>dbscan</code>.
-     */
-    public static final Dbscan DBSCAN = Dbscan.DBSCAN;
-
-    /**
      * The table <code>dbscan_progress</code>.
      */
     public static final DbscanProgress DBSCAN_PROGRESS = DbscanProgress.DBSCAN_PROGRESS;
-
-    /**
-     * The table <code>dbscan_to_update</code>.
-     */
-    public static final DbscanToUpdate DBSCAN_TO_UPDATE = DbscanToUpdate.DBSCAN_TO_UPDATE;
 
     /**
      * The table <code>dimensions</code>.
@@ -108,6 +88,36 @@ public class Tables {
      * The table <code>notes</code>.
      */
     public static final Notes NOTES = Notes.NOTES;
+
+    /**
+     * The table <code>old_assoc</code>.
+     */
+    public static final OldAssoc OLD_ASSOC = OldAssoc.OLD_ASSOC;
+
+    /**
+     * The table <code>old_associations</code>.
+     */
+    public static final OldAssociations OLD_ASSOCIATIONS = OldAssociations.OLD_ASSOCIATIONS;
+
+    /**
+     * The table <code>old_dbscan</code>.
+     */
+    public static final OldDbscan OLD_DBSCAN = OldDbscan.OLD_DBSCAN;
+
+    /**
+     * The table <code>old_dbscan_progress</code>.
+     */
+    public static final OldDbscanProgress OLD_DBSCAN_PROGRESS = OldDbscanProgress.OLD_DBSCAN_PROGRESS;
+
+    /**
+     * The table <code>old_dbscan_to_update</code>.
+     */
+    public static final OldDbscanToUpdate OLD_DBSCAN_TO_UPDATE = OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE;
+
+    /**
+     * The table <code>old_track_associator_progress</code>.
+     */
+    public static final OldTrackAssociatorProgress OLD_TRACK_ASSOCIATOR_PROGRESS = OldTrackAssociatorProgress.OLD_TRACK_ASSOCIATOR_PROGRESS;
 
     /**
      * The table <code>player_sessions</code>.
@@ -256,9 +266,9 @@ public class Tables {
     public static final Statuses STATUSES = Statuses.STATUSES;
 
     /**
-     * The table <code>track_associator_progress</code>.
+     * The table <code>test</code>.
      */
-    public static final TrackAssociatorProgress TRACK_ASSOCIATOR_PROGRESS = TrackAssociatorProgress.TRACK_ASSOCIATOR_PROGRESS;
+    public static final Test TEST = Test.TEST;
 
     /**
      * The table <code>track_sizes</code>.
