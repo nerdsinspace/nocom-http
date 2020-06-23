@@ -13,9 +13,9 @@ import java.nio.charset.StandardCharsets;
 import static com.matt.nocom.server.Logging.getLogger;
 import static com.matt.nocom.server.h2.codegen.Tables.AUTH_USERS;
 
+@Profile("dev")
 @Configuration
 public class AuthenticationDatabaseInitializer {
-  @Profile("dev")
   @Autowired
   public void initializeDevUsers(AuthenticationProperties properties, DSLContext dsl, PasswordEncoder encoder) {
     getLogger().debug("Adding debug mode users to database");
