@@ -10,3 +10,4 @@ locations*.db
 data.*.db
 
 sensitive.properties
+config.yml

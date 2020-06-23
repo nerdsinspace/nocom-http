@@ -16,10 +16,10 @@ spring:
 
 nocom:
   ssh-tunnel:
-    enabled: true
-    host-address: nocom
+    enabled: false
+    host-address: localhost
     host-port: 22
-    username: dev
+    username: username
     private-key-file: ssh/id_rsa
     local-host: '127.0.0.1'
     local-port: 5432
@@ -37,11 +37,11 @@ nocom:
       database: ./data
       mode: file
     postgres:
-      hostname: localhost
-      port: 5432
-      database: nocom
-      username: nocom
-      password: ***REMOVED***
+      hostname: ${POSTGRES_HOSTNAME}
+      port: ${POSTGRES_PORT}
+      database: ${POSTGRES_DATABASE}
+      username: ${POSTGRES_USERNAME}
+      password: ${POSTGRES_PASSWORD}
 
 logging:
   level:
