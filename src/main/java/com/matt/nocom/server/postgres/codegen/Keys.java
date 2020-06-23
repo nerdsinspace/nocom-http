@@ -32,8 +32,8 @@ public class Keys {
     // IDENTITY definitions
     // -------------------------------------------------------------------------
 
-    public static final Identity<DbscanRecord, Integer> IDENTITY_DBSCAN = Identities0.IDENTITY_DBSCAN;
     public static final Identity<HitsRecord, Long> IDENTITY_HITS = Identities0.IDENTITY_HITS;
+    public static final Identity<OldDbscanRecord, Integer> IDENTITY_OLD_DBSCAN = Identities0.IDENTITY_OLD_DBSCAN;
     public static final Identity<PlayersRecord, Integer> IDENTITY_PLAYERS = Identities0.IDENTITY_PLAYERS;
     public static final Identity<ServersRecord, Short> IDENTITY_SERVERS = Identities0.IDENTITY_SERVERS;
     public static final Identity<TracksRecord, Integer> IDENTITY_TRACKS = Identities0.IDENTITY_TRACKS;
@@ -42,13 +42,13 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final UniqueKey<DbscanRecord> DBSCAN_PKEY = UniqueKeys0.DBSCAN_PKEY;
-    public static final UniqueKey<DbscanToUpdateRecord> DBSCAN_TO_UPDATE_PKEY = UniqueKeys0.DBSCAN_TO_UPDATE_PKEY;
     public static final UniqueKey<DimensionsRecord> DIMENSIONS_PKEY = UniqueKeys0.DIMENSIONS_PKEY;
     public static final UniqueKey<DimensionsRecord> DIMENSIONS_NAME_KEY = UniqueKeys0.DIMENSIONS_NAME_KEY;
     public static final UniqueKey<HitsRecord> HITS_PKEY_2 = UniqueKeys0.HITS_PKEY_2;
     public static final UniqueKey<LastByServerRecord> LAST_BY_SERVER_PKEY = UniqueKeys0.LAST_BY_SERVER_PKEY;
     public static final UniqueKey<NotesRecord> NOTES_SERVER_ID_DIMENSION_X_Z_KEY = UniqueKeys0.NOTES_SERVER_ID_DIMENSION_X_Z_KEY;
+    public static final UniqueKey<OldDbscanRecord> OLD_DBSCAN_PKEY = UniqueKeys0.OLD_DBSCAN_PKEY;
+    public static final UniqueKey<OldDbscanToUpdateRecord> OLD_DBSCAN_TO_UPDATE_PKEY = UniqueKeys0.OLD_DBSCAN_TO_UPDATE_PKEY;
     public static final UniqueKey<PlayersRecord> PLAYERS_PKEY = UniqueKeys0.PLAYERS_PKEY;
     public static final UniqueKey<PlayersRecord> PLAYERS_UUID_KEY = UniqueKeys0.PLAYERS_UUID_KEY;
     public static final UniqueKey<ServersRecord> SERVERS_PKEY = UniqueKeys0.SERVERS_PKEY;
@@ -61,22 +61,22 @@ public class Keys {
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final ForeignKey<AssociationsRecord, DbscanRecord> ASSOCIATIONS__ASSOCIATIONS_CLUSTER_ID_FKEY = ForeignKeys0.ASSOCIATIONS__ASSOCIATIONS_CLUSTER_ID_FKEY;
-    public static final ForeignKey<AssociationsRecord, PlayersRecord> ASSOCIATIONS__ASSOCIATIONS_PLAYER_ID_FKEY = ForeignKeys0.ASSOCIATIONS__ASSOCIATIONS_PLAYER_ID_FKEY;
     public static final ForeignKey<BlocksRecord, DimensionsRecord> BLOCKS__BLOCKS_DIMENSION_FKEY = ForeignKeys0.BLOCKS__BLOCKS_DIMENSION_FKEY;
     public static final ForeignKey<BlocksRecord, ServersRecord> BLOCKS__BLOCKS_SERVER_ID_FKEY = ForeignKeys0.BLOCKS__BLOCKS_SERVER_ID_FKEY;
     public static final ForeignKey<ChatRecord, PlayersRecord> CHAT__CHAT_REPORTED_BY_FKEY = ForeignKeys0.CHAT__CHAT_REPORTED_BY_FKEY;
     public static final ForeignKey<ChatRecord, ServersRecord> CHAT__CHAT_SERVER_ID_FKEY = ForeignKeys0.CHAT__CHAT_SERVER_ID_FKEY;
-    public static final ForeignKey<DbscanRecord, DimensionsRecord> DBSCAN__DBSCAN_DIMENSION_FKEY = ForeignKeys0.DBSCAN__DBSCAN_DIMENSION_FKEY;
-    public static final ForeignKey<DbscanRecord, ServersRecord> DBSCAN__DBSCAN_SERVER_ID_FKEY = ForeignKeys0.DBSCAN__DBSCAN_SERVER_ID_FKEY;
-    public static final ForeignKey<DbscanRecord, DbscanRecord> DBSCAN__DBSCAN_CLUSTER_PARENT_FKEY = ForeignKeys0.DBSCAN__DBSCAN_CLUSTER_PARENT_FKEY;
-    public static final ForeignKey<DbscanToUpdateRecord, DbscanRecord> DBSCAN_TO_UPDATE__DBSCAN_TO_UPDATE_DBSCAN_ID_FKEY = ForeignKeys0.DBSCAN_TO_UPDATE__DBSCAN_TO_UPDATE_DBSCAN_ID_FKEY;
     public static final ForeignKey<HitsRecord, ServersRecord> HITS__HITS_SERVER_ID_FKEY = ForeignKeys0.HITS__HITS_SERVER_ID_FKEY;
     public static final ForeignKey<HitsRecord, DimensionsRecord> HITS__HITS_DIMENSION_FKEY = ForeignKeys0.HITS__HITS_DIMENSION_FKEY;
     public static final ForeignKey<HitsRecord, TracksRecord> HITS__HITS_TRACK_ID_FKEY = ForeignKeys0.HITS__HITS_TRACK_ID_FKEY;
     public static final ForeignKey<LastByServerRecord, ServersRecord> LAST_BY_SERVER__LAST_BY_SERVER_SERVER_ID_FKEY = ForeignKeys0.LAST_BY_SERVER__LAST_BY_SERVER_SERVER_ID_FKEY;
     public static final ForeignKey<NotesRecord, DimensionsRecord> NOTES__NOTES_DIMENSION_FKEY = ForeignKeys0.NOTES__NOTES_DIMENSION_FKEY;
     public static final ForeignKey<NotesRecord, ServersRecord> NOTES__NOTES_SERVER_ID_FKEY = ForeignKeys0.NOTES__NOTES_SERVER_ID_FKEY;
+    public static final ForeignKey<OldAssociationsRecord, OldDbscanRecord> OLD_ASSOCIATIONS__ASSOCIATIONS_CLUSTER_ID_FKEY = ForeignKeys0.OLD_ASSOCIATIONS__ASSOCIATIONS_CLUSTER_ID_FKEY;
+    public static final ForeignKey<OldAssociationsRecord, PlayersRecord> OLD_ASSOCIATIONS__ASSOCIATIONS_PLAYER_ID_FKEY = ForeignKeys0.OLD_ASSOCIATIONS__ASSOCIATIONS_PLAYER_ID_FKEY;
+    public static final ForeignKey<OldDbscanRecord, DimensionsRecord> OLD_DBSCAN__DBSCAN_DIMENSION_FKEY = ForeignKeys0.OLD_DBSCAN__DBSCAN_DIMENSION_FKEY;
+    public static final ForeignKey<OldDbscanRecord, ServersRecord> OLD_DBSCAN__DBSCAN_SERVER_ID_FKEY = ForeignKeys0.OLD_DBSCAN__DBSCAN_SERVER_ID_FKEY;
+    public static final ForeignKey<OldDbscanRecord, OldDbscanRecord> OLD_DBSCAN__DBSCAN_CLUSTER_PARENT_FKEY = ForeignKeys0.OLD_DBSCAN__DBSCAN_CLUSTER_PARENT_FKEY;
+    public static final ForeignKey<OldDbscanToUpdateRecord, OldDbscanRecord> OLD_DBSCAN_TO_UPDATE__DBSCAN_TO_UPDATE_DBSCAN_ID_FKEY = ForeignKeys0.OLD_DBSCAN_TO_UPDATE__DBSCAN_TO_UPDATE_DBSCAN_ID_FKEY;
     public static final ForeignKey<PlayerSessionsRecord, PlayersRecord> PLAYER_SESSIONS__PLAYER_SESSIONS_PLAYER_ID_FKEY = ForeignKeys0.PLAYER_SESSIONS__PLAYER_SESSIONS_PLAYER_ID_FKEY;
     public static final ForeignKey<PlayerSessionsRecord, ServersRecord> PLAYER_SESSIONS__PLAYER_SESSIONS_SERVER_ID_FKEY = ForeignKeys0.PLAYER_SESSIONS__PLAYER_SESSIONS_SERVER_ID_FKEY;
     public static final ForeignKey<SignsRecord, DimensionsRecord> SIGNS__SIGNS_DIMENSION_FKEY = ForeignKeys0.SIGNS__SIGNS_DIMENSION_FKEY;
@@ -95,21 +95,21 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     private static class Identities0 {
-        public static Identity<DbscanRecord, Integer> IDENTITY_DBSCAN = Internal.createIdentity(Dbscan.DBSCAN, Dbscan.DBSCAN.ID);
         public static Identity<HitsRecord, Long> IDENTITY_HITS = Internal.createIdentity(Hits.HITS, Hits.HITS.ID);
+        public static Identity<OldDbscanRecord, Integer> IDENTITY_OLD_DBSCAN = Internal.createIdentity(OldDbscan.OLD_DBSCAN, OldDbscan.OLD_DBSCAN.ID);
         public static Identity<PlayersRecord, Integer> IDENTITY_PLAYERS = Internal.createIdentity(Players.PLAYERS, Players.PLAYERS.ID);
         public static Identity<ServersRecord, Short> IDENTITY_SERVERS = Internal.createIdentity(Servers.SERVERS, Servers.SERVERS.ID);
         public static Identity<TracksRecord, Integer> IDENTITY_TRACKS = Internal.createIdentity(Tracks.TRACKS, Tracks.TRACKS.ID);
     }
 
     private static class UniqueKeys0 {
-        public static final UniqueKey<DbscanRecord> DBSCAN_PKEY = Internal.createUniqueKey(Dbscan.DBSCAN, "dbscan_pkey", Dbscan.DBSCAN.ID);
-        public static final UniqueKey<DbscanToUpdateRecord> DBSCAN_TO_UPDATE_PKEY = Internal.createUniqueKey(DbscanToUpdate.DBSCAN_TO_UPDATE, "dbscan_to_update_pkey", DbscanToUpdate.DBSCAN_TO_UPDATE.DBSCAN_ID);
         public static final UniqueKey<DimensionsRecord> DIMENSIONS_PKEY = Internal.createUniqueKey(Dimensions.DIMENSIONS, "dimensions_pkey", Dimensions.DIMENSIONS.ORDINAL);
         public static final UniqueKey<DimensionsRecord> DIMENSIONS_NAME_KEY = Internal.createUniqueKey(Dimensions.DIMENSIONS, "dimensions_name_key", Dimensions.DIMENSIONS.NAME);
         public static final UniqueKey<HitsRecord> HITS_PKEY_2 = Internal.createUniqueKey(Hits.HITS, "hits_pkey_2", Hits.HITS.ID);
         public static final UniqueKey<LastByServerRecord> LAST_BY_SERVER_PKEY = Internal.createUniqueKey(LastByServer.LAST_BY_SERVER, "last_by_server_pkey", LastByServer.LAST_BY_SERVER.SERVER_ID);
         public static final UniqueKey<NotesRecord> NOTES_SERVER_ID_DIMENSION_X_Z_KEY = Internal.createUniqueKey(Notes.NOTES, "notes_server_id_dimension_x_z_key", Notes.NOTES.SERVER_ID, Notes.NOTES.DIMENSION, Notes.NOTES.X, Notes.NOTES.Z);
+        public static final UniqueKey<OldDbscanRecord> OLD_DBSCAN_PKEY = Internal.createUniqueKey(OldDbscan.OLD_DBSCAN, "old_dbscan_pkey", OldDbscan.OLD_DBSCAN.ID);
+        public static final UniqueKey<OldDbscanToUpdateRecord> OLD_DBSCAN_TO_UPDATE_PKEY = Internal.createUniqueKey(OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE, "old_dbscan_to_update_pkey", OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE.DBSCAN_ID);
         public static final UniqueKey<PlayersRecord> PLAYERS_PKEY = Internal.createUniqueKey(Players.PLAYERS, "players_pkey", Players.PLAYERS.ID);
         public static final UniqueKey<PlayersRecord> PLAYERS_UUID_KEY = Internal.createUniqueKey(Players.PLAYERS, "players_uuid_key", Players.PLAYERS.UUID);
         public static final UniqueKey<ServersRecord> SERVERS_PKEY = Internal.createUniqueKey(Servers.SERVERS, "servers_pkey", Servers.SERVERS.ID);
@@ -120,22 +120,22 @@ public class Keys {
     }
 
     private static class ForeignKeys0 {
-        public static final ForeignKey<AssociationsRecord, DbscanRecord> ASSOCIATIONS__ASSOCIATIONS_CLUSTER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DBSCAN_PKEY, Associations.ASSOCIATIONS, "associations__associations_cluster_id_fkey", Associations.ASSOCIATIONS.CLUSTER_ID);
-        public static final ForeignKey<AssociationsRecord, PlayersRecord> ASSOCIATIONS__ASSOCIATIONS_PLAYER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.PLAYERS_PKEY, Associations.ASSOCIATIONS, "associations__associations_player_id_fkey", Associations.ASSOCIATIONS.PLAYER_ID);
         public static final ForeignKey<BlocksRecord, DimensionsRecord> BLOCKS__BLOCKS_DIMENSION_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DIMENSIONS_PKEY, Blocks.BLOCKS, "blocks__blocks_dimension_fkey", Blocks.BLOCKS.DIMENSION);
         public static final ForeignKey<BlocksRecord, ServersRecord> BLOCKS__BLOCKS_SERVER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.SERVERS_PKEY, Blocks.BLOCKS, "blocks__blocks_server_id_fkey", Blocks.BLOCKS.SERVER_ID);
         public static final ForeignKey<ChatRecord, PlayersRecord> CHAT__CHAT_REPORTED_BY_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.PLAYERS_PKEY, Chat.CHAT, "chat__chat_reported_by_fkey", Chat.CHAT.REPORTED_BY);
         public static final ForeignKey<ChatRecord, ServersRecord> CHAT__CHAT_SERVER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.SERVERS_PKEY, Chat.CHAT, "chat__chat_server_id_fkey", Chat.CHAT.SERVER_ID);
-        public static final ForeignKey<DbscanRecord, DimensionsRecord> DBSCAN__DBSCAN_DIMENSION_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DIMENSIONS_PKEY, Dbscan.DBSCAN, "dbscan__dbscan_dimension_fkey", Dbscan.DBSCAN.DIMENSION);
-        public static final ForeignKey<DbscanRecord, ServersRecord> DBSCAN__DBSCAN_SERVER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.SERVERS_PKEY, Dbscan.DBSCAN, "dbscan__dbscan_server_id_fkey", Dbscan.DBSCAN.SERVER_ID);
-        public static final ForeignKey<DbscanRecord, DbscanRecord> DBSCAN__DBSCAN_CLUSTER_PARENT_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DBSCAN_PKEY, Dbscan.DBSCAN, "dbscan__dbscan_cluster_parent_fkey", Dbscan.DBSCAN.CLUSTER_PARENT);
-        public static final ForeignKey<DbscanToUpdateRecord, DbscanRecord> DBSCAN_TO_UPDATE__DBSCAN_TO_UPDATE_DBSCAN_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DBSCAN_PKEY, DbscanToUpdate.DBSCAN_TO_UPDATE, "dbscan_to_update__dbscan_to_update_dbscan_id_fkey", DbscanToUpdate.DBSCAN_TO_UPDATE.DBSCAN_ID);
         public static final ForeignKey<HitsRecord, ServersRecord> HITS__HITS_SERVER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.SERVERS_PKEY, Hits.HITS, "hits__hits_server_id_fkey", Hits.HITS.SERVER_ID);
         public static final ForeignKey<HitsRecord, DimensionsRecord> HITS__HITS_DIMENSION_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DIMENSIONS_PKEY, Hits.HITS, "hits__hits_dimension_fkey", Hits.HITS.DIMENSION);
         public static final ForeignKey<HitsRecord, TracksRecord> HITS__HITS_TRACK_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.TRACKS_PKEY, Hits.HITS, "hits__hits_track_id_fkey", Hits.HITS.TRACK_ID);
         public static final ForeignKey<LastByServerRecord, ServersRecord> LAST_BY_SERVER__LAST_BY_SERVER_SERVER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.SERVERS_PKEY, LastByServer.LAST_BY_SERVER, "last_by_server__last_by_server_server_id_fkey", LastByServer.LAST_BY_SERVER.SERVER_ID);
         public static final ForeignKey<NotesRecord, DimensionsRecord> NOTES__NOTES_DIMENSION_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DIMENSIONS_PKEY, Notes.NOTES, "notes__notes_dimension_fkey", Notes.NOTES.DIMENSION);
         public static final ForeignKey<NotesRecord, ServersRecord> NOTES__NOTES_SERVER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.SERVERS_PKEY, Notes.NOTES, "notes__notes_server_id_fkey", Notes.NOTES.SERVER_ID);
+        public static final ForeignKey<OldAssociationsRecord, OldDbscanRecord> OLD_ASSOCIATIONS__ASSOCIATIONS_CLUSTER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.OLD_DBSCAN_PKEY, OldAssociations.OLD_ASSOCIATIONS, "old_associations__associations_cluster_id_fkey", OldAssociations.OLD_ASSOCIATIONS.CLUSTER_ID);
+        public static final ForeignKey<OldAssociationsRecord, PlayersRecord> OLD_ASSOCIATIONS__ASSOCIATIONS_PLAYER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.PLAYERS_PKEY, OldAssociations.OLD_ASSOCIATIONS, "old_associations__associations_player_id_fkey", OldAssociations.OLD_ASSOCIATIONS.PLAYER_ID);
+        public static final ForeignKey<OldDbscanRecord, DimensionsRecord> OLD_DBSCAN__DBSCAN_DIMENSION_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DIMENSIONS_PKEY, OldDbscan.OLD_DBSCAN, "old_dbscan__dbscan_dimension_fkey", OldDbscan.OLD_DBSCAN.DIMENSION);
+        public static final ForeignKey<OldDbscanRecord, ServersRecord> OLD_DBSCAN__DBSCAN_SERVER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.SERVERS_PKEY, OldDbscan.OLD_DBSCAN, "old_dbscan__dbscan_server_id_fkey", OldDbscan.OLD_DBSCAN.SERVER_ID);
+        public static final ForeignKey<OldDbscanRecord, OldDbscanRecord> OLD_DBSCAN__DBSCAN_CLUSTER_PARENT_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.OLD_DBSCAN_PKEY, OldDbscan.OLD_DBSCAN, "old_dbscan__dbscan_cluster_parent_fkey", OldDbscan.OLD_DBSCAN.CLUSTER_PARENT);
+        public static final ForeignKey<OldDbscanToUpdateRecord, OldDbscanRecord> OLD_DBSCAN_TO_UPDATE__DBSCAN_TO_UPDATE_DBSCAN_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.OLD_DBSCAN_PKEY, OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE, "old_dbscan_to_update__dbscan_to_update_dbscan_id_fkey", OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE.DBSCAN_ID);
         public static final ForeignKey<PlayerSessionsRecord, PlayersRecord> PLAYER_SESSIONS__PLAYER_SESSIONS_PLAYER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.PLAYERS_PKEY, PlayerSessions.PLAYER_SESSIONS, "player_sessions__player_sessions_player_id_fkey", PlayerSessions.PLAYER_SESSIONS.PLAYER_ID);
         public static final ForeignKey<PlayerSessionsRecord, ServersRecord> PLAYER_SESSIONS__PLAYER_SESSIONS_SERVER_ID_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.SERVERS_PKEY, PlayerSessions.PLAYER_SESSIONS, "player_sessions__player_sessions_server_id_fkey", PlayerSessions.PLAYER_SESSIONS.SERVER_ID);
         public static final ForeignKey<SignsRecord, DimensionsRecord> SIGNS__SIGNS_DIMENSION_FKEY = Internal.createForeignKey(com.matt.nocom.server.postgres.codegen.Keys.DIMENSIONS_PKEY, Signs.SIGNS, "signs__signs_dimension_fkey", Signs.SIGNS.DIMENSION);
