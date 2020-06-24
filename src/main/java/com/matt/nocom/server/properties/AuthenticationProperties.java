@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -25,7 +26,8 @@ public class AuthenticationProperties {
   private int userMaxLevel = 100;
   private int userMinLevel = 0;
   private List<String> reservedUsernames = Arrays.asList("root", "admin");
-  private List<String> debugUsers = Arrays.asList("root:pass", "admin:pass");
+  private List<String> debugUsers = Collections.emptyList();
+  private List<String> rootUsers = Collections.emptyList();
 
   public boolean validUsernameCharacters(String username) {
     return getUsernameAllowedChars().matcher(username).matches();
