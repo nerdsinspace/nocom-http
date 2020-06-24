@@ -15,7 +15,7 @@ import static com.matt.nocom.server.h2.codegen.Tables.AUTH_USERS;
 
 @Profile("dev")
 @Configuration
-public class AuthenticationDatabaseInitializer {
+public class CreateDeveloperUsers {
   @Autowired
   public void initializeDevUsers(AuthenticationProperties properties, DSLContext dsl, PasswordEncoder encoder) {
     getLogger().debug("Adding debug mode users to database");
