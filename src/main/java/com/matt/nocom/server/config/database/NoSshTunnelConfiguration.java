@@ -4,7 +4,9 @@ import org.apache.sshd.client.session.forward.PortForwardingTracker;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 @ConditionalOnProperty(prefix = "nocom.ssh-tunnel", name = "enabled",
     havingValue = "false", matchIfMissing = true)
 public class NoSshTunnelConfiguration {
