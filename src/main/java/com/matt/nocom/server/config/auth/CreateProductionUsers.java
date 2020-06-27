@@ -3,6 +3,7 @@ package com.matt.nocom.server.config.auth;
 import com.matt.nocom.server.model.auth.UserGroup;
 import com.matt.nocom.server.properties.AuthenticationProperties;
 import com.matt.nocom.server.service.auth.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
@@ -11,6 +12,7 @@ import static com.matt.nocom.server.Logging.getLogger;
 @Profile("!dev")
 @Configuration
 public class CreateProductionUsers {
+  @Autowired
   public void createDefaultUsers(AuthenticationProperties properties, UserRepository users) {
     getLogger().debug("Creating default root users");
 
