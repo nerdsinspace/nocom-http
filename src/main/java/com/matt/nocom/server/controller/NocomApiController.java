@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -73,13 +72,10 @@ public class NocomApiController {
   public List<SessionGroup> playerSessions(
       @RequestParam UUID[] playerUuids,
       @RequestParam(required = false) String server,
-      @RequestParam(required = false) Optional<Long> from,
-      @RequestParam(required = false) Optional<Long> to,
-      @RequestParam(defaultValue = "1000") int max) {
+      @RequestParam(required = false) Optional<Long> from) {
     return util.groupSessions(nocom.getPlayerSessions(server,
-        from.map(Instant::ofEpochMilli).orElse(null),
-        to.map(Instant::ofEpochMilli).orElse(null),
-        max, playerUuids));
+        from.map(Duration::ofMillis).orElse(null),
+        playerUuids));
   }
 
   private static long limitOf(long max) {

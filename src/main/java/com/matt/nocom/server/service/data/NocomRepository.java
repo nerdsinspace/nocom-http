@@ -13,13 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.matt.nocom.server.postgres.codegen.Tables.*;
 import static org.jooq.impl.DSL.*;
-import static space.nerdsin.nocom.server.jooq.DSLRangeOperations.rangeOverlaps;
+import static space.nerdsin.nocom.server.jooq.DSLRangeOperations.upperRange;
 
 @Repository
 public class NocomRepository {
@@ -243,40 +246,38 @@ public class NocomRepository {
             .build());
   }
 
-  @Transactional(readOnly = true)
-  public List<PlayerSession> getPlayerSessions(String server, Instant from, Instant to, int max, UUID... players) {
-    var cond = noCondition();
-
-    if(players.length > 0) {
-      var c = noCondition();
-      for(var uuid : players) {
-        c = c.or(PLAYERS.UUID.eq(uuid));
-      }
-      cond = cond.and(c);
-    }
-    if(server != null) {
-      cond = cond.and(PLAYER_SESSIONS.SERVER_ID.eq(
-          select(SERVERS.ID)
-              .from(SERVERS)
-              .where(SERVERS.HOSTNAME.eq(server))
-              .limit(1)));
-    }
-    if(from != null && to != null) {
-      cond = cond.and(rangeOverlaps(PLAYER_SESSIONS.RANGE, from.toEpochMilli(), to.toEpochMilli()));
-    } else if(from != null) {
-      cond = cond.and(rangeOverlaps(PLAYER_SESSIONS.RANGE, from.toEpochMilli(), System.currentTimeMillis()));
-    } else if(to != null) {
-      cond = cond.and(rangeOverlaps(PLAYER_SESSIONS.RANGE, 0L, to.toEpochMilli()));
-    }
-
-    return dsl.select(PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE, PLAYERS.UUID, PLAYERS.USERNAME)
+  private Stream<PlayerSession> lookupPlayerSessions(@NonNull UUID playerUuid, @NonNull String server, @NonNull Duration history) {
+    final var username = dsl.select(PLAYERS.USERNAME)
+        .from(PLAYERS)
+        .where(PLAYERS.UUID.eq(playerUuid))
+        .fetchOptional(PLAYERS.USERNAME)
+        .orElseThrow(() -> new Error("Could not find user with UUID " + playerUuid));
+    return dsl.with("pid")
+        .as(select(PLAYERS.ID)
+            .from(PLAYERS)
+            .where(PLAYERS.UUID.eq(playerUuid))
+            .limit(1))
+        .with("tmp")
+        .as(select(max(upperRange(PLAYER_SESSIONS.RANGE)))
+            .from(PLAYER_SESSIONS)
+            .where(PLAYER_SESSIONS.SERVER_ID.eq(select(SERVERS.ID)
+                .from(SERVERS)
+                .where(SERVERS.HOSTNAME.eq(server))
+                .limit(1)))
+            .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid"))))
+            .and(upperRange(PLAYER_SESSIONS.RANGE).lt(val(Instant.now().minus(history).toEpochMilli()))))
+        .select(PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE)
         .from(PLAYER_SESSIONS)
-        .innerJoin(PLAYERS).on(PLAYERS.ID.eq(PLAYER_SESSIONS.PLAYER_ID))
-        .where(cond)
-        .limit(max)
-        .fetch(record -> PlayerSession.builder()
-            .username(record.get(PLAYERS.USERNAME))
-            .uuid(record.get(PLAYERS.UUID))
+        .where(PLAYER_SESSIONS.SERVER_ID.eq(select(SERVERS.ID)
+            .from(SERVERS)
+            .where(SERVERS.HOSTNAME.eq(server))
+            .limit(1)))
+        .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid"))))
+        .and(upperRange(PLAYER_SESSIONS.RANGE).ge(selectFrom(name("tmp"))))
+        .fetchStream()
+        .map(record -> PlayerSession.builder()
+            .username(username)
+            .uuid(playerUuid)
             .join(Optional.ofNullable(record.get(PLAYER_SESSIONS.JOIN))
                 .map(Instant::ofEpochMilli)
                 .orElse(null))
@@ -284,5 +285,12 @@ public class NocomRepository {
                 .map(Instant::ofEpochMilli)
                 .orElse(null))
             .build());
+  }
+
+  @Transactional(readOnly = true)
+  public List<PlayerSession> getPlayerSessions(final String server, final Duration history, UUID... playerUuids) {
+    return Arrays.stream(playerUuids)
+        .flatMap(uuid -> lookupPlayerSessions(uuid, server, history))
+        .collect(Collectors.toList());
   }
 }

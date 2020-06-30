@@ -8,22 +8,20 @@ import org.jooq.tools.jdbc.MockExecuteContext
 import org.jooq.tools.jdbc.MockResult
 import spock.lang.Specification
 
-import static com.matt.nocom.server.postgres.codegen.Tables.PLAYERS
-import static com.matt.nocom.server.postgres.codegen.Tables.PLAYER_SESSIONS;
+import java.time.Duration
+
+import static com.matt.nocom.server.postgres.codegen.Tables.PLAYER_SESSIONS
 
 class NocomRepositoryTest extends Specification {
-  def "sql must be valid"() {
+  def "GetPlayerSessions"() {
     MockDataProvider dataProvider = { MockExecuteContext exe ->
+      System.out.println exe.sql()
       def ctx = DSL.using(SQLDialect.POSTGRES);
       def r0 = ctx.newResult(PLAYER_SESSIONS.JOIN);
       def r1 = ctx.newResult(PLAYER_SESSIONS.LEAVE);
-      def r2 = ctx.newResult(PLAYERS.UUID);
-      def r3 = ctx.newResult(PLAYERS.USERNAME);
       return [
           new MockResult(0, r0),
           new MockResult(0, r1),
-          new MockResult(0, r2),
-          new MockResult(0, r3)
       ] as MockResult[];
     }
 
@@ -32,7 +30,7 @@ class NocomRepositoryTest extends Specification {
 
     def repo = new NocomRepository(ctx);
 
-    expect: "there should be no results"
-    repo.getPlayerSessions("example.com", null, null, 1, UUID.randomUUID()).isEmpty()
+    expect:
+    repo.getPlayerSessions("example.com", Duration.ofDays(1), UUID.randomUUID()).isEmpty()
   }
 }
