@@ -18,4 +18,9 @@ public class DSLRangeOperations {
   public static <T extends Comparable<T>> Condition rangeOverlaps(Field<Range<T>> f1, T min, T max) {
     return rangeOverlaps(f1, Tuple.range(min, max));
   }
+
+  @Support({SQLDialect.POSTGRES})
+  public static <T extends Comparable<T>> Field<Object> upperRange(Field<Range<T>> field) {
+    return DSL.field("upper({0})", field);
+  }
 }
