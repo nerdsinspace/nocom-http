@@ -16,4 +16,5 @@ public class PlayerStatus {
   private StatusesEnum state;
   private Instant updatedAt;
   private String data;
+  private Dimension dimension;
 }
