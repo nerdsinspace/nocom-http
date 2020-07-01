@@ -230,7 +230,7 @@ public class NocomRepository {
   public List<PlayerStatus> getBotStatuses() {
     return dsl.select(PLAYERS.USERNAME, PLAYERS.UUID,
         SERVERS.HOSTNAME, STATUSES.CURR_STATUS,
-        STATUSES.UPDATED_AT, STATUSES.DATA)
+        STATUSES.UPDATED_AT, STATUSES.DATA, STATUSES.DIMENSION)
         .from(STATUSES)
         .innerJoin(PLAYERS)
         .on(PLAYERS.ID.eq(STATUSES.PLAYER_ID))
@@ -243,6 +243,7 @@ public class NocomRepository {
             .state(record.get(STATUSES.CURR_STATUS))
             .updatedAt(Instant.ofEpochMilli(record.get(STATUSES.UPDATED_AT)))
             .data(record.get(STATUSES.DATA))
+            .dimension(Dimension.byOrdinal(record.get(STATUSES.DIMENSION)))
             .build());
   }
 
