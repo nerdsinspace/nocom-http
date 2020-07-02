@@ -33,12 +33,22 @@ import java.util.List;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DefaultSchema extends SchemaImpl {
 
-    private static final long serialVersionUID = -518267089;
+    private static final long serialVersionUID = -2034041645;
 
     /**
      * The reference instance of <code></code>
      */
     public static final DefaultSchema DEFAULT_SCHEMA = new DefaultSchema();
+
+    /**
+     * The table <code>assoc</code>.
+     */
+    public final Assoc ASSOC = com.matt.nocom.server.postgres.codegen.tables.Assoc.ASSOC;
+
+    /**
+     * The table <code>associations</code>.
+     */
+    public final Associations ASSOCIATIONS = com.matt.nocom.server.postgres.codegen.tables.Associations.ASSOCIATIONS;
 
     /**
      * The table <code>blocks</code>.
@@ -51,14 +61,29 @@ public class DefaultSchema extends SchemaImpl {
     public final Chat CHAT = com.matt.nocom.server.postgres.codegen.tables.Chat.CHAT;
 
     /**
+     * The table <code>dbscan</code>.
+     */
+    public final Dbscan DBSCAN = com.matt.nocom.server.postgres.codegen.tables.Dbscan.DBSCAN;
+
+    /**
      * The table <code>dbscan_progress</code>.
      */
     public final DbscanProgress DBSCAN_PROGRESS = com.matt.nocom.server.postgres.codegen.tables.DbscanProgress.DBSCAN_PROGRESS;
 
     /**
+     * The table <code>dbscan_to_update</code>.
+     */
+    public final DbscanToUpdate DBSCAN_TO_UPDATE = com.matt.nocom.server.postgres.codegen.tables.DbscanToUpdate.DBSCAN_TO_UPDATE;
+
+    /**
      * The table <code>dimensions</code>.
      */
     public final Dimensions DIMENSIONS = com.matt.nocom.server.postgres.codegen.tables.Dimensions.DIMENSIONS;
+
+    /**
+     * The table <code>distinct_chat_messages</code>.
+     */
+    public final DistinctChatMessages DISTINCT_CHAT_MESSAGES = com.matt.nocom.server.postgres.codegen.tables.DistinctChatMessages.DISTINCT_CHAT_MESSAGES;
 
     /**
      * The table <code>geography_columns</code>.
@@ -69,21 +94,6 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>geometry_columns</code>.
      */
     public final GeometryColumns GEOMETRY_COLUMNS = com.matt.nocom.server.postgres.codegen.tables.GeometryColumns.GEOMETRY_COLUMNS;
-
-    /**
-     * The table <code>heatmap_nether</code>.
-     */
-    public final HeatmapNether HEATMAP_NETHER = com.matt.nocom.server.postgres.codegen.tables.HeatmapNether.HEATMAP_NETHER;
-
-    /**
-     * The table <code>heatmap_overworld</code>.
-     */
-    public final HeatmapOverworld HEATMAP_OVERWORLD = com.matt.nocom.server.postgres.codegen.tables.HeatmapOverworld.HEATMAP_OVERWORLD;
-
-    /**
-     * The table <code>heatmap_recent_overworld</code>.
-     */
-    public final HeatmapRecentOverworld HEATMAP_RECENT_OVERWORLD = com.matt.nocom.server.postgres.codegen.tables.HeatmapRecentOverworld.HEATMAP_RECENT_OVERWORLD;
 
     /**
      * The table <code>hits</code>.
@@ -277,9 +287,9 @@ public class DefaultSchema extends SchemaImpl {
     public final Statuses STATUSES = com.matt.nocom.server.postgres.codegen.tables.Statuses.STATUSES;
 
     /**
-     * The table <code>test</code>.
+     * The table <code>track_associator_progress</code>.
      */
-    public final Test TEST = com.matt.nocom.server.postgres.codegen.tables.Test.TEST;
+    public final TrackAssociatorProgress TRACK_ASSOCIATOR_PROGRESS = com.matt.nocom.server.postgres.codegen.tables.TrackAssociatorProgress.TRACK_ASSOCIATOR_PROGRESS;
 
     /**
      * The table <code>track_sizes</code>.
@@ -314,6 +324,7 @@ public class DefaultSchema extends SchemaImpl {
     private final List<Sequence<?>> getSequences0() {
         return Arrays.<Sequence<?>>asList(
             Sequences.DBSCAN_ID_SEQ,
+            Sequences.DBSCAN_ID_SEQ1,
             Sequences.HITS_ID_SEQ,
             Sequences.PLAYERS_ID_SEQ,
             Sequences.SERVERS_ID_SEQ,
@@ -329,15 +340,17 @@ public class DefaultSchema extends SchemaImpl {
 
     private final List<Table<?>> getTables0() {
         return Arrays.<Table<?>>asList(
+            Assoc.ASSOC,
+            Associations.ASSOCIATIONS,
             Blocks.BLOCKS,
             Chat.CHAT,
+            Dbscan.DBSCAN,
             DbscanProgress.DBSCAN_PROGRESS,
+            DbscanToUpdate.DBSCAN_TO_UPDATE,
             Dimensions.DIMENSIONS,
+            DistinctChatMessages.DISTINCT_CHAT_MESSAGES,
             GeographyColumns.GEOGRAPHY_COLUMNS,
             GeometryColumns.GEOMETRY_COLUMNS,
-            HeatmapNether.HEATMAP_NETHER,
-            HeatmapOverworld.HEATMAP_OVERWORLD,
-            HeatmapRecentOverworld.HEATMAP_RECENT_OVERWORLD,
             Hits.HITS,
             LastByServer.LAST_BY_SERVER,
             Notes.NOTES,
@@ -357,7 +370,7 @@ public class DefaultSchema extends SchemaImpl {
             StDumprings.ST_DUMPRINGS,
             StSubdivide.ST_SUBDIVIDE,
             Statuses.STATUSES,
-            Test.TEST,
+            TrackAssociatorProgress.TRACK_ASSOCIATOR_PROGRESS,
             TrackSizes.TRACK_SIZES,
             Tracks.TRACKS);
     }

@@ -30,6 +30,16 @@ import javax.annotation.processing.Generated;
 public class Tables {
 
     /**
+     * The table <code>assoc</code>.
+     */
+    public static final Assoc ASSOC = Assoc.ASSOC;
+
+    /**
+     * The table <code>associations</code>.
+     */
+    public static final Associations ASSOCIATIONS = Associations.ASSOCIATIONS;
+
+    /**
      * The table <code>blocks</code>.
      */
     public static final Blocks BLOCKS = Blocks.BLOCKS;
@@ -40,14 +50,29 @@ public class Tables {
     public static final Chat CHAT = Chat.CHAT;
 
     /**
+     * The table <code>dbscan</code>.
+     */
+    public static final Dbscan DBSCAN = Dbscan.DBSCAN;
+
+    /**
      * The table <code>dbscan_progress</code>.
      */
     public static final DbscanProgress DBSCAN_PROGRESS = DbscanProgress.DBSCAN_PROGRESS;
 
     /**
+     * The table <code>dbscan_to_update</code>.
+     */
+    public static final DbscanToUpdate DBSCAN_TO_UPDATE = DbscanToUpdate.DBSCAN_TO_UPDATE;
+
+    /**
      * The table <code>dimensions</code>.
      */
     public static final Dimensions DIMENSIONS = Dimensions.DIMENSIONS;
+
+    /**
+     * The table <code>distinct_chat_messages</code>.
+     */
+    public static final DistinctChatMessages DISTINCT_CHAT_MESSAGES = DistinctChatMessages.DISTINCT_CHAT_MESSAGES;
 
     /**
      * The table <code>geography_columns</code>.
@@ -58,21 +83,6 @@ public class Tables {
      * The table <code>geometry_columns</code>.
      */
     public static final GeometryColumns GEOMETRY_COLUMNS = GeometryColumns.GEOMETRY_COLUMNS;
-
-    /**
-     * The table <code>heatmap_nether</code>.
-     */
-    public static final HeatmapNether HEATMAP_NETHER = HeatmapNether.HEATMAP_NETHER;
-
-    /**
-     * The table <code>heatmap_overworld</code>.
-     */
-    public static final HeatmapOverworld HEATMAP_OVERWORLD = HeatmapOverworld.HEATMAP_OVERWORLD;
-
-    /**
-     * The table <code>heatmap_recent_overworld</code>.
-     */
-    public static final HeatmapRecentOverworld HEATMAP_RECENT_OVERWORLD = HeatmapRecentOverworld.HEATMAP_RECENT_OVERWORLD;
 
     /**
      * The table <code>hits</code>.
@@ -266,9 +276,9 @@ public class Tables {
     public static final Statuses STATUSES = Statuses.STATUSES;
 
     /**
-     * The table <code>test</code>.
+     * The table <code>track_associator_progress</code>.
      */
-    public static final Test TEST = Test.TEST;
+    public static final TrackAssociatorProgress TRACK_ASSOCIATOR_PROGRESS = TrackAssociatorProgress.TRACK_ASSOCIATOR_PROGRESS;
 
     /**
      * The table <code>track_sizes</code>.

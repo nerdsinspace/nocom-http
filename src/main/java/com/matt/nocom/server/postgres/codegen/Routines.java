@@ -15,6 +15,7 @@ import com.matt.nocom.server.postgres.codegen.tables.records.StDumpringsRecord;
 import com.matt.nocom.server.postgres.codegen.tables.records.StSubdivideRecord;
 import com.matt.nocom.server.postgres.codegen.udt.records.ValidDetailRecord;
 import org.jooq.*;
+import org.jooq.lambda.tuple.Range;
 import org.jooq.types.YearToSecond;
 
 import javax.annotation.processing.Generated;
@@ -252,6 +253,37 @@ public class Routines {
         f.setTbl(tbl);
         f.setAttName(attName);
         f.set__3(__3);
+
+        return f.asField();
+    }
+
+    /**
+     * Call <code>_range_union_cardinality</code>
+     */
+    public static Long _RangeUnionCardinality(Configuration configuration, Object[] __1) {
+        _RangeUnionCardinality f = new _RangeUnionCardinality();
+        f.set__1(__1);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * Get <code>_range_union_cardinality</code> as a field.
+     */
+    public static Field<Long> _RangeUnionCardinality(Object[] __1) {
+        _RangeUnionCardinality f = new _RangeUnionCardinality();
+        f.set__1(__1);
+
+        return f.asField();
+    }
+
+    /**
+     * Get <code>_range_union_cardinality</code> as a field.
+     */
+    public static Field<Long> _RangeUnionCardinality(Field<Object[]> __1) {
+        _RangeUnionCardinality f = new _RangeUnionCardinality();
+        f.set__1(__1);
 
         return f.asField();
     }
@@ -16491,6 +16523,26 @@ public class Routines {
         PostgisWagyuVersion f = new PostgisWagyuVersion();
 
         return f.asField();
+    }
+
+    /**
+     * Get <code>range_union_cardinality</code> as a field.
+     */
+    public static AggregateFunction<Long> rangeUnionCardinality(Range<Long> __1) {
+        RangeUnionCardinality f = new RangeUnionCardinality();
+        f.set__1(__1);
+
+        return f.asAggregateFunction();
+    }
+
+    /**
+     * Get <code>range_union_cardinality</code> as a field.
+     */
+    public static AggregateFunction<Long> rangeUnionCardinality(Field<Range<Long>> __1) {
+        RangeUnionCardinality f = new RangeUnionCardinality();
+        f.set__1(__1);
+
+        return f.asAggregateFunction();
     }
 
     /**
