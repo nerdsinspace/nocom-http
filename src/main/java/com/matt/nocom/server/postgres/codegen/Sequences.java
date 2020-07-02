@@ -29,6 +29,11 @@ public class Sequences {
     public static final Sequence<Integer> DBSCAN_ID_SEQ = new SequenceImpl<Integer>("dbscan_id_seq", DefaultSchema.DEFAULT_SCHEMA, org.jooq.impl.SQLDataType.INTEGER.nullable(false));
 
     /**
+     * The sequence <code>dbscan_id_seq1</code>
+     */
+    public static final Sequence<Integer> DBSCAN_ID_SEQ1 = new SequenceImpl<Integer>("dbscan_id_seq1", DefaultSchema.DEFAULT_SCHEMA, org.jooq.impl.SQLDataType.INTEGER.nullable(false));
+
+    /**
      * The sequence <code>hits_id_seq</code>
      */
     public static final Sequence<Long> HITS_ID_SEQ = new SequenceImpl<Long>("hits_id_seq", DefaultSchema.DEFAULT_SCHEMA, org.jooq.impl.SQLDataType.BIGINT.nullable(false));

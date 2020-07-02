@@ -29,8 +29,16 @@ public class Indexes {
     // INDEX definitions
     // -------------------------------------------------------------------------
 
+    public static final Index ASSOCIATIONS_CLUSTER_ID = Indexes0.ASSOCIATIONS_CLUSTER_ID;
+    public static final Index ASSOCIATIONS_PLAYER_AND_CLUSTER = Indexes0.ASSOCIATIONS_PLAYER_AND_CLUSTER;
+    public static final Index ASSOCIATIONS_PLAYER_ID = Indexes0.ASSOCIATIONS_PLAYER_ID;
     public static final Index BLOCKS_BY_LOC = Indexes0.BLOCKS_BY_LOC;
     public static final Index CHAT_BY_TIME = Indexes0.CHAT_BY_TIME;
+    public static final Index DBSCAN_CLUSTER_ROOTS = Indexes0.DBSCAN_CLUSTER_ROOTS;
+    public static final Index DBSCAN_DISJOINT_TRAVERSAL = Indexes0.DBSCAN_DISJOINT_TRAVERSAL;
+    public static final Index DBSCAN_INGEST = Indexes0.DBSCAN_INGEST;
+    public static final Index DBSCAN_PKEY = Indexes0.DBSCAN_PKEY;
+    public static final Index DBSCAN_TO_UPDATE_PKEY = Indexes0.DBSCAN_TO_UPDATE_PKEY;
     public static final Index DIMENSIONS_NAME_KEY = Indexes0.DIMENSIONS_NAME_KEY;
     public static final Index DIMENSIONS_PKEY = Indexes0.DIMENSIONS_PKEY;
     public static final Index HITS_BY_TRACK_ID_2 = Indexes0.HITS_BY_TRACK_ID_2;
@@ -64,8 +72,16 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     private static class Indexes0 {
+        public static Index ASSOCIATIONS_CLUSTER_ID = Internal.createIndex("associations_cluster_id", Associations.ASSOCIATIONS, new OrderField[] { Associations.ASSOCIATIONS.CLUSTER_ID, Associations.ASSOCIATIONS.CREATED_AT }, false);
+        public static Index ASSOCIATIONS_PLAYER_AND_CLUSTER = Internal.createIndex("associations_player_and_cluster", Associations.ASSOCIATIONS, new OrderField[] { Associations.ASSOCIATIONS.PLAYER_ID, Associations.ASSOCIATIONS.CLUSTER_ID }, false);
+        public static Index ASSOCIATIONS_PLAYER_ID = Internal.createIndex("associations_player_id", Associations.ASSOCIATIONS, new OrderField[] { Associations.ASSOCIATIONS.PLAYER_ID, Associations.ASSOCIATIONS.CREATED_AT }, false);
         public static Index BLOCKS_BY_LOC = Internal.createIndex("blocks_by_loc", Blocks.BLOCKS, new OrderField[] { Blocks.BLOCKS.X, Blocks.BLOCKS.Z }, false);
         public static Index CHAT_BY_TIME = Internal.createIndex("chat_by_time", Chat.CHAT, new OrderField[] { Chat.CHAT.SERVER_ID, Chat.CHAT.CREATED_AT }, false);
+        public static Index DBSCAN_CLUSTER_ROOTS = Internal.createIndex("dbscan_cluster_roots", Dbscan.DBSCAN, new OrderField[] { Dbscan.DBSCAN.SERVER_ID, Dbscan.DBSCAN.DIMENSION, Dbscan.DBSCAN.ID }, false);
+        public static Index DBSCAN_DISJOINT_TRAVERSAL = Internal.createIndex("dbscan_disjoint_traversal", Dbscan.DBSCAN, new OrderField[] { Dbscan.DBSCAN.CLUSTER_PARENT }, false);
+        public static Index DBSCAN_INGEST = Internal.createIndex("dbscan_ingest", Dbscan.DBSCAN, new OrderField[] { Dbscan.DBSCAN.SERVER_ID, Dbscan.DBSCAN.DIMENSION, Dbscan.DBSCAN.X, Dbscan.DBSCAN.Z }, true);
+        public static Index DBSCAN_PKEY = Internal.createIndex("dbscan_pkey", Dbscan.DBSCAN, new OrderField[] { Dbscan.DBSCAN.ID }, true);
+        public static Index DBSCAN_TO_UPDATE_PKEY = Internal.createIndex("dbscan_to_update_pkey", DbscanToUpdate.DBSCAN_TO_UPDATE, new OrderField[] { DbscanToUpdate.DBSCAN_TO_UPDATE.DBSCAN_ID }, true);
         public static Index DIMENSIONS_NAME_KEY = Internal.createIndex("dimensions_name_key", Dimensions.DIMENSIONS, new OrderField[] { Dimensions.DIMENSIONS.NAME }, true);
         public static Index DIMENSIONS_PKEY = Internal.createIndex("dimensions_pkey", Dimensions.DIMENSIONS, new OrderField[] { Dimensions.DIMENSIONS.ORDINAL }, true);
         public static Index HITS_BY_TRACK_ID_2 = Internal.createIndex("hits_by_track_id_2", Hits.HITS, new OrderField[] { Hits.HITS.TRACK_ID }, false);

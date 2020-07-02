@@ -1,8 +1,8 @@
 package com.matt.nocom.server.service.data;
 
+import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.model.data.*;
 import lombok.NonNull;
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -128,24 +129,11 @@ public class NocomRepository {
   }
 
   @Transactional(readOnly = true)
-  protected List<ClusterNode> getRootClusters(Condition condition) {
-    return dsl.select(asterisk())
-        .from(OLD_DBSCAN)
-        .where(OLD_DBSCAN.DISJOINT_RANK.gt(0)
-            .and(OLD_DBSCAN.CLUSTER_PARENT.isNull())
-            .and(condition))
-        .fetch(this::createClusterNode);
-  }
-
-  public List<ClusterNode> getRootClusters() {
-    return getRootClusters(noCondition());
-  }
-
-  public List<ClusterNode> getRootClusters(String server, Dimension dimension) {
+  public List<ClusterNode> getRootClusters(@Nullable String server, @Nullable Dimension dimension) {
     var cond = noCondition();
 
     if (server != null) {
-      cond = cond.and(OLD_DBSCAN.SERVER_ID.eq(
+      cond = cond.and(DBSCAN.SERVER_ID.eq(
           select(SERVERS.ID)
               .from(SERVERS)
               .where(SERVERS.HOSTNAME.eq(server))
@@ -153,55 +141,60 @@ public class NocomRepository {
     }
 
     if (dimension != null) {
-      cond = cond.and(OLD_DBSCAN.DIMENSION.eq((short) dimension.getOrdinal()));
+      cond = cond.and(DBSCAN.DIMENSION.eq((short) dimension.getOrdinal()));
     }
 
-    return getRootClusters(cond);
+    return dsl.selectFrom(DBSCAN)
+        .where(DBSCAN.DISJOINT_RANK.gt(0)
+            .and(DBSCAN.CLUSTER_PARENT.isNull())
+            .and(cond))
+        .orderBy(DBSCAN.ROOT_UPDATED_AT)
+        .fetch(this::createClusterNode);
   }
 
   @Transactional(readOnly = true)
   public List<ClusterNode> getFullCluster(int clusterId) {
     return dsl.withRecursive("tmp")
-        .as(select(OLD_DBSCAN.ID, OLD_DBSCAN.DISJOINT_RANK)
-            .from(OLD_DBSCAN)
-            .where(OLD_DBSCAN.ID.eq(clusterId)))
+        .as(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+            .from(DBSCAN)
+            .where(DBSCAN.ID.eq(clusterId)))
         .with(name("clusters")
             .as(select(asterisk())
                 .from(name("tmp"))
-                .union(select(OLD_DBSCAN.ID, OLD_DBSCAN.DISJOINT_RANK)
-                    .from(OLD_DBSCAN)
+                .union(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+                    .from(DBSCAN)
                     .innerJoin(name("clusters"))
-                    .on(OLD_DBSCAN.CLUSTER_PARENT.eq(OLD_DBSCAN.as("clusters").ID))
-                    .where(OLD_DBSCAN.as("clusters").DISJOINT_RANK.gt(0))
+                    .on(DBSCAN.CLUSTER_PARENT.eq(DBSCAN.as("clusters").ID))
+                    .where(DBSCAN.as("clusters").DISJOINT_RANK.gt(0))
                 )))
         .select(asterisk())
         .from(name("clusters"))
-        .innerJoin(OLD_DBSCAN)
-        .on(OLD_DBSCAN.ID.eq(OLD_DBSCAN.as("clusters").ID))
+        .innerJoin(DBSCAN)
+        .on(DBSCAN.ID.eq(DBSCAN.as("clusters").ID))
         .fetch(this::createClusterNode);
   }
 
   @Transactional(readOnly = true)
   public List<Player> getClusterPlayerAssociations(int clusterId) {
     return dsl.withRecursive("tmp")
-        .as(select(OLD_DBSCAN.ID, OLD_DBSCAN.DISJOINT_RANK)
-            .from(OLD_DBSCAN)
-            .where(OLD_DBSCAN.ID.eq(clusterId)))
+        .as(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+            .from(DBSCAN)
+            .where(DBSCAN.ID.eq(clusterId)))
         .with(name("clusters")
             .as(select(asterisk())
                 .from(name("tmp"))
-                .union(select(OLD_DBSCAN.ID, OLD_DBSCAN.DISJOINT_RANK)
-                    .from(OLD_DBSCAN)
+                .union(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+                    .from(DBSCAN)
                     .innerJoin(name("clusters"))
-                    .on(OLD_DBSCAN.CLUSTER_PARENT.eq(OLD_DBSCAN.as("clusters").ID))
-                    .where(OLD_DBSCAN.as("clusters").DISJOINT_RANK.gt(0))
+                    .on(DBSCAN.CLUSTER_PARENT.eq(DBSCAN.as("clusters").ID))
+                    .where(DBSCAN.as("clusters").DISJOINT_RANK.gt(0))
                 )))
         .select(asterisk())
-        .from(select(OLD_ASSOCIATIONS.PLAYER_ID, sum(OLD_ASSOCIATIONS.ASSOCIATION).as("strength"))
-            .from(OLD_ASSOCIATIONS)
+        .from(select(ASSOCIATIONS.PLAYER_ID, sum(ASSOCIATIONS.ASSOCIATION).as("strength"))
+            .from(ASSOCIATIONS)
             .innerJoin(name("clusters"))
-            .on(OLD_ASSOCIATIONS.CLUSTER_ID.eq(OLD_DBSCAN.as("clusters").ID))
-            .groupBy(OLD_ASSOCIATIONS.PLAYER_ID).asTable("assc"))
+            .on(ASSOCIATIONS.CLUSTER_ID.eq(DBSCAN.as("clusters").ID))
+            .groupBy(ASSOCIATIONS.PLAYER_ID).asTable("assc"))
         .innerJoin(PLAYERS)
         .on(field(name("assc", "player_id"), int.class).eq(PLAYERS.ID))
         .orderBy(field(name("assc", "strength"), BigDecimal.class).desc())
@@ -214,15 +207,18 @@ public class NocomRepository {
 
   private ClusterNode createClusterNode(Record record) {
     return ClusterNode.builder()
-        .id(record.get(OLD_DBSCAN.ID))
-        .count(record.get(OLD_DBSCAN.CNT))
-        .x(record.get(OLD_DBSCAN.X) * 16)
-        .z(record.get(OLD_DBSCAN.Z) * 16)
-        .dimension(Dimension.byOrdinal(record.get(OLD_DBSCAN.DIMENSION)))
-        .core(record.get(OLD_DBSCAN.IS_CORE))
-        .clusterParent(record.get(OLD_DBSCAN.CLUSTER_PARENT))
-        .disjointRank(record.get(OLD_DBSCAN.DISJOINT_RANK))
-        .disjointSize(record.get(OLD_DBSCAN.DISJOINT_SIZE))
+        .id(record.get(DBSCAN.ID))
+        .count(record.get(DBSCAN.DISJOINT_SIZE))
+        .x(record.get(DBSCAN.X) * 16)
+        .z(record.get(DBSCAN.Z) * 16)
+        .dimension(Dimension.byOrdinal(record.get(DBSCAN.DIMENSION)))
+        .core(record.get(DBSCAN.IS_CORE))
+        .clusterParent(record.get(DBSCAN.CLUSTER_PARENT))
+        .disjointRank(record.get(DBSCAN.DISJOINT_RANK))
+        .disjointSize(record.get(DBSCAN.DISJOINT_SIZE))
+        .updatedAt(Optional.ofNullable(record.get(DBSCAN.ROOT_UPDATED_AT))
+            .map(Instant::ofEpochMilli)
+            .orElse(null))
         .build();
   }
 
@@ -247,12 +243,13 @@ public class NocomRepository {
             .build());
   }
 
-  private Stream<PlayerSession> lookupPlayerSessions(@NonNull UUID playerUuid, @NonNull String server, @NonNull Duration history) {
+  private Stream<PlayerSession> _getPlayerSessions(@NonNull UUID playerUuid, @NonNull String server, @Nullable Duration since) {
     final var username = dsl.select(PLAYERS.USERNAME)
         .from(PLAYERS)
         .where(PLAYERS.UUID.eq(playerUuid))
         .fetchOptional(PLAYERS.USERNAME)
         .orElseThrow(() -> new Error("Could not find user with UUID " + playerUuid));
+    final var duration = Instant.now().minus(MoreObjects.firstNonNull(since, Duration.ZERO));
     return dsl.with("pid")
         .as(select(PLAYERS.ID)
             .from(PLAYERS)
@@ -266,7 +263,7 @@ public class NocomRepository {
                 .where(SERVERS.HOSTNAME.eq(server))
                 .limit(1)))
             .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid"))))
-            .and(upperRange(PLAYER_SESSIONS.RANGE).lt(val(Instant.now().minus(history).toEpochMilli()))))
+            .and(upperRange(PLAYER_SESSIONS.RANGE).lt(val(duration.toEpochMilli()))))
         .select(PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE)
         .from(PLAYER_SESSIONS)
         .where(PLAYER_SESSIONS.SERVER_ID.eq(select(SERVERS.ID)
@@ -291,7 +288,7 @@ public class NocomRepository {
   @Transactional(readOnly = true)
   public List<PlayerSession> getPlayerSessions(final String server, final Duration history, UUID... playerUuids) {
     return Arrays.stream(playerUuids)
-        .flatMap(uuid -> lookupPlayerSessions(uuid, server, history))
+        .flatMap(uuid -> _getPlayerSessions(uuid, server, history))
         .collect(Collectors.toList());
   }
 }
