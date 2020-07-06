@@ -20,6 +20,11 @@ public class DSLRangeOperations {
   }
 
   @Support({SQLDialect.POSTGRES})
+  public static <T extends Comparable<T>> Condition rangeIncludes(Field<Range<T>> field, Long value) {
+    return DSL.condition("{0} @> {1}", field, DSL.val(value));
+  }
+
+  @Support({SQLDialect.POSTGRES})
   public static <T extends Comparable<T>> Field<Object> upperRange(Field<Range<T>> field) {
     return DSL.field("upper({0})", field);
   }

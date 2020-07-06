@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import static com.matt.nocom.server.postgres.codegen.Tables.*;
 import static org.jooq.impl.DSL.*;
+import static space.nerdsin.nocom.server.jooq.DSLRangeOperations.rangeIncludes;
 import static space.nerdsin.nocom.server.jooq.DSLRangeOperations.upperRange;
 
 @Repository
@@ -276,12 +277,8 @@ public class NocomRepository {
         .map(record -> PlayerSession.builder()
             .username(username)
             .uuid(playerUuid)
-            .join(Optional.ofNullable(record.get(PLAYER_SESSIONS.JOIN))
-                .map(Instant::ofEpochMilli)
-                .orElse(null))
-            .leave(Optional.ofNullable(record.get(PLAYER_SESSIONS.LEAVE))
-                .map(Instant::ofEpochMilli)
-                .orElse(null))
+            .join(convertMsToInstant(record.get(PLAYER_SESSIONS.JOIN)))
+            .leave(convertMsToInstant(record.get(PLAYER_SESSIONS.LEAVE)))
             .build());
   }
 
@@ -290,5 +287,67 @@ public class NocomRepository {
     return Arrays.stream(playerUuids)
         .flatMap(uuid -> _getPlayerSessions(uuid, server, history))
         .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<PlayerSession> getPlayersConnectTime(@NonNull final String server, UUID... players) {
+    return Arrays.stream(players)
+        .flatMap(uuid -> dsl.select(asterisk())
+            .from(PLAYER_SESSIONS)
+            .innerJoin(PLAYERS).on(PLAYER_SESSIONS.PLAYER_ID.eq(PLAYERS.ID))
+            .where(PLAYERS.UUID.eq(uuid))
+            .and(PLAYER_SESSIONS.SERVER_ID.eq(select(SERVERS.ID)
+                .from(SERVERS)
+                .where(SERVERS.HOSTNAME.eq(server))
+                .limit(1)))
+            .and(rangeIncludes(PLAYER_SESSIONS.RANGE, Long.MAX_VALUE - 1))
+            .fetchStream()
+            .map(record -> PlayerSession.builder()
+                .username(record.get(PLAYERS.USERNAME))
+                .uuid(record.get(PLAYERS.UUID))
+                .join(convertMsToInstant(record.get(PLAYER_SESSIONS.JOIN)))
+                .build()))
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<PlayerSession> getPlayersLatestSession(@NonNull final String server, UUID... players) {
+    return Arrays.stream(players)
+        .flatMap(uuid -> dsl.with("pid")
+            .as(select(PLAYERS.ID)
+                .from(PLAYERS)
+                .where(PLAYERS.UUID.eq(uuid))
+                .limit(1))
+            .with("sid")
+            .as(select(SERVERS.ID)
+                .from(SERVERS)
+                .where(SERVERS.HOSTNAME.eq(server))
+                .limit(1))
+            .with("tmp")
+            .as(select(max(upperRange(PLAYER_SESSIONS.RANGE)))
+                .from(PLAYER_SESSIONS)
+                .where(PLAYER_SESSIONS.SERVER_ID.eq(selectFrom(name("sid"))))
+                .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid")))))
+            .select(PLAYERS.USERNAME, PLAYERS.UUID, PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE)
+            .from(PLAYER_SESSIONS)
+            .innerJoin(PLAYERS).on(PLAYER_SESSIONS.PLAYER_ID.eq(PLAYERS.ID))
+            .where(PLAYERS.ID.eq(selectFrom("pid")))
+            .and(upperRange(PLAYER_SESSIONS.RANGE).ge(selectFrom(name("tmp"))))
+            .and(PLAYER_SESSIONS.SERVER_ID.eq(selectFrom(name("sid"))))
+            .fetchStream()
+            .map(record -> PlayerSession.builder()
+                .username(record.get(PLAYERS.USERNAME))
+                .uuid(record.get(PLAYERS.UUID))
+                .join(convertMsToInstant(record.get(PLAYER_SESSIONS.JOIN)))
+                .leave(convertMsToInstant(record.get(PLAYER_SESSIONS.LEAVE)))
+                .build()))
+        .collect(Collectors.toList());
+  }
+
+  private static Instant convertMsToInstant(Long time) {
+    return Optional.ofNullable(time)
+        .filter(ms -> ms <= Long.MAX_VALUE - 1)
+        .map(Instant::ofEpochMilli)
+        .orElse(null);
   }
 }
