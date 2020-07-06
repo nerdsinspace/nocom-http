@@ -17,7 +17,6 @@ buildscript {
   repositories {
     mavenCentral()
     maven { url 'https://plugins.gradle.org/m2/' }
-    maven { url 'http://dl.bintray.com/vermeulen-mp/gradle-plugins' }
   }
 }
 
@@ -26,7 +25,7 @@ plugins {
   id 'groovy'
   id 'io.spring.dependency-management' version '1.0.9.RELEASE'
   id 'org.springframework.boot' version "$springBootVersion"
-  id 'nu.studer.jooq' version '4.1'
+  id 'nu.studer.jooq' version '4.2'
 }
 
 group 'com.matt.nocom'
@@ -65,6 +64,7 @@ dependencyManagement {
 }
 
 jooq {
+  version = dependencyManagement.importedProperties['jooq.version']
   edition = 'OSS'
   h2(sourceSets.main) {
     jdbc {
@@ -141,7 +141,7 @@ jooq {
 
 configurations {
   // we want to use log4j2 instead
-  compile.exclude module: 'spring-boot-starter-logging'
+  all*.exclude module: 'spring-boot-starter-logging'
 }
 
 dependencies {
