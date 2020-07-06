@@ -71,11 +71,27 @@ public class NocomApiController {
   @ResponseBody
   public List<SessionGroup> playerSessions(
       @RequestParam UUID[] playerUuids,
-      @RequestParam(required = false) String server,
+      @RequestParam String server,
       @RequestParam(required = false) Optional<Long> from) {
     return util.groupSessions(nocom.getPlayerSessions(server,
         from.map(Duration::ofMillis).orElse(null),
         playerUuids));
+  }
+
+  @PostMapping("/players-online")
+  @ResponseBody
+  public List<PlayerSession> playersOnline(
+      @RequestBody UUID[] playerUuids,
+      @RequestParam String server) {
+    return nocom.getPlayersConnectTime(server, playerUuids);
+  }
+
+  @PostMapping("/players-latest-session")
+  @ResponseBody
+  public List<PlayerSession> playersLatestSession(
+      @RequestBody UUID[] playerUuids,
+      @RequestParam String server) {
+    return nocom.getPlayersLatestSession(server, playerUuids);
   }
 
   private static long limitOf(long max) {
