@@ -1,13 +1,6 @@
 package com.matt.nocom.server.service;
 
-import static com.matt.nocom.server.h2.codegen.tables.Event.EVENT;
-
 import com.matt.nocom.server.model.event.Event;
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.*;
-
 import lombok.RequiredArgsConstructor;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -19,6 +12,16 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+import static com.matt.nocom.server.h2.codegen.tables.Event.EVENT;
 
 @Repository
 @RequiredArgsConstructor
@@ -55,13 +58,13 @@ public class EventRepository {
         .limit(limit)
         .fetch(record -> Event.builder()
             .id(record.getId())
-            .createdTime(record.getCreatedTime().toInstant())
+            .createdTime(record.getCreatedTime().toInstant(ZoneOffset.UTC))
             .type(record.getType())
             .causedBy(record.getCausedBy())
             .message(record.getMessage())
             .build());
   }
-  
+
   public List<Event> getEvents(int view, int page, @Nullable String type,
       @Nullable Instant beginDate, @Nullable Instant endDate) {
     view = Math.max(1, view);
@@ -69,27 +72,30 @@ public class EventRepository {
 
     Condition filter = DSL.noCondition();
 
-    if(beginDate != null && endDate != null) {
-      filter = filter.and(EVENT.CREATED_TIME.between(Timestamp.from(beginDate), Timestamp.from(endDate)));
-    } else if(beginDate != null) {
-      filter = filter.and(EVENT.CREATED_TIME.ge(Timestamp.from(beginDate)));
-    } else if(endDate != null) {
-      filter = filter.and(EVENT.CREATED_TIME.le(Timestamp.from(endDate)));
+    final var begin = beginDate == null ? null : LocalDateTime.ofInstant(beginDate, ZoneId.systemDefault());
+    final var end = endDate == null ? null : LocalDateTime.ofInstant(endDate, ZoneId.systemDefault());
+
+    if (beginDate != null && endDate != null) {
+      filter = filter.and(EVENT.CREATED_TIME.between(begin, end));
+    } else if (beginDate != null) {
+      filter = filter.and(EVENT.CREATED_TIME.ge(begin));
+    } else if (endDate != null) {
+      filter = filter.and(EVENT.CREATED_TIME.le(end));
     }
 
-    if(type != null) {
+    if (type != null) {
       filter = filter.and(EVENT.TYPE.eq(type));
     }
 
     List<Event> events = getEvents(filter, view * page);
 
     int start = (page - 1) * view;
-    int end = Math.min(events.size(), view * page);
+    int last = Math.min(events.size(), view * page);
 
-    if(events.size() < start)
+    if (events.size() < start)
       return Collections.emptyList(); // no events on this page
     else
-      return events.subList(start, end);
+      return events.subList(start, last);
   }
 
   @Transactional(readOnly = true)

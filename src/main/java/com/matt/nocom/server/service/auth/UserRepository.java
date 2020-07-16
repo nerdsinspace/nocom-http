@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,7 +114,7 @@ public class UserRepository {
   @Transactional
   public int setUserLastLogin(String username, Instant time) {
     return dsl.update(AUTH_USERS)
-        .set(AUTH_USERS.LOGIN_TIMESTAMP, Timestamp.from(time))
+        .set(AUTH_USERS.LOGIN_TIMESTAMP, LocalDateTime.ofInstant(time, ZoneId.systemDefault()))
         .where(AUTH_USERS.USERNAME.eq(username))
         .execute();
   }
@@ -124,7 +126,7 @@ public class UserRepository {
         .where(AUTH_USERS.USERNAME.eq(username))
         .limit(1)
         .fetchOptional(AUTH_USERS.LOGIN_TIMESTAMP)
-        .map(Timestamp::toInstant);
+        .map(time -> time.toInstant(ZoneOffset.UTC));
   }
 
   @Transactional(readOnly = true)
@@ -171,8 +173,8 @@ public class UserRepository {
     return dsl.fetchExists(AUTH_USERS, AUTH_USERS.USERNAME.eq(username));
   }
 
-  private Instant timestampToInstant(@Nullable Timestamp timestamp) {
-    return timestamp == null ? null : timestamp.toInstant();
+  private Instant convertToInstant(@Nullable LocalDateTime dateTime) {
+    return dateTime == null ? null : dateTime.toInstant(ZoneOffset.UTC);
   }
 
   private byte[] encodedPasswordToBytes(String encoded) {
@@ -187,7 +189,7 @@ public class UserRepository {
         .enabled(record.getValue(AUTH_USERS.ENABLED))
         .level(record.getValue(AUTH_USERS.LEVEL))
         .debugUser(record.getValue(AUTH_USERS.DEBUG))
-        .lastLogin(timestampToInstant(record.getValue(AUTH_USERS.LOGIN_TIMESTAMP)))
+        .lastLogin(convertToInstant(record.getValue(AUTH_USERS.LOGIN_TIMESTAMP)))
         .build();
   }
 }

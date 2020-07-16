@@ -1,11 +1,11 @@
 package com.matt.nocom.server.model.data;
 
-import java.util.EnumSet;
-import java.util.Map;
-
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.EnumSet;
+import java.util.Map;
 
 @Getter
 @AllArgsConstructor
@@ -17,6 +17,10 @@ public enum Dimension {
 
   private final int ordinal;
   private final String name;
+
+  public short getOrdinalAsShort() {
+    return (short) getOrdinal();
+  }
 
   private static final EnumSet<Dimension> ALL = EnumSet.allOf(Dimension.class);
   private static final Map<Integer, Dimension> ORDINAL_MAP = Maps.newHashMap();
