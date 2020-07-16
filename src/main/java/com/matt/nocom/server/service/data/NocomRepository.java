@@ -4,22 +4,19 @@ import com.google.common.base.MoreObjects;
 import com.matt.nocom.server.model.data.*;
 import lombok.NonNull;
 import org.jooq.DSLContext;
+import org.jooq.Query;
 import org.jooq.Record;
+import org.jooq.Record1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.matt.nocom.server.postgres.codegen.Tables.*;
 import static org.jooq.impl.DSL.*;
@@ -35,20 +32,41 @@ public class NocomRepository {
     this.dsl = dsl;
   }
 
+  /**
+   * A set of the servers that currently exist in the database
+   *
+   * @return a set containing unique server hostnames
+   */
   @Transactional(readOnly = true)
-  public List<String> getServers() {
-    return dsl.select(SERVERS.HOSTNAME)
+  public Set<String> getServers() {
+    return dsl.selectDistinct(SERVERS.HOSTNAME)
         .from(SERVERS)
-        .fetch(record -> record.getValue(SERVERS.HOSTNAME));
+        .fetchSet(SERVERS.HOSTNAME);
   }
 
+  /**
+   * A set of dimensions in the database
+   *
+   * @return a distinct set of dimension enums
+   */
   @Transactional(readOnly = true)
-  public List<Dimension> getDimensions() {
-    return dsl.select(DIMENSIONS.ORDINAL)
+  public Set<Dimension> getDimensions() {
+    return dsl.selectDistinct(DIMENSIONS.ORDINAL)
         .from(DIMENSIONS)
-        .fetch(record -> Dimension.byOrdinal(record.getValue(DIMENSIONS.ORDINAL)));
+        .fetchStream()
+        .map(Record1::component1)
+        .map(Dimension::byOrdinal)
+        .collect(Collectors.toSet());
   }
 
+  /**
+   * Gets a list of tracks that existed ranging from @time to @time - @duration
+   *
+   * @param server   The server to check tracks for
+   * @param time     The upper limit of time
+   * @param duration The duration in the past to check relative to @time
+   * @return A list of unique tracks and their latest entry in the provided time span
+   */
   @Transactional(readOnly = true)
   public List<Track> getMostRecentTracks(@NonNull String server, Instant time, Duration duration) {
     return dsl.select(asterisk())
@@ -85,8 +103,15 @@ public class NocomRepository {
             .build());
   }
 
+  /**
+   * Get all the hits associated with a track id
+   *
+   * @param trackId Target track id
+   * @param max     Maximum number of tracks the query should return.
+   * @return A list of associated hits for the track ordered by their creation time
+   */
   @Transactional(readOnly = true)
-  public List<SimpleHit> getTrackHistory(int trackId, long max) {
+  public List<SimpleHit> getTrackHistory(int trackId, Long max) {
     return dsl.select(HITS.X, HITS.Z)
         .from(HITS)
         .where(HITS.TRACK_ID.eq(trackId))
@@ -98,6 +123,14 @@ public class NocomRepository {
             .build());
   }
 
+  /**
+   * Get all the hits associated with a track and the previous tracks associated.
+   * This query can be massive if the track history is very long.
+   *
+   * @param trackId Target track id
+   * @param max     Maximum number of tracks the query should return
+   * @return A list of every hit in the track history ordered by their creation time
+   */
   @Transactional(readOnly = true)
   public List<Hit> getFullTrackHistory(int trackId, long max) {
     return dsl.withRecursive("track_hist")
@@ -129,30 +162,34 @@ public class NocomRepository {
             .build());
   }
 
+  /**
+   * Get all the root cluster nodes
+   *
+   * @param server    Target server
+   * @param dimension Target dimension
+   * @return A list of root nodes associated with the server and dimension
+   */
   @Transactional(readOnly = true)
-  public List<ClusterNode> getRootClusters(@Nullable String server, @Nullable Dimension dimension) {
-    var cond = noCondition();
-
-    if (server != null) {
-      cond = cond.and(DBSCAN.SERVER_ID.eq(
-          select(SERVERS.ID)
-              .from(SERVERS)
-              .where(SERVERS.HOSTNAME.eq(server))
-              .limit(1)));
-    }
-
-    if (dimension != null) {
-      cond = cond.and(DBSCAN.DIMENSION.eq((short) dimension.getOrdinal()));
-    }
-
+  public List<ClusterNode> getRootClusters(@NonNull String server, @NonNull Dimension dimension) {
     return dsl.selectFrom(DBSCAN)
         .where(DBSCAN.DISJOINT_RANK.gt(0)
             .and(DBSCAN.CLUSTER_PARENT.isNull())
-            .and(cond))
+            .and(DBSCAN.SERVER_ID.eq(
+                select(SERVERS.ID)
+                    .from(SERVERS)
+                    .where(SERVERS.HOSTNAME.eq(server))
+                    .limit(1)))
+            .and(DBSCAN.DIMENSION.eq(dimension.getOrdinalAsShort())))
         .orderBy(DBSCAN.ROOT_UPDATED_AT)
         .fetch(this::createClusterNode);
   }
 
+  /**
+   * Get all the children nodes associated with a root node
+   *
+   * @param clusterId Root cluster node id
+   * @return A list of children nodes for the root node
+   */
   @Transactional(readOnly = true)
   public List<ClusterNode> getFullCluster(int clusterId) {
     return dsl.withRecursive("tmp")
@@ -166,8 +203,7 @@ public class NocomRepository {
                     .from(DBSCAN)
                     .innerJoin(name("clusters"))
                     .on(DBSCAN.CLUSTER_PARENT.eq(DBSCAN.as("clusters").ID))
-                    .where(DBSCAN.as("clusters").DISJOINT_RANK.gt(0))
-                )))
+                    .where(DBSCAN.as("clusters").DISJOINT_RANK.gt(0)))))
         .select(asterisk())
         .from(name("clusters"))
         .innerJoin(DBSCAN)
@@ -175,8 +211,16 @@ public class NocomRepository {
         .fetch(this::createClusterNode);
   }
 
+  /**
+   * Get the players associated with a cluster
+   *
+   * @param clusterId root cluster id
+   * @return A list of players associated with the given cluster id
+   */
   @Transactional(readOnly = true)
   public List<Player> getClusterPlayerAssociations(int clusterId) {
+    final var ASSC_PLAYER_ID = field(name("assc", "player_id"), int.class);
+    final var ASSC_STRENGTH = field(name("assc", "strength"), BigDecimal.class);
     return dsl.withRecursive("tmp")
         .as(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
             .from(DBSCAN)
@@ -188,8 +232,7 @@ public class NocomRepository {
                     .from(DBSCAN)
                     .innerJoin(name("clusters"))
                     .on(DBSCAN.CLUSTER_PARENT.eq(DBSCAN.as("clusters").ID))
-                    .where(DBSCAN.as("clusters").DISJOINT_RANK.gt(0))
-                )))
+                    .where(DBSCAN.as("clusters").DISJOINT_RANK.gt(0)))))
         .select(asterisk())
         .from(select(ASSOCIATIONS.PLAYER_ID, sum(ASSOCIATIONS.ASSOCIATION).as("strength"))
             .from(ASSOCIATIONS)
@@ -197,12 +240,12 @@ public class NocomRepository {
             .on(ASSOCIATIONS.CLUSTER_ID.eq(DBSCAN.as("clusters").ID))
             .groupBy(ASSOCIATIONS.PLAYER_ID).asTable("assc"))
         .innerJoin(PLAYERS)
-        .on(field(name("assc", "player_id"), int.class).eq(PLAYERS.ID))
-        .orderBy(field(name("assc", "strength"), BigDecimal.class).desc())
+        .on(ASSC_PLAYER_ID.eq(PLAYERS.ID))
+        .orderBy(ASSC_STRENGTH.desc())
         .fetch(record -> Player.builder()
             .username(record.get(PLAYERS.USERNAME))
             .uuid(record.get(PLAYERS.UUID))
-            .strength(record.get(field(name("assc", "strength"), BigDecimal.class)).doubleValue())
+            .strength(record.get(ASSC_STRENGTH).doubleValue())
             .build());
   }
 
@@ -223,6 +266,12 @@ public class NocomRepository {
         .build();
   }
 
+  /**
+   * Get the status of the bots. Status data includes username, uuid, server connected to, status (online, offline,
+   * queue), last time update made, data (queue position), and dimension.
+   *
+   * @return List of bot statuses
+   */
   @Transactional(readOnly = true)
   public List<PlayerStatus> getBotStatuses() {
     return dsl.select(PLAYERS.USERNAME, PLAYERS.UUID,
@@ -244,51 +293,57 @@ public class NocomRepository {
             .build());
   }
 
-  private Stream<PlayerSession> _getPlayerSessions(@NonNull UUID playerUuid, @NonNull String server, @Nullable Duration since) {
-    final var username = dsl.select(PLAYERS.USERNAME)
-        .from(PLAYERS)
-        .where(PLAYERS.UUID.eq(playerUuid))
-        .fetchOptional(PLAYERS.USERNAME)
-        .orElseThrow(() -> new Error("Could not find user with UUID " + playerUuid));
-    final var duration = Instant.now().minus(MoreObjects.firstNonNull(since, Duration.ZERO));
-    return dsl.with("pid")
-        .as(select(PLAYERS.ID)
-            .from(PLAYERS)
-            .where(PLAYERS.UUID.eq(playerUuid))
-            .limit(1))
-        .with("tmp")
-        .as(select(max(upperRange(PLAYER_SESSIONS.RANGE)))
-            .from(PLAYER_SESSIONS)
-            .where(PLAYER_SESSIONS.SERVER_ID.eq(select(SERVERS.ID)
-                .from(SERVERS)
-                .where(SERVERS.HOSTNAME.eq(server))
-                .limit(1)))
-            .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid"))))
-            .and(upperRange(PLAYER_SESSIONS.RANGE).lt(val(duration.toEpochMilli()))))
-        .select(PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE)
-        .from(PLAYER_SESSIONS)
-        .where(PLAYER_SESSIONS.SERVER_ID.eq(select(SERVERS.ID)
-            .from(SERVERS)
-            .where(SERVERS.HOSTNAME.eq(server))
-            .limit(1)))
-        .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid"))))
-        .and(upperRange(PLAYER_SESSIONS.RANGE).ge(selectFrom(name("tmp"))))
-        .fetchStream()
-        .map(record -> PlayerSession.builder()
-            .username(username)
-            .uuid(playerUuid)
-            .join(convertMsToInstant(record.get(PLAYER_SESSIONS.JOIN)))
-            .leave(convertMsToInstant(record.get(PLAYER_SESSIONS.LEAVE)))
-            .build());
-  }
-
+  /**
+   * Get the players sessions history from now until the given duration in the past.
+   *
+   * @param server      Servers to get session history for
+   * @param history     Time in past to lookup
+   * @param playerUuids A list of player uuids to get session history for
+   * @return A list of player session data
+   */
   @Transactional(readOnly = true)
   public List<PlayerSession> getPlayerSessions(final String server, final Duration history, UUID... playerUuids) {
+    final var duration = Instant.now().minus(MoreObjects.firstNonNull(history, Duration.ZERO));
     return Arrays.stream(playerUuids)
-        .flatMap(uuid -> _getPlayerSessions(uuid, server, history))
+        .flatMap(uuid -> dsl.with("pid")
+            .as(select(PLAYERS.ID)
+                .from(PLAYERS)
+                .where(PLAYERS.UUID.eq(uuid))
+                .limit(1))
+            .with("sid")
+            .as(select(SERVERS.ID)
+                .from(SERVERS)
+                .where(SERVERS.HOSTNAME.eq(server))
+                .limit(1))
+            .with("tmp")
+            .as(select(max(upperRange(PLAYER_SESSIONS.RANGE)))
+                .from(PLAYER_SESSIONS)
+                .where(PLAYER_SESSIONS.SERVER_ID.eq(selectFrom(name("sid")).asField()))
+                .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid")).asField()))
+                .and(upperRange(PLAYER_SESSIONS.RANGE).lt(val(duration.toEpochMilli()))))
+            .select(PLAYERS.USERNAME, PLAYERS.UUID, PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE)
+            .from(PLAYER_SESSIONS)
+            .innerJoin(PLAYERS).on(PLAYER_SESSIONS.PLAYER_ID.eq(PLAYERS.ID))
+            .where(PLAYER_SESSIONS.SERVER_ID.eq(selectFrom(name("sid")).asField()))
+            .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid")).asField()))
+            .and(upperRange(PLAYER_SESSIONS.RANGE).ge(selectFrom(name("tmp"))))
+            .fetchStream()
+            .map(record -> PlayerSession.builder()
+                .username(record.get(PLAYERS.USERNAME))
+                .uuid(record.get(PLAYERS.UUID))
+                .join(convertMsToInstant(record.get(PLAYER_SESSIONS.JOIN)))
+                .leave(convertMsToInstant(record.get(PLAYER_SESSIONS.LEAVE)))
+                .build()))
         .collect(Collectors.toList());
   }
 
+  /**
+   * Get the time a player connected, provided they are currently connected to the server.
+   *
+   * @param server  server hostname
+   * @param players UUIDs of players
+   * @return A list of player sessions with the join time
+   */
   @Transactional(readOnly = true)
   public List<PlayerSession> getPlayersConnectTime(@NonNull final String server, UUID... players) {
     return Arrays.stream(players)
@@ -310,6 +365,13 @@ public class NocomRepository {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Get the last connection time of a player. If they are currently connected, the leave time will be omitted.
+   *
+   * @param server  server hostname
+   * @param players uuids of players
+   * @return A list of player sessions
+   */
   @Transactional(readOnly = true)
   public List<PlayerSession> getPlayersLatestSession(@NonNull final String server, UUID... players) {
     return Arrays.stream(players)
@@ -326,14 +388,14 @@ public class NocomRepository {
             .with("tmp")
             .as(select(max(upperRange(PLAYER_SESSIONS.RANGE)))
                 .from(PLAYER_SESSIONS)
-                .where(PLAYER_SESSIONS.SERVER_ID.eq(selectFrom(name("sid"))))
-                .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid")))))
+                .where(PLAYER_SESSIONS.SERVER_ID.eq(selectFrom(name("sid")).asField()))
+                .and(PLAYER_SESSIONS.PLAYER_ID.eq(selectFrom(name("pid")).asField())))
             .select(PLAYERS.USERNAME, PLAYERS.UUID, PLAYER_SESSIONS.JOIN, PLAYER_SESSIONS.LEAVE)
             .from(PLAYER_SESSIONS)
             .innerJoin(PLAYERS).on(PLAYER_SESSIONS.PLAYER_ID.eq(PLAYERS.ID))
-            .where(PLAYERS.ID.eq(selectFrom("pid")))
+            .where(PLAYERS.ID.eq(selectFrom("pid").asField()))
             .and(upperRange(PLAYER_SESSIONS.RANGE).ge(selectFrom(name("tmp"))))
-            .and(PLAYER_SESSIONS.SERVER_ID.eq(selectFrom(name("sid"))))
+            .and(PLAYER_SESSIONS.SERVER_ID.eq(selectFrom(name("sid")).asField()))
             .fetchStream()
             .map(record -> PlayerSession.builder()
                 .username(record.get(PLAYERS.USERNAME))
@@ -349,5 +411,64 @@ public class NocomRepository {
         .filter(ms -> ms <= Long.MAX_VALUE - 1)
         .map(Instant::ofEpochMilli)
         .orElse(null);
+  }
+
+  // TODO: In jOOQ 3.14, materialized will be added
+  private Query query_getBlockCountInCluster(int clusterId, String blockName) {
+    final var CLUSTERS = table(name("clusters"));
+    final var CLUSTERS_id = field(name(CLUSTERS.getName(), "id"), int.class);
+    final var CLUSTERS_disjointRank = field(name(CLUSTERS.getName(), "disjoint_rank"), int.class);
+    final var FILTER = table(name("filter"));
+    final var AGE = field(name("age"), int.class);
+    final var NUM_BLOCKS = field(name("num_blocks"), BigDecimal.class);
+    final var BS = field(name("bs"));
+    return dsl.withRecursive("tmp")
+        .as(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+            .from(DBSCAN)
+            .where(DBSCAN.ID.eq(clusterId)))
+        .with(CLUSTERS.getName())
+        .as(select(asterisk())
+            .from(name("tmp"))
+            .union(select(DBSCAN.ID, DBSCAN.DISJOINT_RANK)
+                .from(DBSCAN)
+                .innerJoin(CLUSTERS)
+                .on(DBSCAN.CLUSTER_PARENT.eq(CLUSTERS_id))
+                .where(CLUSTERS_disjointRank.gt(0))))
+        .with(FILTER.getName())
+        .as(select(BLOCK_STATES.BLOCK_STATE) // this needs to be materialized
+            .from(BLOCK_STATES)
+            .where(BLOCK_STATES.NAME.like(blockName)))
+        .select(sum(NUM_BLOCKS))
+        .from(select(select(count(asterisk()))
+            .from(select(BLOCKS.BLOCK_STATE.as(BS),
+                rowNumber().over(partitionBy(BLOCKS.X, BLOCKS.Y, BLOCKS.Z).orderBy(BLOCKS.CREATED_AT.desc())).as(AGE))
+                .from(BLOCKS)
+                .where(BLOCKS.X.shr(4).eq(DBSCAN.X))
+                .and(BLOCKS.Z.shr(4).eq(DBSCAN.Z)))
+            .where(BS.in(selectFrom(FILTER)))
+            .and(AGE.eq(1))
+            .asField(NUM_BLOCKS.getName()), DBSCAN.X, DBSCAN.Z)
+            .from(CLUSTERS)
+            .innerJoin(DBSCAN).on(DBSCAN.ID.eq(CLUSTERS_disjointRank)));
+  }
+
+  /**
+   * Get the count of blocks in a cluster.
+   * WARNING: This operation can be very slow!
+   * TODO: In jOOQ 3.14 "WITH MATERIALIZED" is added, so I can remove the disgusting string replacement
+   *
+   * @param clusterId root cluster id
+   * @param blockName name of block
+   * @return The number of blocks inside the cluster
+   */
+  @Transactional(readOnly = true)
+  public Optional<Long> getBlockCountInCluster(int clusterId, String blockName) {
+    // jooq doesnt support materialized until 3.14
+    var q = query_getBlockCountInCluster(clusterId, blockName);
+    var sql = q.getSQL().replace("\"filter\" as", "\"filter\" as materialized");
+    return dsl.fetch(sql, q.getBindValues().toArray())
+        .getValues(name("num_blocks"), BigDecimal.class).stream()
+        .map(BigDecimal::longValue)
+        .findAny();
   }
 }
