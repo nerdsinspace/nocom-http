@@ -1,7 +1,7 @@
 version: '2.3'
 services:
   nocom-http:
-    image: gradle:5.6.4-jdk11
+    image: adoptopenjdk/openjdk11
     environment:
       - GIT_COMMIT=${GIT_COMMIT:-latest}
       - NOCOM-HTTP_DEBUG=1

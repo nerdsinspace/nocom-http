@@ -4,18 +4,52 @@
 package com.matt.nocom.server.postgres.codegen;
 
 
-import com.matt.nocom.server.postgres.codegen.tables.*;
+import com.matt.nocom.server.postgres.codegen.tables.Assoc;
+import com.matt.nocom.server.postgres.codegen.tables.Associations;
+import com.matt.nocom.server.postgres.codegen.tables.BlockStates;
+import com.matt.nocom.server.postgres.codegen.tables.Blocks;
+import com.matt.nocom.server.postgres.codegen.tables.Chat;
+import com.matt.nocom.server.postgres.codegen.tables.Dbscan;
+import com.matt.nocom.server.postgres.codegen.tables.DbscanProgress;
+import com.matt.nocom.server.postgres.codegen.tables.DbscanToUpdate;
+import com.matt.nocom.server.postgres.codegen.tables.Dimensions;
+import com.matt.nocom.server.postgres.codegen.tables.GeneratorCache;
+import com.matt.nocom.server.postgres.codegen.tables.GeographyColumns;
+import com.matt.nocom.server.postgres.codegen.tables.GeometryColumns;
+import com.matt.nocom.server.postgres.codegen.tables.Hits;
+import com.matt.nocom.server.postgres.codegen.tables.LastByServer;
+import com.matt.nocom.server.postgres.codegen.tables.Notes;
+import com.matt.nocom.server.postgres.codegen.tables.PlayerSessions;
+import com.matt.nocom.server.postgres.codegen.tables.Players;
+import com.matt.nocom.server.postgres.codegen.tables.Servers;
+import com.matt.nocom.server.postgres.codegen.tables.Signs;
+import com.matt.nocom.server.postgres.codegen.tables.SpatialRefSys;
+import com.matt.nocom.server.postgres.codegen.tables.StDump;
+import com.matt.nocom.server.postgres.codegen.tables.StDumppoints;
+import com.matt.nocom.server.postgres.codegen.tables.StDumprings;
+import com.matt.nocom.server.postgres.codegen.tables.StSubdivide;
+import com.matt.nocom.server.postgres.codegen.tables.Statuses;
+import com.matt.nocom.server.postgres.codegen.tables.Test;
+import com.matt.nocom.server.postgres.codegen.tables.TrackAssociatorProgress;
+import com.matt.nocom.server.postgres.codegen.tables.Tracks;
 import com.matt.nocom.server.postgres.codegen.tables.records.StDumpRecord;
 import com.matt.nocom.server.postgres.codegen.tables.records.StDumppointsRecord;
 import com.matt.nocom.server.postgres.codegen.tables.records.StDumpringsRecord;
 import com.matt.nocom.server.postgres.codegen.tables.records.StSubdivideRecord;
 import com.matt.nocom.server.postgres.codegen.udt.GeometryDump;
 import com.matt.nocom.server.postgres.codegen.udt.ValidDetail;
-import org.jooq.*;
-import org.jooq.impl.SchemaImpl;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.jooq.Catalog;
+import org.jooq.Configuration;
+import org.jooq.Field;
+import org.jooq.Result;
+import org.jooq.Sequence;
+import org.jooq.Table;
+import org.jooq.UDT;
+import org.jooq.impl.SchemaImpl;
 
 
 /**
@@ -24,7 +58,7 @@ import java.util.List;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DefaultSchema extends SchemaImpl {
 
-    private static final long serialVersionUID = -901583681;
+    private static final long serialVersionUID = -858253958;
 
     /**
      * The reference instance of <code>DEFAULT_SCHEMA</code>
@@ -77,9 +111,9 @@ public class DefaultSchema extends SchemaImpl {
     public final Dimensions DIMENSIONS = Dimensions.DIMENSIONS;
 
     /**
-     * The table <code>distinct_chat_messages</code>.
+     * The table <code>generator_cache</code>.
      */
-    public final DistinctChatMessages DISTINCT_CHAT_MESSAGES = DistinctChatMessages.DISTINCT_CHAT_MESSAGES;
+    public final GeneratorCache GENERATOR_CACHE = GeneratorCache.GENERATOR_CACHE;
 
     /**
      * The table <code>geography_columns</code>.
@@ -105,36 +139,6 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>notes</code>.
      */
     public final Notes NOTES = Notes.NOTES;
-
-    /**
-     * The table <code>old_assoc</code>.
-     */
-    public final OldAssoc OLD_ASSOC = OldAssoc.OLD_ASSOC;
-
-    /**
-     * The table <code>old_associations</code>.
-     */
-    public final OldAssociations OLD_ASSOCIATIONS = OldAssociations.OLD_ASSOCIATIONS;
-
-    /**
-     * The table <code>old_dbscan</code>.
-     */
-    public final OldDbscan OLD_DBSCAN = OldDbscan.OLD_DBSCAN;
-
-    /**
-     * The table <code>old_dbscan_progress</code>.
-     */
-    public final OldDbscanProgress OLD_DBSCAN_PROGRESS = OldDbscanProgress.OLD_DBSCAN_PROGRESS;
-
-    /**
-     * The table <code>old_dbscan_to_update</code>.
-     */
-    public final OldDbscanToUpdate OLD_DBSCAN_TO_UPDATE = OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE;
-
-    /**
-     * The table <code>old_track_associator_progress</code>.
-     */
-    public final OldTrackAssociatorProgress OLD_TRACK_ASSOCIATOR_PROGRESS = OldTrackAssociatorProgress.OLD_TRACK_ASSOCIATOR_PROGRESS;
 
     /**
      * The table <code>player_sessions</code>.
@@ -293,11 +297,6 @@ public class DefaultSchema extends SchemaImpl {
     public final TrackAssociatorProgress TRACK_ASSOCIATOR_PROGRESS = TrackAssociatorProgress.TRACK_ASSOCIATOR_PROGRESS;
 
     /**
-     * The table <code>track_sizes</code>.
-     */
-    public final TrackSizes TRACK_SIZES = TrackSizes.TRACK_SIZES;
-
-    /**
      * The table <code>tracks</code>.
      */
     public final Tracks TRACKS = Tracks.TRACKS;
@@ -318,7 +317,6 @@ public class DefaultSchema extends SchemaImpl {
     @Override
     public final List<Sequence<?>> getSequences() {
         return Arrays.<Sequence<?>>asList(
-            Sequences.DBSCAN_ID_SEQ,
             Sequences.DBSCAN_ID_SEQ1,
             Sequences.HITS_ID_SEQ,
             Sequences.PLAYERS_ID_SEQ,
@@ -338,18 +336,12 @@ public class DefaultSchema extends SchemaImpl {
             DbscanProgress.DBSCAN_PROGRESS,
             DbscanToUpdate.DBSCAN_TO_UPDATE,
             Dimensions.DIMENSIONS,
-            DistinctChatMessages.DISTINCT_CHAT_MESSAGES,
+            GeneratorCache.GENERATOR_CACHE,
             GeographyColumns.GEOGRAPHY_COLUMNS,
             GeometryColumns.GEOMETRY_COLUMNS,
             Hits.HITS,
             LastByServer.LAST_BY_SERVER,
             Notes.NOTES,
-            OldAssoc.OLD_ASSOC,
-            OldAssociations.OLD_ASSOCIATIONS,
-            OldDbscan.OLD_DBSCAN,
-            OldDbscanProgress.OLD_DBSCAN_PROGRESS,
-            OldDbscanToUpdate.OLD_DBSCAN_TO_UPDATE,
-            OldTrackAssociatorProgress.OLD_TRACK_ASSOCIATOR_PROGRESS,
             PlayerSessions.PLAYER_SESSIONS,
             Players.PLAYERS,
             Servers.SERVERS,
@@ -362,7 +354,6 @@ public class DefaultSchema extends SchemaImpl {
             Statuses.STATUSES,
             Test.TEST,
             TrackAssociatorProgress.TRACK_ASSOCIATOR_PROGRESS,
-            TrackSizes.TRACK_SIZES,
             Tracks.TRACKS);
     }
 

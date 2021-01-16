@@ -5,6 +5,7 @@ package com.matt.nocom.server.postgres.codegen.tables.records;
 
 
 import com.matt.nocom.server.postgres.codegen.tables.Signs;
+
 import org.jooq.Field;
 import org.jooq.Record7;
 import org.jooq.Row7;

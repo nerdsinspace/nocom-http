@@ -5,6 +5,7 @@ package com.matt.nocom.server.postgres.codegen.tables.records;
 
 
 import com.matt.nocom.server.postgres.codegen.tables.Chat;
+
 import org.jooq.Field;
 import org.jooq.JSON;
 import org.jooq.Record5;

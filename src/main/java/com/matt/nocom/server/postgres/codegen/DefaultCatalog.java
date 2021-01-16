@@ -4,11 +4,11 @@
 package com.matt.nocom.server.postgres.codegen;
 
 
-import org.jooq.Schema;
-import org.jooq.impl.CatalogImpl;
-
 import java.util.Arrays;
 import java.util.List;
+
+import org.jooq.Schema;
+import org.jooq.impl.CatalogImpl;
 
 
 /**

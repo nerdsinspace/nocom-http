@@ -6,7 +6,16 @@ package com.matt.nocom.server.postgres.codegen.tables;
 
 import com.matt.nocom.server.postgres.codegen.DefaultSchema;
 import com.matt.nocom.server.postgres.codegen.tables.records.TestRecord;
-import org.jooq.*;
+
+import org.jooq.Field;
+import org.jooq.ForeignKey;
+import org.jooq.Name;
+import org.jooq.Record;
+import org.jooq.Row2;
+import org.jooq.Schema;
+import org.jooq.Table;
+import org.jooq.TableField;
+import org.jooq.TableOptions;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
 
@@ -17,7 +26,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Test extends TableImpl<TestRecord> {
 
-    private static final long serialVersionUID = 649994828;
+    private static final long serialVersionUID = -843424351;
 
     /**
      * The reference instance of <code>test</code>
@@ -33,19 +42,14 @@ public class Test extends TableImpl<TestRecord> {
     }
 
     /**
-     * The column <code>test.x</code>.
+     * The column <code>test.column1</code>.
      */
-    public final TableField<TestRecord, Integer> X = createField(DSL.name("x"), org.jooq.impl.SQLDataType.INTEGER, this, "");
+    public final TableField<TestRecord, Integer> COLUMN1 = createField(DSL.name("column1"), org.jooq.impl.SQLDataType.INTEGER, this, "");
 
     /**
-     * The column <code>test.z</code>.
+     * The column <code>test.created_at</code>.
      */
-    public final TableField<TestRecord, Integer> Z = createField(DSL.name("z"), org.jooq.impl.SQLDataType.INTEGER, this, "");
-
-    /**
-     * The column <code>test.cnt</code>.
-     */
-    public final TableField<TestRecord, Long> CNT = createField(DSL.name("cnt"), org.jooq.impl.SQLDataType.BIGINT, this, "");
+    public final TableField<TestRecord, Long> CREATED_AT = createField(DSL.name("created_at"), org.jooq.impl.SQLDataType.BIGINT, this, "");
 
     /**
      * Create a <code>test</code> table reference
@@ -112,11 +116,11 @@ public class Test extends TableImpl<TestRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row3 type methods
+    // Row2 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row3<Integer, Integer, Long> fieldsRow() {
-        return (Row3) super.fieldsRow();
+    public Row2<Integer, Long> fieldsRow() {
+        return (Row2) super.fieldsRow();
     }
 }

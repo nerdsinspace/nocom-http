@@ -6,6 +6,7 @@ package com.matt.nocom.server.postgres.codegen.udt;
 
 import com.matt.nocom.server.postgres.codegen.DefaultSchema;
 import com.matt.nocom.server.postgres.codegen.udt.records.ValidDetailRecord;
+
 import org.jooq.Schema;
 import org.jooq.UDTField;
 import org.jooq.impl.DSL;

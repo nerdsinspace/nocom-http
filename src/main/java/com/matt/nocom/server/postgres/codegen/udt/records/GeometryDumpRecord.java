@@ -5,6 +5,7 @@ package com.matt.nocom.server.postgres.codegen.udt.records;
 
 
 import com.matt.nocom.server.postgres.codegen.udt.GeometryDump;
+
 import org.jooq.Field;
 import org.jooq.Record2;
 import org.jooq.Row2;

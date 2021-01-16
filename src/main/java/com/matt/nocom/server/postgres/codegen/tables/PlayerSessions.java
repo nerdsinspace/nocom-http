@@ -8,14 +8,25 @@ import com.matt.nocom.server.postgres.codegen.DefaultSchema;
 import com.matt.nocom.server.postgres.codegen.Indexes;
 import com.matt.nocom.server.postgres.codegen.Keys;
 import com.matt.nocom.server.postgres.codegen.tables.records.PlayerSessionsRecord;
-import org.jooq.*;
-import org.jooq.impl.DSL;
-import org.jooq.impl.TableImpl;
-import org.jooq.lambda.tuple.Range;
-import space.nerdsin.nocom.server.jooq.Int8RangeJOOQBinding;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.jooq.Field;
+import org.jooq.ForeignKey;
+import org.jooq.Index;
+import org.jooq.Name;
+import org.jooq.Record;
+import org.jooq.Row6;
+import org.jooq.Schema;
+import org.jooq.Table;
+import org.jooq.TableField;
+import org.jooq.TableOptions;
+import org.jooq.impl.DSL;
+import org.jooq.impl.TableImpl;
+import org.jooq.lambda.tuple.Range;
+
+import space.nerdsin.nocom.server.jooq.Int8RangeJOOQBinding;
 
 
 /**

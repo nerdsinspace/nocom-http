@@ -4,7 +4,17 @@
 package com.matt.nocom.server.postgres.codegen;
 
 
-import com.matt.nocom.server.postgres.codegen.tables.*;
+import com.matt.nocom.server.postgres.codegen.tables.Associations;
+import com.matt.nocom.server.postgres.codegen.tables.Blocks;
+import com.matt.nocom.server.postgres.codegen.tables.Chat;
+import com.matt.nocom.server.postgres.codegen.tables.Dbscan;
+import com.matt.nocom.server.postgres.codegen.tables.GeneratorCache;
+import com.matt.nocom.server.postgres.codegen.tables.Hits;
+import com.matt.nocom.server.postgres.codegen.tables.PlayerSessions;
+import com.matt.nocom.server.postgres.codegen.tables.Players;
+import com.matt.nocom.server.postgres.codegen.tables.Signs;
+import com.matt.nocom.server.postgres.codegen.tables.Tracks;
+
 import org.jooq.Index;
 import org.jooq.OrderField;
 import org.jooq.impl.Internal;
@@ -26,21 +36,20 @@ public class Indexes {
     public static final Index BLOCKS_BY_LOC = Indexes0.BLOCKS_BY_LOC;
     public static final Index BLOCKS_BY_TIME = Indexes0.BLOCKS_BY_TIME;
     public static final Index CHAT_BY_TIME = Indexes0.CHAT_BY_TIME;
+    public static final Index CHAT_BY_TIME_2 = Indexes0.CHAT_BY_TIME_2;
     public static final Index DBSCAN_CLUSTER_ROOTS = Indexes0.DBSCAN_CLUSTER_ROOTS;
     public static final Index DBSCAN_DISJOINT_TRAVERSAL = Indexes0.DBSCAN_DISJOINT_TRAVERSAL;
     public static final Index DBSCAN_INGEST = Indexes0.DBSCAN_INGEST;
+    public static final Index GENERATOR_CACHE_BY_LOC = Indexes0.GENERATOR_CACHE_BY_LOC;
     public static final Index HITS_BY_TRACK_ID_2 = Indexes0.HITS_BY_TRACK_ID_2;
     public static final Index HITS_LOC_INTERESTING_2 = Indexes0.HITS_LOC_INTERESTING_2;
-    public static final Index OLD_ASSOCIATIONS_CLUSTER_ID = Indexes0.OLD_ASSOCIATIONS_CLUSTER_ID;
-    public static final Index OLD_ASSOCIATIONS_PLAYER_AND_CLUSTER = Indexes0.OLD_ASSOCIATIONS_PLAYER_AND_CLUSTER;
-    public static final Index OLD_ASSOCIATIONS_PLAYER_ID = Indexes0.OLD_ASSOCIATIONS_PLAYER_ID;
-    public static final Index OLD_DBSCAN_CLUSTER_ROOTS = Indexes0.OLD_DBSCAN_CLUSTER_ROOTS;
-    public static final Index OLD_DBSCAN_DISJOINT_TRAVERSAL = Indexes0.OLD_DBSCAN_DISJOINT_TRAVERSAL;
-    public static final Index OLD_DBSCAN_INGEST = Indexes0.OLD_DBSCAN_INGEST;
     public static final Index PLAYER_SESSIONS_RANGE = Indexes0.PLAYER_SESSIONS_RANGE;
     public static final Index PLAYERS_BY_USERNAME = Indexes0.PLAYERS_BY_USERNAME;
     public static final Index SIGNS_BY_LOC = Indexes0.SIGNS_BY_LOC;
     public static final Index TRACK_ENDINGS = Indexes0.TRACK_ENDINGS;
+    public static final Index TRACKS_BY_FIRST = Indexes0.TRACKS_BY_FIRST;
+    public static final Index TRACKS_BY_LAST = Indexes0.TRACKS_BY_LAST;
+    public static final Index TRACKS_BY_PREV = Indexes0.TRACKS_BY_PREV;
     public static final Index TRACKS_LEGACY = Indexes0.TRACKS_LEGACY;
 
     // -------------------------------------------------------------------------
@@ -54,21 +63,20 @@ public class Indexes {
         public static Index BLOCKS_BY_LOC = Internal.createIndex("blocks_by_loc", Blocks.BLOCKS, new OrderField[] { Blocks.BLOCKS.X, Blocks.BLOCKS.Z }, false);
         public static Index BLOCKS_BY_TIME = Internal.createIndex("blocks_by_time", Blocks.BLOCKS, new OrderField[] { Blocks.BLOCKS.CREATED_AT }, false);
         public static Index CHAT_BY_TIME = Internal.createIndex("chat_by_time", Chat.CHAT, new OrderField[] { Chat.CHAT.SERVER_ID, Chat.CHAT.CREATED_AT }, false);
+        public static Index CHAT_BY_TIME_2 = Internal.createIndex("chat_by_time_2", Chat.CHAT, new OrderField[] { Chat.CHAT.CREATED_AT }, false);
         public static Index DBSCAN_CLUSTER_ROOTS = Internal.createIndex("dbscan_cluster_roots", Dbscan.DBSCAN, new OrderField[] { Dbscan.DBSCAN.SERVER_ID, Dbscan.DBSCAN.DIMENSION, Dbscan.DBSCAN.ID }, false);
-        public static Index DBSCAN_DISJOINT_TRAVERSAL = Internal.createIndex("dbscan_disjoint_traversal", Dbscan.DBSCAN, new OrderField[] { Dbscan.DBSCAN.CLUSTER_PARENT }, false);
+        public static Index DBSCAN_DISJOINT_TRAVERSAL = Internal.createIndex("dbscan_disjoint_traversal", Dbscan.DBSCAN, new OrderField[] { Dbscan.DBSCAN.CLUSTER_PARENT, Dbscan.DBSCAN.DISJOINT_RANK, Dbscan.DBSCAN.ID }, false);
         public static Index DBSCAN_INGEST = Internal.createIndex("dbscan_ingest", Dbscan.DBSCAN, new OrderField[] { Dbscan.DBSCAN.SERVER_ID, Dbscan.DBSCAN.DIMENSION, Dbscan.DBSCAN.X, Dbscan.DBSCAN.Z }, true);
+        public static Index GENERATOR_CACHE_BY_LOC = Internal.createIndex("generator_cache_by_loc", GeneratorCache.GENERATOR_CACHE, new OrderField[] { GeneratorCache.GENERATOR_CACHE.SERVER_ID, GeneratorCache.GENERATOR_CACHE.DIMENSION, GeneratorCache.GENERATOR_CACHE.X, GeneratorCache.GENERATOR_CACHE.Z }, true);
         public static Index HITS_BY_TRACK_ID_2 = Internal.createIndex("hits_by_track_id_2", Hits.HITS, new OrderField[] { Hits.HITS.TRACK_ID }, false);
         public static Index HITS_LOC_INTERESTING_2 = Internal.createIndex("hits_loc_interesting_2", Hits.HITS, new OrderField[] { Hits.HITS.X, Hits.HITS.Z }, false);
-        public static Index OLD_ASSOCIATIONS_CLUSTER_ID = Internal.createIndex("old_associations_cluster_id", OldAssociations.OLD_ASSOCIATIONS, new OrderField[] { OldAssociations.OLD_ASSOCIATIONS.CLUSTER_ID, OldAssociations.OLD_ASSOCIATIONS.CREATED_AT }, false);
-        public static Index OLD_ASSOCIATIONS_PLAYER_AND_CLUSTER = Internal.createIndex("old_associations_player_and_cluster", OldAssociations.OLD_ASSOCIATIONS, new OrderField[] { OldAssociations.OLD_ASSOCIATIONS.PLAYER_ID, OldAssociations.OLD_ASSOCIATIONS.CLUSTER_ID }, false);
-        public static Index OLD_ASSOCIATIONS_PLAYER_ID = Internal.createIndex("old_associations_player_id", OldAssociations.OLD_ASSOCIATIONS, new OrderField[] { OldAssociations.OLD_ASSOCIATIONS.PLAYER_ID, OldAssociations.OLD_ASSOCIATIONS.CREATED_AT }, false);
-        public static Index OLD_DBSCAN_CLUSTER_ROOTS = Internal.createIndex("old_dbscan_cluster_roots", OldDbscan.OLD_DBSCAN, new OrderField[] { OldDbscan.OLD_DBSCAN.SERVER_ID, OldDbscan.OLD_DBSCAN.DIMENSION, OldDbscan.OLD_DBSCAN.ID }, false);
-        public static Index OLD_DBSCAN_DISJOINT_TRAVERSAL = Internal.createIndex("old_dbscan_disjoint_traversal", OldDbscan.OLD_DBSCAN, new OrderField[] { OldDbscan.OLD_DBSCAN.CLUSTER_PARENT }, false);
-        public static Index OLD_DBSCAN_INGEST = Internal.createIndex("old_dbscan_ingest", OldDbscan.OLD_DBSCAN, new OrderField[] { OldDbscan.OLD_DBSCAN.SERVER_ID, OldDbscan.OLD_DBSCAN.DIMENSION, OldDbscan.OLD_DBSCAN.X, OldDbscan.OLD_DBSCAN.Z }, true);
-        public static Index PLAYER_SESSIONS_RANGE = Internal.createIndex("player_sessions_range", PlayerSessions.PLAYER_SESSIONS, new OrderField[] { PlayerSessions.PLAYER_SESSIONS.RANGE }, false);
+        public static Index PLAYER_SESSIONS_RANGE = Internal.createIndex("player_sessions_range", PlayerSessions.PLAYER_SESSIONS, new OrderField[] { PlayerSessions.PLAYER_SESSIONS.SERVER_ID, PlayerSessions.PLAYER_SESSIONS.RANGE }, false);
         public static Index PLAYERS_BY_USERNAME = Internal.createIndex("players_by_username", Players.PLAYERS, new OrderField[] { Players.PLAYERS.USERNAME }, false);
         public static Index SIGNS_BY_LOC = Internal.createIndex("signs_by_loc", Signs.SIGNS, new OrderField[] { Signs.SIGNS.X, Signs.SIGNS.Z }, false);
         public static Index TRACK_ENDINGS = Internal.createIndex("track_endings", Tracks.TRACKS, new OrderField[] { Tracks.TRACKS.UPDATED_AT }, false);
+        public static Index TRACKS_BY_FIRST = Internal.createIndex("tracks_by_first", Tracks.TRACKS, new OrderField[] { Tracks.TRACKS.FIRST_HIT_ID }, false);
+        public static Index TRACKS_BY_LAST = Internal.createIndex("tracks_by_last", Tracks.TRACKS, new OrderField[] { Tracks.TRACKS.LAST_HIT_ID }, false);
+        public static Index TRACKS_BY_PREV = Internal.createIndex("tracks_by_prev", Tracks.TRACKS, new OrderField[] { Tracks.TRACKS.PREV_TRACK_ID }, false);
         public static Index TRACKS_LEGACY = Internal.createIndex("tracks_legacy", Tracks.TRACKS, new OrderField[] { Tracks.TRACKS.LAST_HIT_ID }, false);
     }
 }

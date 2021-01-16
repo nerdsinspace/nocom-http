@@ -52,5 +52,5 @@ logging:
     org.springframework.security: INFO
     org.springframework.jdbc: INFO
     org.apache.sshd: INFO
-    org.jooq: INFO
+    org.jooq: DEBUG
 
