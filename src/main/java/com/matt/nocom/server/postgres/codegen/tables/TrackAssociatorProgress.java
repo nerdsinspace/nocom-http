@@ -6,7 +6,16 @@ package com.matt.nocom.server.postgres.codegen.tables;
 
 import com.matt.nocom.server.postgres.codegen.DefaultSchema;
 import com.matt.nocom.server.postgres.codegen.tables.records.TrackAssociatorProgressRecord;
-import org.jooq.*;
+
+import org.jooq.Field;
+import org.jooq.ForeignKey;
+import org.jooq.Name;
+import org.jooq.Record;
+import org.jooq.Row1;
+import org.jooq.Schema;
+import org.jooq.Table;
+import org.jooq.TableField;
+import org.jooq.TableOptions;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
 

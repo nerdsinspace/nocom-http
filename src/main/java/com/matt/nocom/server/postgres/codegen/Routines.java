@@ -4,7 +4,971 @@
 package com.matt.nocom.server.postgres.codegen;
 
 
-import com.matt.nocom.server.postgres.codegen.routines.*;
+import com.matt.nocom.server.postgres.codegen.routines.Addauth;
+import com.matt.nocom.server.postgres.codegen.routines.Addgeometrycolumn1;
+import com.matt.nocom.server.postgres.codegen.routines.Addgeometrycolumn2;
+import com.matt.nocom.server.postgres.codegen.routines.Addgeometrycolumn3;
+import com.matt.nocom.server.postgres.codegen.routines.Box1;
+import com.matt.nocom.server.postgres.codegen.routines.Box2;
+import com.matt.nocom.server.postgres.codegen.routines.Box2d1;
+import com.matt.nocom.server.postgres.codegen.routines.Box2d2;
+import com.matt.nocom.server.postgres.codegen.routines.Box2dIn;
+import com.matt.nocom.server.postgres.codegen.routines.Box2dOut;
+import com.matt.nocom.server.postgres.codegen.routines.Box2dfIn;
+import com.matt.nocom.server.postgres.codegen.routines.Box2dfOut;
+import com.matt.nocom.server.postgres.codegen.routines.Box3d1;
+import com.matt.nocom.server.postgres.codegen.routines.Box3d2;
+import com.matt.nocom.server.postgres.codegen.routines.Box3dIn;
+import com.matt.nocom.server.postgres.codegen.routines.Box3dOut;
+import com.matt.nocom.server.postgres.codegen.routines.Box3dtobox;
+import com.matt.nocom.server.postgres.codegen.routines.Bytea1;
+import com.matt.nocom.server.postgres.codegen.routines.Bytea2;
+import com.matt.nocom.server.postgres.codegen.routines.CashDist;
+import com.matt.nocom.server.postgres.codegen.routines.Checkauth1;
+import com.matt.nocom.server.postgres.codegen.routines.Checkauth2;
+import com.matt.nocom.server.postgres.codegen.routines.Contains_2d1;
+import com.matt.nocom.server.postgres.codegen.routines.Contains_2d2;
+import com.matt.nocom.server.postgres.codegen.routines.Contains_2d3;
+import com.matt.nocom.server.postgres.codegen.routines.DateDist;
+import com.matt.nocom.server.postgres.codegen.routines.Disablelongtransactions;
+import com.matt.nocom.server.postgres.codegen.routines.Dropgeometrycolumn1;
+import com.matt.nocom.server.postgres.codegen.routines.Dropgeometrycolumn2;
+import com.matt.nocom.server.postgres.codegen.routines.Dropgeometrycolumn3;
+import com.matt.nocom.server.postgres.codegen.routines.Dropgeometrytable1;
+import com.matt.nocom.server.postgres.codegen.routines.Dropgeometrytable2;
+import com.matt.nocom.server.postgres.codegen.routines.Dropgeometrytable3;
+import com.matt.nocom.server.postgres.codegen.routines.Enablelongtransactions;
+import com.matt.nocom.server.postgres.codegen.routines.Equals;
+import com.matt.nocom.server.postgres.codegen.routines.FindSrid;
+import com.matt.nocom.server.postgres.codegen.routines.Float4Dist;
+import com.matt.nocom.server.postgres.codegen.routines.Float8Dist;
+import com.matt.nocom.server.postgres.codegen.routines.GbtBitCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtBitConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtBitPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtBitPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtBitSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtBitUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtBpcharCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtBpcharConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtByteaCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtByteaConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtByteaPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtByteaPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtByteaSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtByteaUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtCashCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtCashConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtCashDistance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtCashFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtCashPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtCashPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtCashSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtCashUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDateCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDateConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDateDistance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDateFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDatePenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDatePicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDateSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDateUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtDecompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtEnumCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtEnumConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtEnumFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtEnumPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtEnumPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtEnumSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtEnumUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat4Compress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat4Consistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat4Distance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat4Fetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat4Penalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat4Picksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat4Same;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat4Union;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat8Compress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat8Consistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat8Distance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat8Fetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat8Penalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat8Picksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat8Same;
+import com.matt.nocom.server.postgres.codegen.routines.GbtFloat8Union;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInetCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInetConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInetPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInetPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInetSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInetUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt2Compress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt2Consistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt2Distance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt2Fetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt2Penalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt2Picksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt2Same;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt2Union;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt4Compress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt4Consistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt4Distance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt4Fetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt4Penalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt4Picksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt4Same;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt4Union;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt8Compress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt8Consistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt8Distance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt8Fetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt8Penalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt8Picksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt8Same;
+import com.matt.nocom.server.postgres.codegen.routines.GbtInt8Union;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvDecompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvDistance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtIntvUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacad8Compress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacad8Consistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacad8Fetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacad8Penalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacad8Picksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacad8Same;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacad8Union;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacadCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacadConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacadFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacadPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacadPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacadSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtMacadUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtNumericCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtNumericConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtNumericPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtNumericPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtNumericSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtNumericUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtOidCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtOidConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtOidDistance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtOidFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtOidPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtOidPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtOidSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtOidUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTextCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTextConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTextPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTextPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTextSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTextUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimeCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimeConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimeDistance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimeFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimePenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimePicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimeSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimeUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimetzCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTimetzConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTsCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTsConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTsDistance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTsFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTsPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTsPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTsSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTsUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTstzCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTstzConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtTstzDistance;
+import com.matt.nocom.server.postgres.codegen.routines.GbtUuidCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtUuidConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GbtUuidFetch;
+import com.matt.nocom.server.postgres.codegen.routines.GbtUuidPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GbtUuidPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GbtUuidSame;
+import com.matt.nocom.server.postgres.codegen.routines.GbtUuidUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GbtVarDecompress;
+import com.matt.nocom.server.postgres.codegen.routines.GbtVarFetch;
+import com.matt.nocom.server.postgres.codegen.routines.Gbtreekey16In;
+import com.matt.nocom.server.postgres.codegen.routines.Gbtreekey16Out;
+import com.matt.nocom.server.postgres.codegen.routines.Gbtreekey32In;
+import com.matt.nocom.server.postgres.codegen.routines.Gbtreekey32Out;
+import com.matt.nocom.server.postgres.codegen.routines.Gbtreekey4In;
+import com.matt.nocom.server.postgres.codegen.routines.Gbtreekey4Out;
+import com.matt.nocom.server.postgres.codegen.routines.Gbtreekey8In;
+import com.matt.nocom.server.postgres.codegen.routines.Gbtreekey8Out;
+import com.matt.nocom.server.postgres.codegen.routines.GbtreekeyVarIn;
+import com.matt.nocom.server.postgres.codegen.routines.GbtreekeyVarOut;
+import com.matt.nocom.server.postgres.codegen.routines.GeogBrinInclusionAddValue;
+import com.matt.nocom.server.postgres.codegen.routines.Geography1;
+import com.matt.nocom.server.postgres.codegen.routines.Geography2;
+import com.matt.nocom.server.postgres.codegen.routines.Geography3;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyAnalyze;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyCmp;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyDistanceKnn;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyEq;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGe;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGistCompress;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGistConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGistDecompress;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGistDistance;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGistPenalty;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGistPicksplit;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGistSame;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGistUnion;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyGt;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyIn;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyLe;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyLt;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyOut;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyOverlaps;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyRecv;
+import com.matt.nocom.server.postgres.codegen.routines.GeographySend;
+import com.matt.nocom.server.postgres.codegen.routines.GeographySpgistChooseNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeographySpgistCompressNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeographySpgistConfigNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeographySpgistInnerConsistentNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeographySpgistLeafConsistentNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeographySpgistPicksplitNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyTypmodIn;
+import com.matt.nocom.server.postgres.codegen.routines.GeographyTypmodOut;
+import com.matt.nocom.server.postgres.codegen.routines.Geom2dBrinInclusionAddValue;
+import com.matt.nocom.server.postgres.codegen.routines.Geom3dBrinInclusionAddValue;
+import com.matt.nocom.server.postgres.codegen.routines.Geom4dBrinInclusionAddValue;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry1;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry2;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry3;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry4;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry5;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry6;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry7;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry8;
+import com.matt.nocom.server.postgres.codegen.routines.Geometry9;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryAbove;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryAnalyze;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryBelow;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryCmp;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryContained_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryContains;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryContainsNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryContains_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryDistanceBox;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryDistanceCentroid;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryDistanceCentroidNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryDistanceCpa;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryEq;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGe;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistCompressNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistCompress_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistConsistentNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistConsistent_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistDecompressNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistDecompress_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistDistanceNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistDistance_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistPenaltyNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistPenalty_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistPicksplitNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistPicksplit_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistSameNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistSame_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistUnionNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGistUnion_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryGt;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryHash;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryIn;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryLe;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryLeft;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryLt;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryOut;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryOverabove;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryOverbelow;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryOverlaps;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryOverlapsNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryOverlaps_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryOverleft;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryOverright;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryRecv;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryRight;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySame;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySameNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySame_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySend;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySortsupport;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistChooseNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistChoose_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistChoose_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistCompressNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistCompress_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistCompress_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistConfigNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistConfig_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistConfig_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistInnerConsistentNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistInnerConsistent_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistInnerConsistent_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistLeafConsistentNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistLeafConsistent_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistLeafConsistent_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistPicksplitNd;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistPicksplit_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometrySpgistPicksplit_3d;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryTypmodIn;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryTypmodOut;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryWithin;
+import com.matt.nocom.server.postgres.codegen.routines.GeometryWithinNd;
+import com.matt.nocom.server.postgres.codegen.routines.Geometrytype1;
+import com.matt.nocom.server.postgres.codegen.routines.Geometrytype2;
+import com.matt.nocom.server.postgres.codegen.routines.Geomfromewkb;
+import com.matt.nocom.server.postgres.codegen.routines.Geomfromewkt;
+import com.matt.nocom.server.postgres.codegen.routines.GetProj4FromSrid;
+import com.matt.nocom.server.postgres.codegen.routines.Gettransactionid;
+import com.matt.nocom.server.postgres.codegen.routines.GidxIn;
+import com.matt.nocom.server.postgres.codegen.routines.GidxOut;
+import com.matt.nocom.server.postgres.codegen.routines.GinBtreeConsistent;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixAnyenum;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixBit;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixBool;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixBpchar;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixBytea;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixChar;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixCidr;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixDate;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixFloat4;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixFloat8;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixInet;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixInt2;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixInt4;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixInt8;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixInterval;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixMacaddr;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixMacaddr8;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixMoney;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixName;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixNumeric;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixOid;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixText;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixTime;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixTimestamp;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixTimestamptz;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixTimetz;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixUuid;
+import com.matt.nocom.server.postgres.codegen.routines.GinComparePrefixVarbit;
+import com.matt.nocom.server.postgres.codegen.routines.GinEnumCmp;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryAnyenum;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryBit;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryBool;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryBpchar;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryBytea;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryChar;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryCidr;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryDate;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryFloat4;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryFloat8;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryInet;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryInt2;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryInt4;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryInt8;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryInterval;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryMacaddr;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryMacaddr8;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryMoney;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryName;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryNumeric;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryOid;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryText;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryTime;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryTimestamp;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryTimestamptz;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryTimetz;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryUuid;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractQueryVarbit;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueAnyenum;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueBit;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueBool;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueBpchar;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueBytea;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueChar;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueCidr;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueDate;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueFloat4;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueFloat8;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueInet;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueInt2;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueInt4;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueInt8;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueInterval;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueMacaddr;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueMacaddr8;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueMoney;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueName;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueNumeric;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueOid;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueText;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueTime;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueTimestamp;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueTimestamptz;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueTimetz;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueUuid;
+import com.matt.nocom.server.postgres.codegen.routines.GinExtractValueVarbit;
+import com.matt.nocom.server.postgres.codegen.routines.GinNumericCmp;
+import com.matt.nocom.server.postgres.codegen.routines.GserializedGistJoinselNd;
+import com.matt.nocom.server.postgres.codegen.routines.GserializedGistJoinsel_2d;
+import com.matt.nocom.server.postgres.codegen.routines.GserializedGistSelNd;
+import com.matt.nocom.server.postgres.codegen.routines.GserializedGistSel_2d;
+import com.matt.nocom.server.postgres.codegen.routines.Int2Dist;
+import com.matt.nocom.server.postgres.codegen.routines.Int4Dist;
+import com.matt.nocom.server.postgres.codegen.routines.Int8Dist;
+import com.matt.nocom.server.postgres.codegen.routines.IntervalDist;
+import com.matt.nocom.server.postgres.codegen.routines.IsContained_2d1;
+import com.matt.nocom.server.postgres.codegen.routines.IsContained_2d2;
+import com.matt.nocom.server.postgres.codegen.routines.IsContained_2d3;
+import com.matt.nocom.server.postgres.codegen.routines.Json;
+import com.matt.nocom.server.postgres.codegen.routines.Jsonb;
+import com.matt.nocom.server.postgres.codegen.routines.Lockrow1;
+import com.matt.nocom.server.postgres.codegen.routines.Lockrow2;
+import com.matt.nocom.server.postgres.codegen.routines.Lockrow3;
+import com.matt.nocom.server.postgres.codegen.routines.Lockrow4;
+import com.matt.nocom.server.postgres.codegen.routines.Longtransactionsenabled;
+import com.matt.nocom.server.postgres.codegen.routines.NbtDecode;
+import com.matt.nocom.server.postgres.codegen.routines.OidDist;
+import com.matt.nocom.server.postgres.codegen.routines.OverlapsGeog1;
+import com.matt.nocom.server.postgres.codegen.routines.OverlapsGeog2;
+import com.matt.nocom.server.postgres.codegen.routines.OverlapsGeog3;
+import com.matt.nocom.server.postgres.codegen.routines.OverlapsNd1;
+import com.matt.nocom.server.postgres.codegen.routines.OverlapsNd2;
+import com.matt.nocom.server.postgres.codegen.routines.OverlapsNd3;
+import com.matt.nocom.server.postgres.codegen.routines.Overlaps_2d1;
+import com.matt.nocom.server.postgres.codegen.routines.Overlaps_2d2;
+import com.matt.nocom.server.postgres.codegen.routines.Overlaps_2d3;
+import com.matt.nocom.server.postgres.codegen.routines.Path;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsgeobufFinalfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsgeobufTransfn1;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsgeobufTransfn2;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtCombinefn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtDeserialfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtFinalfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtSerialfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtTransfn1;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtTransfn2;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtTransfn3;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtTransfn4;
+import com.matt.nocom.server.postgres.codegen.routines.PgisAsmvtTransfn5;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryAccumTransfn1;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryAccumTransfn2;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryAccumTransfn3;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryClusterintersectingFinalfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryClusterwithinFinalfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryCollectFinalfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryMakelineFinalfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryPolygonizeFinalfn;
+import com.matt.nocom.server.postgres.codegen.routines.PgisGeometryUnionFinalfn;
+import com.matt.nocom.server.postgres.codegen.routines.Point;
+import com.matt.nocom.server.postgres.codegen.routines.Polygon;
+import com.matt.nocom.server.postgres.codegen.routines.PopulateGeometryColumns1;
+import com.matt.nocom.server.postgres.codegen.routines.PopulateGeometryColumns2;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisAddbbox;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisConstraintDims;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisConstraintSrid;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisConstraintType;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisDropbbox;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisExtensionsUpgrade;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisFullVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisGeosNoop;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisGeosVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisGetbbox;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisHasbbox;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisIndexSupportfn;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisLibBuildDate;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisLibVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisLibjsonVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisLiblwgeomVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisLibprotobufVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisLibxmlVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisNoop;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisProjVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisScriptsBuildDate;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisScriptsInstalled;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisScriptsReleased;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisSvnVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisTransformGeometry;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisTypeName;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisTypmodDims;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisTypmodSrid;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisTypmodType;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisVersion;
+import com.matt.nocom.server.postgres.codegen.routines.PostgisWagyuVersion;
+import com.matt.nocom.server.postgres.codegen.routines.RangeUnionCardinality;
+import com.matt.nocom.server.postgres.codegen.routines.SpheroidIn;
+import com.matt.nocom.server.postgres.codegen.routines.SpheroidOut;
+import com.matt.nocom.server.postgres.codegen.routines.StAddmeasure;
+import com.matt.nocom.server.postgres.codegen.routines.StAddpoint1;
+import com.matt.nocom.server.postgres.codegen.routines.StAddpoint2;
+import com.matt.nocom.server.postgres.codegen.routines.StAffine1;
+import com.matt.nocom.server.postgres.codegen.routines.StAffine2;
+import com.matt.nocom.server.postgres.codegen.routines.StAngle1;
+import com.matt.nocom.server.postgres.codegen.routines.StAngle2;
+import com.matt.nocom.server.postgres.codegen.routines.StArea1;
+import com.matt.nocom.server.postgres.codegen.routines.StArea2;
+import com.matt.nocom.server.postgres.codegen.routines.StArea2d;
+import com.matt.nocom.server.postgres.codegen.routines.StArea3;
+import com.matt.nocom.server.postgres.codegen.routines.StAsbinary1;
+import com.matt.nocom.server.postgres.codegen.routines.StAsbinary2;
+import com.matt.nocom.server.postgres.codegen.routines.StAsbinary3;
+import com.matt.nocom.server.postgres.codegen.routines.StAsbinary4;
+import com.matt.nocom.server.postgres.codegen.routines.StAsencodedpolyline;
+import com.matt.nocom.server.postgres.codegen.routines.StAsewkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StAsewkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StAsewkt1;
+import com.matt.nocom.server.postgres.codegen.routines.StAsewkt2;
+import com.matt.nocom.server.postgres.codegen.routines.StAsewkt3;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgeobuf1;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgeobuf2;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgeojson1;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgeojson2;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgeojson3;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgeojson4;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgml1;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgml2;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgml3;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgml4;
+import com.matt.nocom.server.postgres.codegen.routines.StAsgml5;
+import com.matt.nocom.server.postgres.codegen.routines.StAshexewkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StAshexewkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StAskml1;
+import com.matt.nocom.server.postgres.codegen.routines.StAskml2;
+import com.matt.nocom.server.postgres.codegen.routines.StAskml3;
+import com.matt.nocom.server.postgres.codegen.routines.StAslatlontext;
+import com.matt.nocom.server.postgres.codegen.routines.StAsmvt1;
+import com.matt.nocom.server.postgres.codegen.routines.StAsmvt2;
+import com.matt.nocom.server.postgres.codegen.routines.StAsmvt3;
+import com.matt.nocom.server.postgres.codegen.routines.StAsmvt4;
+import com.matt.nocom.server.postgres.codegen.routines.StAsmvt5;
+import com.matt.nocom.server.postgres.codegen.routines.StAsmvtgeom;
+import com.matt.nocom.server.postgres.codegen.routines.StAssvg1;
+import com.matt.nocom.server.postgres.codegen.routines.StAssvg2;
+import com.matt.nocom.server.postgres.codegen.routines.StAssvg3;
+import com.matt.nocom.server.postgres.codegen.routines.StAstext1;
+import com.matt.nocom.server.postgres.codegen.routines.StAstext2;
+import com.matt.nocom.server.postgres.codegen.routines.StAstext3;
+import com.matt.nocom.server.postgres.codegen.routines.StAstext4;
+import com.matt.nocom.server.postgres.codegen.routines.StAstext5;
+import com.matt.nocom.server.postgres.codegen.routines.StAstwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StAstwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StAsx3d;
+import com.matt.nocom.server.postgres.codegen.routines.StAzimuth1;
+import com.matt.nocom.server.postgres.codegen.routines.StAzimuth2;
+import com.matt.nocom.server.postgres.codegen.routines.StBdmpolyfromtext;
+import com.matt.nocom.server.postgres.codegen.routines.StBdpolyfromtext;
+import com.matt.nocom.server.postgres.codegen.routines.StBoundary;
+import com.matt.nocom.server.postgres.codegen.routines.StBoundingdiagonal;
+import com.matt.nocom.server.postgres.codegen.routines.StBox2dfromgeohash;
+import com.matt.nocom.server.postgres.codegen.routines.StBuffer1;
+import com.matt.nocom.server.postgres.codegen.routines.StBuffer2;
+import com.matt.nocom.server.postgres.codegen.routines.StBuffer3;
+import com.matt.nocom.server.postgres.codegen.routines.StBuffer4;
+import com.matt.nocom.server.postgres.codegen.routines.StBuffer5;
+import com.matt.nocom.server.postgres.codegen.routines.StBuffer6;
+import com.matt.nocom.server.postgres.codegen.routines.StBuffer7;
+import com.matt.nocom.server.postgres.codegen.routines.StBuffer8;
+import com.matt.nocom.server.postgres.codegen.routines.StBuildarea;
+import com.matt.nocom.server.postgres.codegen.routines.StCentroid1;
+import com.matt.nocom.server.postgres.codegen.routines.StCentroid2;
+import com.matt.nocom.server.postgres.codegen.routines.StCentroid3;
+import com.matt.nocom.server.postgres.codegen.routines.StChaikinsmoothing;
+import com.matt.nocom.server.postgres.codegen.routines.StCleangeometry;
+import com.matt.nocom.server.postgres.codegen.routines.StClipbybox2d;
+import com.matt.nocom.server.postgres.codegen.routines.StClosestpoint;
+import com.matt.nocom.server.postgres.codegen.routines.StClosestpointofapproach;
+import com.matt.nocom.server.postgres.codegen.routines.StClusterdbscan;
+import com.matt.nocom.server.postgres.codegen.routines.StClusterintersecting1;
+import com.matt.nocom.server.postgres.codegen.routines.StClusterintersecting2;
+import com.matt.nocom.server.postgres.codegen.routines.StClusterkmeans;
+import com.matt.nocom.server.postgres.codegen.routines.StClusterwithin1;
+import com.matt.nocom.server.postgres.codegen.routines.StClusterwithin2;
+import com.matt.nocom.server.postgres.codegen.routines.StCollect1;
+import com.matt.nocom.server.postgres.codegen.routines.StCollect2;
+import com.matt.nocom.server.postgres.codegen.routines.StCollect3;
+import com.matt.nocom.server.postgres.codegen.routines.StCollectionextract;
+import com.matt.nocom.server.postgres.codegen.routines.StCollectionhomogenize;
+import com.matt.nocom.server.postgres.codegen.routines.StCombinebbox1;
+import com.matt.nocom.server.postgres.codegen.routines.StCombinebbox2;
+import com.matt.nocom.server.postgres.codegen.routines.StCombinebbox3;
+import com.matt.nocom.server.postgres.codegen.routines.StConcavehull;
+import com.matt.nocom.server.postgres.codegen.routines.StContains;
+import com.matt.nocom.server.postgres.codegen.routines.StContainsproperly;
+import com.matt.nocom.server.postgres.codegen.routines.StConvexhull;
+import com.matt.nocom.server.postgres.codegen.routines.StCoorddim;
+import com.matt.nocom.server.postgres.codegen.routines.StCoveredby1;
+import com.matt.nocom.server.postgres.codegen.routines.StCoveredby2;
+import com.matt.nocom.server.postgres.codegen.routines.StCoveredby3;
+import com.matt.nocom.server.postgres.codegen.routines.StCovers1;
+import com.matt.nocom.server.postgres.codegen.routines.StCovers2;
+import com.matt.nocom.server.postgres.codegen.routines.StCovers3;
+import com.matt.nocom.server.postgres.codegen.routines.StCpawithin;
+import com.matt.nocom.server.postgres.codegen.routines.StCrosses;
+import com.matt.nocom.server.postgres.codegen.routines.StCurvetoline;
+import com.matt.nocom.server.postgres.codegen.routines.StDelaunaytriangles;
+import com.matt.nocom.server.postgres.codegen.routines.StDfullywithin;
+import com.matt.nocom.server.postgres.codegen.routines.StDifference;
+import com.matt.nocom.server.postgres.codegen.routines.StDimension;
+import com.matt.nocom.server.postgres.codegen.routines.StDisjoint;
+import com.matt.nocom.server.postgres.codegen.routines.StDistance1;
+import com.matt.nocom.server.postgres.codegen.routines.StDistance2;
+import com.matt.nocom.server.postgres.codegen.routines.StDistance3;
+import com.matt.nocom.server.postgres.codegen.routines.StDistancecpa;
+import com.matt.nocom.server.postgres.codegen.routines.StDistancesphere;
+import com.matt.nocom.server.postgres.codegen.routines.StDistancespheroid;
+import com.matt.nocom.server.postgres.codegen.routines.StDwithin1;
+import com.matt.nocom.server.postgres.codegen.routines.StDwithin2;
+import com.matt.nocom.server.postgres.codegen.routines.StDwithin3;
+import com.matt.nocom.server.postgres.codegen.routines.StEndpoint;
+import com.matt.nocom.server.postgres.codegen.routines.StEnvelope;
+import com.matt.nocom.server.postgres.codegen.routines.StEquals;
+import com.matt.nocom.server.postgres.codegen.routines.StEstimatedextent1;
+import com.matt.nocom.server.postgres.codegen.routines.StEstimatedextent2;
+import com.matt.nocom.server.postgres.codegen.routines.StEstimatedextent3;
+import com.matt.nocom.server.postgres.codegen.routines.StExpand1;
+import com.matt.nocom.server.postgres.codegen.routines.StExpand2;
+import com.matt.nocom.server.postgres.codegen.routines.StExpand3;
+import com.matt.nocom.server.postgres.codegen.routines.StExpand4;
+import com.matt.nocom.server.postgres.codegen.routines.StExpand5;
+import com.matt.nocom.server.postgres.codegen.routines.StExpand6;
+import com.matt.nocom.server.postgres.codegen.routines.StExtent;
+import com.matt.nocom.server.postgres.codegen.routines.StExteriorring;
+import com.matt.nocom.server.postgres.codegen.routines.StFilterbym;
+import com.matt.nocom.server.postgres.codegen.routines.StFindextent1;
+import com.matt.nocom.server.postgres.codegen.routines.StFindextent2;
+import com.matt.nocom.server.postgres.codegen.routines.StFlipcoordinates;
+import com.matt.nocom.server.postgres.codegen.routines.StForce2d;
+import com.matt.nocom.server.postgres.codegen.routines.StForce3d;
+import com.matt.nocom.server.postgres.codegen.routines.StForce3dm;
+import com.matt.nocom.server.postgres.codegen.routines.StForce3dz;
+import com.matt.nocom.server.postgres.codegen.routines.StForce4d;
+import com.matt.nocom.server.postgres.codegen.routines.StForcecollection;
+import com.matt.nocom.server.postgres.codegen.routines.StForcecurve;
+import com.matt.nocom.server.postgres.codegen.routines.StForcepolygonccw;
+import com.matt.nocom.server.postgres.codegen.routines.StForcepolygoncw;
+import com.matt.nocom.server.postgres.codegen.routines.StForcerhr;
+import com.matt.nocom.server.postgres.codegen.routines.StForcesfs1;
+import com.matt.nocom.server.postgres.codegen.routines.StForcesfs2;
+import com.matt.nocom.server.postgres.codegen.routines.StFrechetdistance;
+import com.matt.nocom.server.postgres.codegen.routines.StGeneratepoints1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeneratepoints2;
+import com.matt.nocom.server.postgres.codegen.routines.StGeogfromtext;
+import com.matt.nocom.server.postgres.codegen.routines.StGeogfromwkb;
+import com.matt.nocom.server.postgres.codegen.routines.StGeographyfromtext;
+import com.matt.nocom.server.postgres.codegen.routines.StGeohash1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeohash2;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomcollfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomcollfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomcollfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomcollfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StGeometricmedian;
+import com.matt.nocom.server.postgres.codegen.routines.StGeometryfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeometryfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StGeometryn;
+import com.matt.nocom.server.postgres.codegen.routines.StGeometrytype;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromewkb;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromewkt;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromgeohash;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromgeojson1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromgeojson2;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromgeojson3;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromgml1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromgml2;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromkml;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromtwkb;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StGeomfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StGmltosql1;
+import com.matt.nocom.server.postgres.codegen.routines.StGmltosql2;
+import com.matt.nocom.server.postgres.codegen.routines.StHasarc;
+import com.matt.nocom.server.postgres.codegen.routines.StHausdorffdistance1;
+import com.matt.nocom.server.postgres.codegen.routines.StHausdorffdistance2;
+import com.matt.nocom.server.postgres.codegen.routines.StInteriorringn;
+import com.matt.nocom.server.postgres.codegen.routines.StInterpolatepoint;
+import com.matt.nocom.server.postgres.codegen.routines.StIntersection1;
+import com.matt.nocom.server.postgres.codegen.routines.StIntersection2;
+import com.matt.nocom.server.postgres.codegen.routines.StIntersection3;
+import com.matt.nocom.server.postgres.codegen.routines.StIntersects1;
+import com.matt.nocom.server.postgres.codegen.routines.StIntersects2;
+import com.matt.nocom.server.postgres.codegen.routines.StIntersects3;
+import com.matt.nocom.server.postgres.codegen.routines.StIsclosed;
+import com.matt.nocom.server.postgres.codegen.routines.StIscollection;
+import com.matt.nocom.server.postgres.codegen.routines.StIsempty;
+import com.matt.nocom.server.postgres.codegen.routines.StIspolygonccw;
+import com.matt.nocom.server.postgres.codegen.routines.StIspolygoncw;
+import com.matt.nocom.server.postgres.codegen.routines.StIsring;
+import com.matt.nocom.server.postgres.codegen.routines.StIssimple;
+import com.matt.nocom.server.postgres.codegen.routines.StIsvalid1;
+import com.matt.nocom.server.postgres.codegen.routines.StIsvalid2;
+import com.matt.nocom.server.postgres.codegen.routines.StIsvaliddetail;
+import com.matt.nocom.server.postgres.codegen.routines.StIsvalidreason1;
+import com.matt.nocom.server.postgres.codegen.routines.StIsvalidreason2;
+import com.matt.nocom.server.postgres.codegen.routines.StIsvalidtrajectory;
+import com.matt.nocom.server.postgres.codegen.routines.StLength1;
+import com.matt.nocom.server.postgres.codegen.routines.StLength2;
+import com.matt.nocom.server.postgres.codegen.routines.StLength2d;
+import com.matt.nocom.server.postgres.codegen.routines.StLength2dspheroid;
+import com.matt.nocom.server.postgres.codegen.routines.StLength3;
+import com.matt.nocom.server.postgres.codegen.routines.StLengthspheroid;
+import com.matt.nocom.server.postgres.codegen.routines.StLinecrossingdirection;
+import com.matt.nocom.server.postgres.codegen.routines.StLinefromencodedpolyline;
+import com.matt.nocom.server.postgres.codegen.routines.StLinefrommultipoint;
+import com.matt.nocom.server.postgres.codegen.routines.StLinefromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StLinefromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StLinefromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StLinefromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StLineinterpolatepoint;
+import com.matt.nocom.server.postgres.codegen.routines.StLineinterpolatepoints;
+import com.matt.nocom.server.postgres.codegen.routines.StLinelocatepoint;
+import com.matt.nocom.server.postgres.codegen.routines.StLinemerge;
+import com.matt.nocom.server.postgres.codegen.routines.StLinestringfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StLinestringfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StLinesubstring;
+import com.matt.nocom.server.postgres.codegen.routines.StLinetocurve;
+import com.matt.nocom.server.postgres.codegen.routines.StLocatealong;
+import com.matt.nocom.server.postgres.codegen.routines.StLocatebetween;
+import com.matt.nocom.server.postgres.codegen.routines.StLocatebetweenelevations;
+import com.matt.nocom.server.postgres.codegen.routines.StLongestline;
+import com.matt.nocom.server.postgres.codegen.routines.StM;
+import com.matt.nocom.server.postgres.codegen.routines.StMakebox2d;
+import com.matt.nocom.server.postgres.codegen.routines.StMakeenvelope;
+import com.matt.nocom.server.postgres.codegen.routines.StMakeline1;
+import com.matt.nocom.server.postgres.codegen.routines.StMakeline2;
+import com.matt.nocom.server.postgres.codegen.routines.StMakeline3;
+import com.matt.nocom.server.postgres.codegen.routines.StMakepoint1;
+import com.matt.nocom.server.postgres.codegen.routines.StMakepoint2;
+import com.matt.nocom.server.postgres.codegen.routines.StMakepoint3;
+import com.matt.nocom.server.postgres.codegen.routines.StMakepointm;
+import com.matt.nocom.server.postgres.codegen.routines.StMakepolygon1;
+import com.matt.nocom.server.postgres.codegen.routines.StMakepolygon2;
+import com.matt.nocom.server.postgres.codegen.routines.StMakevalid;
+import com.matt.nocom.server.postgres.codegen.routines.StMaxdistance;
+import com.matt.nocom.server.postgres.codegen.routines.StMemcollect;
+import com.matt.nocom.server.postgres.codegen.routines.StMemsize;
+import com.matt.nocom.server.postgres.codegen.routines.StMemunion;
+import com.matt.nocom.server.postgres.codegen.routines.StMinimumboundingcircle;
+import com.matt.nocom.server.postgres.codegen.routines.StMinimumboundingradius;
+import com.matt.nocom.server.postgres.codegen.routines.StMinimumclearance;
+import com.matt.nocom.server.postgres.codegen.routines.StMinimumclearanceline;
+import com.matt.nocom.server.postgres.codegen.routines.StMlinefromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StMlinefromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StMlinefromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StMlinefromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StMpointfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StMpointfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StMpointfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StMpointfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StMpolyfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StMpolyfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StMpolyfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StMpolyfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StMulti;
+import com.matt.nocom.server.postgres.codegen.routines.StMultilinefromwkb;
+import com.matt.nocom.server.postgres.codegen.routines.StMultilinestringfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StMultilinestringfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StMultipointfromtext;
+import com.matt.nocom.server.postgres.codegen.routines.StMultipointfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StMultipointfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StMultipolyfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StMultipolyfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StMultipolygonfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StMultipolygonfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StNdims;
+import com.matt.nocom.server.postgres.codegen.routines.StNode;
+import com.matt.nocom.server.postgres.codegen.routines.StNormalize;
+import com.matt.nocom.server.postgres.codegen.routines.StNpoints;
+import com.matt.nocom.server.postgres.codegen.routines.StNrings;
+import com.matt.nocom.server.postgres.codegen.routines.StNumgeometries;
+import com.matt.nocom.server.postgres.codegen.routines.StNuminteriorring;
+import com.matt.nocom.server.postgres.codegen.routines.StNuminteriorrings;
+import com.matt.nocom.server.postgres.codegen.routines.StNumpatches;
+import com.matt.nocom.server.postgres.codegen.routines.StNumpoints;
+import com.matt.nocom.server.postgres.codegen.routines.StOffsetcurve;
+import com.matt.nocom.server.postgres.codegen.routines.StOrderingequals;
+import com.matt.nocom.server.postgres.codegen.routines.StOrientedenvelope;
+import com.matt.nocom.server.postgres.codegen.routines.StOverlaps;
+import com.matt.nocom.server.postgres.codegen.routines.StPatchn;
+import com.matt.nocom.server.postgres.codegen.routines.StPerimeter1;
+import com.matt.nocom.server.postgres.codegen.routines.StPerimeter2;
+import com.matt.nocom.server.postgres.codegen.routines.StPerimeter2d;
+import com.matt.nocom.server.postgres.codegen.routines.StPoint;
+import com.matt.nocom.server.postgres.codegen.routines.StPointfromgeohash;
+import com.matt.nocom.server.postgres.codegen.routines.StPointfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StPointfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StPointfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StPointfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StPointinsidecircle;
+import com.matt.nocom.server.postgres.codegen.routines.StPointn;
+import com.matt.nocom.server.postgres.codegen.routines.StPointonsurface;
+import com.matt.nocom.server.postgres.codegen.routines.StPoints;
+import com.matt.nocom.server.postgres.codegen.routines.StPolyfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StPolyfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StPolyfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StPolyfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StPolygon;
+import com.matt.nocom.server.postgres.codegen.routines.StPolygonfromtext1;
+import com.matt.nocom.server.postgres.codegen.routines.StPolygonfromtext2;
+import com.matt.nocom.server.postgres.codegen.routines.StPolygonfromwkb1;
+import com.matt.nocom.server.postgres.codegen.routines.StPolygonfromwkb2;
+import com.matt.nocom.server.postgres.codegen.routines.StPolygonize1;
+import com.matt.nocom.server.postgres.codegen.routines.StPolygonize2;
+import com.matt.nocom.server.postgres.codegen.routines.StProject;
+import com.matt.nocom.server.postgres.codegen.routines.StQuantizecoordinates;
+import com.matt.nocom.server.postgres.codegen.routines.StRelate1;
+import com.matt.nocom.server.postgres.codegen.routines.StRelate2;
+import com.matt.nocom.server.postgres.codegen.routines.StRelate3;
+import com.matt.nocom.server.postgres.codegen.routines.StRelatematch;
+import com.matt.nocom.server.postgres.codegen.routines.StRemovepoint;
+import com.matt.nocom.server.postgres.codegen.routines.StRemoverepeatedpoints;
+import com.matt.nocom.server.postgres.codegen.routines.StReverse;
+import com.matt.nocom.server.postgres.codegen.routines.StRotate1;
+import com.matt.nocom.server.postgres.codegen.routines.StRotate2;
+import com.matt.nocom.server.postgres.codegen.routines.StRotate3;
+import com.matt.nocom.server.postgres.codegen.routines.StRotatex;
+import com.matt.nocom.server.postgres.codegen.routines.StRotatey;
+import com.matt.nocom.server.postgres.codegen.routines.StRotatez;
+import com.matt.nocom.server.postgres.codegen.routines.StScale1;
+import com.matt.nocom.server.postgres.codegen.routines.StScale2;
+import com.matt.nocom.server.postgres.codegen.routines.StScale3;
+import com.matt.nocom.server.postgres.codegen.routines.StScale4;
+import com.matt.nocom.server.postgres.codegen.routines.StSegmentize1;
+import com.matt.nocom.server.postgres.codegen.routines.StSegmentize2;
+import com.matt.nocom.server.postgres.codegen.routines.StSeteffectivearea;
+import com.matt.nocom.server.postgres.codegen.routines.StSetpoint;
+import com.matt.nocom.server.postgres.codegen.routines.StSetsrid1;
+import com.matt.nocom.server.postgres.codegen.routines.StSetsrid2;
+import com.matt.nocom.server.postgres.codegen.routines.StSharedpaths;
+import com.matt.nocom.server.postgres.codegen.routines.StShiftlongitude;
+import com.matt.nocom.server.postgres.codegen.routines.StShortestline;
+import com.matt.nocom.server.postgres.codegen.routines.StSimplify1;
+import com.matt.nocom.server.postgres.codegen.routines.StSimplify2;
+import com.matt.nocom.server.postgres.codegen.routines.StSimplifypreservetopology;
+import com.matt.nocom.server.postgres.codegen.routines.StSimplifyvw;
+import com.matt.nocom.server.postgres.codegen.routines.StSnap;
+import com.matt.nocom.server.postgres.codegen.routines.StSnaptogrid1;
+import com.matt.nocom.server.postgres.codegen.routines.StSnaptogrid2;
+import com.matt.nocom.server.postgres.codegen.routines.StSnaptogrid3;
+import com.matt.nocom.server.postgres.codegen.routines.StSnaptogrid4;
+import com.matt.nocom.server.postgres.codegen.routines.StSplit;
+import com.matt.nocom.server.postgres.codegen.routines.StSrid1;
+import com.matt.nocom.server.postgres.codegen.routines.StSrid2;
+import com.matt.nocom.server.postgres.codegen.routines.StStartpoint;
+import com.matt.nocom.server.postgres.codegen.routines.StSummary1;
+import com.matt.nocom.server.postgres.codegen.routines.StSummary2;
+import com.matt.nocom.server.postgres.codegen.routines.StSwapordinates;
+import com.matt.nocom.server.postgres.codegen.routines.StSymdifference;
+import com.matt.nocom.server.postgres.codegen.routines.StSymmetricdifference;
+import com.matt.nocom.server.postgres.codegen.routines.StTileenvelope;
+import com.matt.nocom.server.postgres.codegen.routines.StTouches;
+import com.matt.nocom.server.postgres.codegen.routines.StTransform1;
+import com.matt.nocom.server.postgres.codegen.routines.StTransform2;
+import com.matt.nocom.server.postgres.codegen.routines.StTransform3;
+import com.matt.nocom.server.postgres.codegen.routines.StTransform4;
+import com.matt.nocom.server.postgres.codegen.routines.StTranslate1;
+import com.matt.nocom.server.postgres.codegen.routines.StTranslate2;
+import com.matt.nocom.server.postgres.codegen.routines.StTransscale;
+import com.matt.nocom.server.postgres.codegen.routines.StUnaryunion;
+import com.matt.nocom.server.postgres.codegen.routines.StUnion1;
+import com.matt.nocom.server.postgres.codegen.routines.StUnion2;
+import com.matt.nocom.server.postgres.codegen.routines.StUnion3;
+import com.matt.nocom.server.postgres.codegen.routines.StVoronoilines;
+import com.matt.nocom.server.postgres.codegen.routines.StVoronoipolygons;
+import com.matt.nocom.server.postgres.codegen.routines.StWithin;
+import com.matt.nocom.server.postgres.codegen.routines.StWkbtosql;
+import com.matt.nocom.server.postgres.codegen.routines.StWkttosql;
+import com.matt.nocom.server.postgres.codegen.routines.StWrapx;
+import com.matt.nocom.server.postgres.codegen.routines.StX;
+import com.matt.nocom.server.postgres.codegen.routines.StXmax;
+import com.matt.nocom.server.postgres.codegen.routines.StXmin;
+import com.matt.nocom.server.postgres.codegen.routines.StY;
+import com.matt.nocom.server.postgres.codegen.routines.StYmax;
+import com.matt.nocom.server.postgres.codegen.routines.StYmin;
+import com.matt.nocom.server.postgres.codegen.routines.StZ;
+import com.matt.nocom.server.postgres.codegen.routines.StZmax;
+import com.matt.nocom.server.postgres.codegen.routines.StZmflag;
+import com.matt.nocom.server.postgres.codegen.routines.StZmin;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dclosestpoint;
+import com.matt.nocom.server.postgres.codegen.routines.St_3ddfullywithin;
+import com.matt.nocom.server.postgres.codegen.routines.St_3ddistance;
+import com.matt.nocom.server.postgres.codegen.routines.St_3ddwithin;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dextent;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dintersects;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dlength;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dlineinterpolatepoint;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dlongestline;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dmakebox;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dmaxdistance;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dperimeter;
+import com.matt.nocom.server.postgres.codegen.routines.St_3dshortestline;
+import com.matt.nocom.server.postgres.codegen.routines.Text;
+import com.matt.nocom.server.postgres.codegen.routines.TimeDist;
+import com.matt.nocom.server.postgres.codegen.routines.TsDist;
+import com.matt.nocom.server.postgres.codegen.routines.TstzDist;
+import com.matt.nocom.server.postgres.codegen.routines.Unlockrows;
+import com.matt.nocom.server.postgres.codegen.routines.Updategeometrysrid1;
+import com.matt.nocom.server.postgres.codegen.routines.Updategeometrysrid2;
+import com.matt.nocom.server.postgres.codegen.routines.Updategeometrysrid3;
+import com.matt.nocom.server.postgres.codegen.routines._PostgisDeprecate;
+import com.matt.nocom.server.postgres.codegen.routines._PostgisIndexExtent;
+import com.matt.nocom.server.postgres.codegen.routines._PostgisJoinSelectivity;
+import com.matt.nocom.server.postgres.codegen.routines._PostgisPgsqlVersion;
+import com.matt.nocom.server.postgres.codegen.routines._PostgisScriptsPgsqlVersion;
+import com.matt.nocom.server.postgres.codegen.routines._PostgisSelectivity;
+import com.matt.nocom.server.postgres.codegen.routines._PostgisStats;
+import com.matt.nocom.server.postgres.codegen.routines._RangeUnionCardinality;
+import com.matt.nocom.server.postgres.codegen.routines._StAsgml;
+import com.matt.nocom.server.postgres.codegen.routines._StAsx3d;
+import com.matt.nocom.server.postgres.codegen.routines._StBestsrid1;
+import com.matt.nocom.server.postgres.codegen.routines._StBestsrid2;
+import com.matt.nocom.server.postgres.codegen.routines._StConcavehull;
+import com.matt.nocom.server.postgres.codegen.routines._StContains;
+import com.matt.nocom.server.postgres.codegen.routines._StContainsproperly;
+import com.matt.nocom.server.postgres.codegen.routines._StCoveredby1;
+import com.matt.nocom.server.postgres.codegen.routines._StCoveredby2;
+import com.matt.nocom.server.postgres.codegen.routines._StCovers1;
+import com.matt.nocom.server.postgres.codegen.routines._StCovers2;
+import com.matt.nocom.server.postgres.codegen.routines._StCrosses;
+import com.matt.nocom.server.postgres.codegen.routines._StDfullywithin;
+import com.matt.nocom.server.postgres.codegen.routines._StDistancetree1;
+import com.matt.nocom.server.postgres.codegen.routines._StDistancetree2;
+import com.matt.nocom.server.postgres.codegen.routines._StDistanceuncached1;
+import com.matt.nocom.server.postgres.codegen.routines._StDistanceuncached2;
+import com.matt.nocom.server.postgres.codegen.routines._StDistanceuncached3;
+import com.matt.nocom.server.postgres.codegen.routines._StDwithin1;
+import com.matt.nocom.server.postgres.codegen.routines._StDwithin2;
+import com.matt.nocom.server.postgres.codegen.routines._StDwithinuncached1;
+import com.matt.nocom.server.postgres.codegen.routines._StDwithinuncached2;
+import com.matt.nocom.server.postgres.codegen.routines._StEquals;
+import com.matt.nocom.server.postgres.codegen.routines._StExpand;
+import com.matt.nocom.server.postgres.codegen.routines._StGeomfromgml;
+import com.matt.nocom.server.postgres.codegen.routines._StIntersects;
+import com.matt.nocom.server.postgres.codegen.routines._StLinecrossingdirection;
+import com.matt.nocom.server.postgres.codegen.routines._StLongestline;
+import com.matt.nocom.server.postgres.codegen.routines._StMaxdistance;
+import com.matt.nocom.server.postgres.codegen.routines._StOrderingequals;
+import com.matt.nocom.server.postgres.codegen.routines._StOverlaps;
+import com.matt.nocom.server.postgres.codegen.routines._StPointoutside;
+import com.matt.nocom.server.postgres.codegen.routines._StTouches;
+import com.matt.nocom.server.postgres.codegen.routines._StVoronoi;
+import com.matt.nocom.server.postgres.codegen.routines._StWithin;
+import com.matt.nocom.server.postgres.codegen.routines._St_3ddfullywithin;
+import com.matt.nocom.server.postgres.codegen.routines._St_3ddwithin;
+import com.matt.nocom.server.postgres.codegen.routines._St_3dintersects;
 import com.matt.nocom.server.postgres.codegen.tables.StDump;
 import com.matt.nocom.server.postgres.codegen.tables.StDumppoints;
 import com.matt.nocom.server.postgres.codegen.tables.StDumprings;
@@ -14,13 +978,24 @@ import com.matt.nocom.server.postgres.codegen.tables.records.StDumppointsRecord;
 import com.matt.nocom.server.postgres.codegen.tables.records.StDumpringsRecord;
 import com.matt.nocom.server.postgres.codegen.tables.records.StSubdivideRecord;
 import com.matt.nocom.server.postgres.codegen.udt.records.ValidDetailRecord;
-import org.jooq.*;
-import org.jooq.lambda.tuple.Range;
-import org.jooq.types.YearToSecond;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.util.UUID;
+
+import org.jooq.AggregateFunction;
+import org.jooq.Configuration;
+import org.jooq.Field;
+import org.jooq.JSON;
+import org.jooq.JSONB;
+import org.jooq.Record;
+import org.jooq.Result;
+import org.jooq.lambda.tuple.Range;
+import org.jooq.types.YearToSecond;
 
 
 /**
@@ -13699,6 +14674,3654 @@ public class Routines {
      * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
      */
     @java.lang.Deprecated
+    public static Boolean ginBtreeConsistent(Configuration configuration, Object __1, Short __2, Object __3, Integer __4, Object __5, Object __6) {
+        GinBtreeConsistent f = new GinBtreeConsistent();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+        f.set__6(__6);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Boolean> ginBtreeConsistent(Object __1, Short __2, Object __3, Integer __4, Object __5, Object __6) {
+        GinBtreeConsistent f = new GinBtreeConsistent();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+        f.set__6(__6);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Boolean> ginBtreeConsistent(Field<Object> __1, Field<Short> __2, Field<Object> __3, Field<Integer> __4, Field<Object> __5, Field<Object> __6) {
+        GinBtreeConsistent f = new GinBtreeConsistent();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+        f.set__6(__6);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixAnyenum(Configuration configuration, Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixAnyenum f = new GinComparePrefixAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixAnyenum(Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixAnyenum f = new GinComparePrefixAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixAnyenum(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixAnyenum f = new GinComparePrefixAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixBit(Configuration configuration, String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixBit f = new GinComparePrefixBit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixBit(String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixBit f = new GinComparePrefixBit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixBit(Field<String> __1, Field<String> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixBit f = new GinComparePrefixBit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixBool(Configuration configuration, Boolean __1, Boolean __2, Short __3, Object __4) {
+        GinComparePrefixBool f = new GinComparePrefixBool();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixBool(Boolean __1, Boolean __2, Short __3, Object __4) {
+        GinComparePrefixBool f = new GinComparePrefixBool();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixBool(Field<Boolean> __1, Field<Boolean> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixBool f = new GinComparePrefixBool();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixBpchar(Configuration configuration, String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixBpchar f = new GinComparePrefixBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixBpchar(String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixBpchar f = new GinComparePrefixBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixBpchar(Field<String> __1, Field<String> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixBpchar f = new GinComparePrefixBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixBytea(Configuration configuration, byte[] __1, byte[] __2, Short __3, Object __4) {
+        GinComparePrefixBytea f = new GinComparePrefixBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixBytea(byte[] __1, byte[] __2, Short __3, Object __4) {
+        GinComparePrefixBytea f = new GinComparePrefixBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixBytea(Field<byte[]> __1, Field<byte[]> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixBytea f = new GinComparePrefixBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixChar(Configuration configuration, String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixChar f = new GinComparePrefixChar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixChar(String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixChar f = new GinComparePrefixChar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixChar(Field<String> __1, Field<String> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixChar f = new GinComparePrefixChar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixCidr(Configuration configuration, Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixCidr f = new GinComparePrefixCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixCidr(Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixCidr f = new GinComparePrefixCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixCidr(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixCidr f = new GinComparePrefixCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixDate(Configuration configuration, LocalDate __1, LocalDate __2, Short __3, Object __4) {
+        GinComparePrefixDate f = new GinComparePrefixDate();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixDate(LocalDate __1, LocalDate __2, Short __3, Object __4) {
+        GinComparePrefixDate f = new GinComparePrefixDate();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixDate(Field<LocalDate> __1, Field<LocalDate> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixDate f = new GinComparePrefixDate();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixFloat4(Configuration configuration, Float __1, Float __2, Short __3, Object __4) {
+        GinComparePrefixFloat4 f = new GinComparePrefixFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixFloat4(Float __1, Float __2, Short __3, Object __4) {
+        GinComparePrefixFloat4 f = new GinComparePrefixFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixFloat4(Field<Float> __1, Field<Float> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixFloat4 f = new GinComparePrefixFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixFloat8(Configuration configuration, Double __1, Double __2, Short __3, Object __4) {
+        GinComparePrefixFloat8 f = new GinComparePrefixFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixFloat8(Double __1, Double __2, Short __3, Object __4) {
+        GinComparePrefixFloat8 f = new GinComparePrefixFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixFloat8(Field<Double> __1, Field<Double> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixFloat8 f = new GinComparePrefixFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixInet(Configuration configuration, Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixInet f = new GinComparePrefixInet();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInet(Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixInet f = new GinComparePrefixInet();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInet(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixInet f = new GinComparePrefixInet();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixInt2(Configuration configuration, Short __1, Short __2, Short __3, Object __4) {
+        GinComparePrefixInt2 f = new GinComparePrefixInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInt2(Short __1, Short __2, Short __3, Object __4) {
+        GinComparePrefixInt2 f = new GinComparePrefixInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInt2(Field<Short> __1, Field<Short> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixInt2 f = new GinComparePrefixInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixInt4(Configuration configuration, Integer __1, Integer __2, Short __3, Object __4) {
+        GinComparePrefixInt4 f = new GinComparePrefixInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInt4(Integer __1, Integer __2, Short __3, Object __4) {
+        GinComparePrefixInt4 f = new GinComparePrefixInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInt4(Field<Integer> __1, Field<Integer> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixInt4 f = new GinComparePrefixInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixInt8(Configuration configuration, Long __1, Long __2, Short __3, Object __4) {
+        GinComparePrefixInt8 f = new GinComparePrefixInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInt8(Long __1, Long __2, Short __3, Object __4) {
+        GinComparePrefixInt8 f = new GinComparePrefixInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInt8(Field<Long> __1, Field<Long> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixInt8 f = new GinComparePrefixInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixInterval(Configuration configuration, YearToSecond __1, YearToSecond __2, Short __3, Object __4) {
+        GinComparePrefixInterval f = new GinComparePrefixInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInterval(YearToSecond __1, YearToSecond __2, Short __3, Object __4) {
+        GinComparePrefixInterval f = new GinComparePrefixInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixInterval(Field<YearToSecond> __1, Field<YearToSecond> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixInterval f = new GinComparePrefixInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixMacaddr(Configuration configuration, Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixMacaddr f = new GinComparePrefixMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixMacaddr(Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixMacaddr f = new GinComparePrefixMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixMacaddr(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixMacaddr f = new GinComparePrefixMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixMacaddr8(Configuration configuration, Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixMacaddr8 f = new GinComparePrefixMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixMacaddr8(Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixMacaddr8 f = new GinComparePrefixMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixMacaddr8(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixMacaddr8 f = new GinComparePrefixMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixMoney(Configuration configuration, Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixMoney f = new GinComparePrefixMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixMoney(Object __1, Object __2, Short __3, Object __4) {
+        GinComparePrefixMoney f = new GinComparePrefixMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixMoney(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixMoney f = new GinComparePrefixMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixName(Configuration configuration, String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixName f = new GinComparePrefixName();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixName(String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixName f = new GinComparePrefixName();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixName(Field<String> __1, Field<String> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixName f = new GinComparePrefixName();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixNumeric(Configuration configuration, BigDecimal __1, BigDecimal __2, Short __3, Object __4) {
+        GinComparePrefixNumeric f = new GinComparePrefixNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixNumeric(BigDecimal __1, BigDecimal __2, Short __3, Object __4) {
+        GinComparePrefixNumeric f = new GinComparePrefixNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixNumeric(Field<BigDecimal> __1, Field<BigDecimal> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixNumeric f = new GinComparePrefixNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixOid(Configuration configuration, Long __1, Long __2, Short __3, Object __4) {
+        GinComparePrefixOid f = new GinComparePrefixOid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixOid(Long __1, Long __2, Short __3, Object __4) {
+        GinComparePrefixOid f = new GinComparePrefixOid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixOid(Field<Long> __1, Field<Long> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixOid f = new GinComparePrefixOid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixText(Configuration configuration, String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixText f = new GinComparePrefixText();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixText(String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixText f = new GinComparePrefixText();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixText(Field<String> __1, Field<String> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixText f = new GinComparePrefixText();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixTime(Configuration configuration, LocalTime __1, LocalTime __2, Short __3, Object __4) {
+        GinComparePrefixTime f = new GinComparePrefixTime();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixTime(LocalTime __1, LocalTime __2, Short __3, Object __4) {
+        GinComparePrefixTime f = new GinComparePrefixTime();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixTime(Field<LocalTime> __1, Field<LocalTime> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixTime f = new GinComparePrefixTime();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixTimestamp(Configuration configuration, LocalDateTime __1, LocalDateTime __2, Short __3, Object __4) {
+        GinComparePrefixTimestamp f = new GinComparePrefixTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixTimestamp(LocalDateTime __1, LocalDateTime __2, Short __3, Object __4) {
+        GinComparePrefixTimestamp f = new GinComparePrefixTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixTimestamp(Field<LocalDateTime> __1, Field<LocalDateTime> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixTimestamp f = new GinComparePrefixTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixTimestamptz(Configuration configuration, OffsetDateTime __1, OffsetDateTime __2, Short __3, Object __4) {
+        GinComparePrefixTimestamptz f = new GinComparePrefixTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixTimestamptz(OffsetDateTime __1, OffsetDateTime __2, Short __3, Object __4) {
+        GinComparePrefixTimestamptz f = new GinComparePrefixTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixTimestamptz(Field<OffsetDateTime> __1, Field<OffsetDateTime> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixTimestamptz f = new GinComparePrefixTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixTimetz(Configuration configuration, OffsetTime __1, OffsetTime __2, Short __3, Object __4) {
+        GinComparePrefixTimetz f = new GinComparePrefixTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixTimetz(OffsetTime __1, OffsetTime __2, Short __3, Object __4) {
+        GinComparePrefixTimetz f = new GinComparePrefixTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixTimetz(Field<OffsetTime> __1, Field<OffsetTime> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixTimetz f = new GinComparePrefixTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixUuid(Configuration configuration, UUID __1, UUID __2, Short __3, Object __4) {
+        GinComparePrefixUuid f = new GinComparePrefixUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixUuid(UUID __1, UUID __2, Short __3, Object __4) {
+        GinComparePrefixUuid f = new GinComparePrefixUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixUuid(Field<UUID> __1, Field<UUID> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixUuid f = new GinComparePrefixUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginComparePrefixVarbit(Configuration configuration, String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixVarbit f = new GinComparePrefixVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixVarbit(String __1, String __2, Short __3, Object __4) {
+        GinComparePrefixVarbit f = new GinComparePrefixVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginComparePrefixVarbit(Field<String> __1, Field<String> __2, Field<Short> __3, Field<Object> __4) {
+        GinComparePrefixVarbit f = new GinComparePrefixVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Integer ginEnumCmp(Configuration configuration, Object __1, Object __2) {
+        GinEnumCmp f = new GinEnumCmp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginEnumCmp(Object __1, Object __2) {
+        GinEnumCmp f = new GinEnumCmp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Integer> ginEnumCmp(Field<Object> __1, Field<Object> __2) {
+        GinEnumCmp f = new GinEnumCmp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryAnyenum(Configuration configuration, Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryAnyenum f = new GinExtractQueryAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryAnyenum(Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryAnyenum f = new GinExtractQueryAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryAnyenum(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryAnyenum f = new GinExtractQueryAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryBit(Configuration configuration, String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryBit f = new GinExtractQueryBit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryBit(String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryBit f = new GinExtractQueryBit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryBit(Field<String> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryBit f = new GinExtractQueryBit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryBool(Configuration configuration, Boolean __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryBool f = new GinExtractQueryBool();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryBool(Boolean __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryBool f = new GinExtractQueryBool();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryBool(Field<Boolean> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryBool f = new GinExtractQueryBool();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryBpchar(Configuration configuration, String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryBpchar f = new GinExtractQueryBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryBpchar(String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryBpchar f = new GinExtractQueryBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryBpchar(Field<String> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryBpchar f = new GinExtractQueryBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryBytea(Configuration configuration, byte[] __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryBytea f = new GinExtractQueryBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryBytea(byte[] __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryBytea f = new GinExtractQueryBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryBytea(Field<byte[]> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryBytea f = new GinExtractQueryBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryChar(Configuration configuration, String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryChar f = new GinExtractQueryChar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryChar(String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryChar f = new GinExtractQueryChar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryChar(Field<String> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryChar f = new GinExtractQueryChar();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryCidr(Configuration configuration, Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryCidr f = new GinExtractQueryCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryCidr(Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryCidr f = new GinExtractQueryCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryCidr(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryCidr f = new GinExtractQueryCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryDate(Configuration configuration, LocalDate __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryDate f = new GinExtractQueryDate();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryDate(LocalDate __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryDate f = new GinExtractQueryDate();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryDate(Field<LocalDate> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryDate f = new GinExtractQueryDate();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryFloat4(Configuration configuration, Float __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryFloat4 f = new GinExtractQueryFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryFloat4(Float __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryFloat4 f = new GinExtractQueryFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryFloat4(Field<Float> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryFloat4 f = new GinExtractQueryFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryFloat8(Configuration configuration, Double __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryFloat8 f = new GinExtractQueryFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryFloat8(Double __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryFloat8 f = new GinExtractQueryFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryFloat8(Field<Double> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryFloat8 f = new GinExtractQueryFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryInet(Configuration configuration, Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInet f = new GinExtractQueryInet();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInet(Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInet f = new GinExtractQueryInet();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInet(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryInet f = new GinExtractQueryInet();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryInt2(Configuration configuration, Short __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInt2 f = new GinExtractQueryInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInt2(Short __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInt2 f = new GinExtractQueryInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInt2(Field<Short> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryInt2 f = new GinExtractQueryInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryInt4(Configuration configuration, Integer __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInt4 f = new GinExtractQueryInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInt4(Integer __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInt4 f = new GinExtractQueryInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInt4(Field<Integer> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryInt4 f = new GinExtractQueryInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryInt8(Configuration configuration, Long __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInt8 f = new GinExtractQueryInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInt8(Long __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInt8 f = new GinExtractQueryInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInt8(Field<Long> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryInt8 f = new GinExtractQueryInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryInterval(Configuration configuration, YearToSecond __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInterval f = new GinExtractQueryInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInterval(YearToSecond __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryInterval f = new GinExtractQueryInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryInterval(Field<YearToSecond> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryInterval f = new GinExtractQueryInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryMacaddr(Configuration configuration, Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryMacaddr f = new GinExtractQueryMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryMacaddr(Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryMacaddr f = new GinExtractQueryMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryMacaddr(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryMacaddr f = new GinExtractQueryMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryMacaddr8(Configuration configuration, Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryMacaddr8 f = new GinExtractQueryMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryMacaddr8(Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryMacaddr8 f = new GinExtractQueryMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryMacaddr8(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryMacaddr8 f = new GinExtractQueryMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryMoney(Configuration configuration, Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryMoney f = new GinExtractQueryMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryMoney(Object __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryMoney f = new GinExtractQueryMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryMoney(Field<Object> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryMoney f = new GinExtractQueryMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryName(Configuration configuration, String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryName f = new GinExtractQueryName();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryName(String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryName f = new GinExtractQueryName();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryName(Field<String> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryName f = new GinExtractQueryName();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryNumeric(Configuration configuration, BigDecimal __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryNumeric f = new GinExtractQueryNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryNumeric(BigDecimal __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryNumeric f = new GinExtractQueryNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryNumeric(Field<BigDecimal> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryNumeric f = new GinExtractQueryNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryOid(Configuration configuration, Long __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryOid f = new GinExtractQueryOid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryOid(Long __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryOid f = new GinExtractQueryOid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryOid(Field<Long> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryOid f = new GinExtractQueryOid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryText(Configuration configuration, String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryText f = new GinExtractQueryText();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryText(String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryText f = new GinExtractQueryText();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryText(Field<String> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryText f = new GinExtractQueryText();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryTime(Configuration configuration, LocalTime __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryTime f = new GinExtractQueryTime();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryTime(LocalTime __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryTime f = new GinExtractQueryTime();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryTime(Field<LocalTime> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryTime f = new GinExtractQueryTime();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryTimestamp(Configuration configuration, LocalDateTime __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryTimestamp f = new GinExtractQueryTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryTimestamp(LocalDateTime __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryTimestamp f = new GinExtractQueryTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryTimestamp(Field<LocalDateTime> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryTimestamp f = new GinExtractQueryTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryTimestamptz(Configuration configuration, OffsetDateTime __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryTimestamptz f = new GinExtractQueryTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryTimestamptz(OffsetDateTime __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryTimestamptz f = new GinExtractQueryTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryTimestamptz(Field<OffsetDateTime> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryTimestamptz f = new GinExtractQueryTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryTimetz(Configuration configuration, OffsetTime __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryTimetz f = new GinExtractQueryTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryTimetz(OffsetTime __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryTimetz f = new GinExtractQueryTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryTimetz(Field<OffsetTime> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryTimetz f = new GinExtractQueryTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryUuid(Configuration configuration, UUID __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryUuid f = new GinExtractQueryUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryUuid(UUID __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryUuid f = new GinExtractQueryUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryUuid(Field<UUID> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryUuid f = new GinExtractQueryUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractQueryVarbit(Configuration configuration, String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryVarbit f = new GinExtractQueryVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryVarbit(String __1, Object __2, Short __3, Object __4, Object __5) {
+        GinExtractQueryVarbit f = new GinExtractQueryVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractQueryVarbit(Field<String> __1, Field<Object> __2, Field<Short> __3, Field<Object> __4, Field<Object> __5) {
+        GinExtractQueryVarbit f = new GinExtractQueryVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+        f.set__3(__3);
+        f.set__4(__4);
+        f.set__5(__5);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueAnyenum(Configuration configuration, Object __1, Object __2) {
+        GinExtractValueAnyenum f = new GinExtractValueAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueAnyenum(Object __1, Object __2) {
+        GinExtractValueAnyenum f = new GinExtractValueAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueAnyenum(Field<Object> __1, Field<Object> __2) {
+        GinExtractValueAnyenum f = new GinExtractValueAnyenum();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueBit(Configuration configuration, String __1, Object __2) {
+        GinExtractValueBit f = new GinExtractValueBit();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueBit(String __1, Object __2) {
+        GinExtractValueBit f = new GinExtractValueBit();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueBit(Field<String> __1, Field<Object> __2) {
+        GinExtractValueBit f = new GinExtractValueBit();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueBool(Configuration configuration, Boolean __1, Object __2) {
+        GinExtractValueBool f = new GinExtractValueBool();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueBool(Boolean __1, Object __2) {
+        GinExtractValueBool f = new GinExtractValueBool();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueBool(Field<Boolean> __1, Field<Object> __2) {
+        GinExtractValueBool f = new GinExtractValueBool();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueBpchar(Configuration configuration, String __1, Object __2) {
+        GinExtractValueBpchar f = new GinExtractValueBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueBpchar(String __1, Object __2) {
+        GinExtractValueBpchar f = new GinExtractValueBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueBpchar(Field<String> __1, Field<Object> __2) {
+        GinExtractValueBpchar f = new GinExtractValueBpchar();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueBytea(Configuration configuration, byte[] __1, Object __2) {
+        GinExtractValueBytea f = new GinExtractValueBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueBytea(byte[] __1, Object __2) {
+        GinExtractValueBytea f = new GinExtractValueBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueBytea(Field<byte[]> __1, Field<Object> __2) {
+        GinExtractValueBytea f = new GinExtractValueBytea();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueChar(Configuration configuration, String __1, Object __2) {
+        GinExtractValueChar f = new GinExtractValueChar();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueChar(String __1, Object __2) {
+        GinExtractValueChar f = new GinExtractValueChar();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueChar(Field<String> __1, Field<Object> __2) {
+        GinExtractValueChar f = new GinExtractValueChar();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueCidr(Configuration configuration, Object __1, Object __2) {
+        GinExtractValueCidr f = new GinExtractValueCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueCidr(Object __1, Object __2) {
+        GinExtractValueCidr f = new GinExtractValueCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueCidr(Field<Object> __1, Field<Object> __2) {
+        GinExtractValueCidr f = new GinExtractValueCidr();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueDate(Configuration configuration, LocalDate __1, Object __2) {
+        GinExtractValueDate f = new GinExtractValueDate();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueDate(LocalDate __1, Object __2) {
+        GinExtractValueDate f = new GinExtractValueDate();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueDate(Field<LocalDate> __1, Field<Object> __2) {
+        GinExtractValueDate f = new GinExtractValueDate();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueFloat4(Configuration configuration, Float __1, Object __2) {
+        GinExtractValueFloat4 f = new GinExtractValueFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueFloat4(Float __1, Object __2) {
+        GinExtractValueFloat4 f = new GinExtractValueFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueFloat4(Field<Float> __1, Field<Object> __2) {
+        GinExtractValueFloat4 f = new GinExtractValueFloat4();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueFloat8(Configuration configuration, Double __1, Object __2) {
+        GinExtractValueFloat8 f = new GinExtractValueFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueFloat8(Double __1, Object __2) {
+        GinExtractValueFloat8 f = new GinExtractValueFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueFloat8(Field<Double> __1, Field<Object> __2) {
+        GinExtractValueFloat8 f = new GinExtractValueFloat8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueInet(Configuration configuration, Object __1, Object __2) {
+        GinExtractValueInet f = new GinExtractValueInet();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInet(Object __1, Object __2) {
+        GinExtractValueInet f = new GinExtractValueInet();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInet(Field<Object> __1, Field<Object> __2) {
+        GinExtractValueInet f = new GinExtractValueInet();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueInt2(Configuration configuration, Short __1, Object __2) {
+        GinExtractValueInt2 f = new GinExtractValueInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInt2(Short __1, Object __2) {
+        GinExtractValueInt2 f = new GinExtractValueInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInt2(Field<Short> __1, Field<Object> __2) {
+        GinExtractValueInt2 f = new GinExtractValueInt2();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueInt4(Configuration configuration, Integer __1, Object __2) {
+        GinExtractValueInt4 f = new GinExtractValueInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInt4(Integer __1, Object __2) {
+        GinExtractValueInt4 f = new GinExtractValueInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInt4(Field<Integer> __1, Field<Object> __2) {
+        GinExtractValueInt4 f = new GinExtractValueInt4();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueInt8(Configuration configuration, Long __1, Object __2) {
+        GinExtractValueInt8 f = new GinExtractValueInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInt8(Long __1, Object __2) {
+        GinExtractValueInt8 f = new GinExtractValueInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInt8(Field<Long> __1, Field<Object> __2) {
+        GinExtractValueInt8 f = new GinExtractValueInt8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueInterval(Configuration configuration, YearToSecond __1, Object __2) {
+        GinExtractValueInterval f = new GinExtractValueInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInterval(YearToSecond __1, Object __2) {
+        GinExtractValueInterval f = new GinExtractValueInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueInterval(Field<YearToSecond> __1, Field<Object> __2) {
+        GinExtractValueInterval f = new GinExtractValueInterval();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueMacaddr(Configuration configuration, Object __1, Object __2) {
+        GinExtractValueMacaddr f = new GinExtractValueMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueMacaddr(Object __1, Object __2) {
+        GinExtractValueMacaddr f = new GinExtractValueMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueMacaddr(Field<Object> __1, Field<Object> __2) {
+        GinExtractValueMacaddr f = new GinExtractValueMacaddr();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueMacaddr8(Configuration configuration, Object __1, Object __2) {
+        GinExtractValueMacaddr8 f = new GinExtractValueMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueMacaddr8(Object __1, Object __2) {
+        GinExtractValueMacaddr8 f = new GinExtractValueMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueMacaddr8(Field<Object> __1, Field<Object> __2) {
+        GinExtractValueMacaddr8 f = new GinExtractValueMacaddr8();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueMoney(Configuration configuration, Object __1, Object __2) {
+        GinExtractValueMoney f = new GinExtractValueMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueMoney(Object __1, Object __2) {
+        GinExtractValueMoney f = new GinExtractValueMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueMoney(Field<Object> __1, Field<Object> __2) {
+        GinExtractValueMoney f = new GinExtractValueMoney();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueName(Configuration configuration, String __1, Object __2) {
+        GinExtractValueName f = new GinExtractValueName();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueName(String __1, Object __2) {
+        GinExtractValueName f = new GinExtractValueName();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueName(Field<String> __1, Field<Object> __2) {
+        GinExtractValueName f = new GinExtractValueName();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueNumeric(Configuration configuration, BigDecimal __1, Object __2) {
+        GinExtractValueNumeric f = new GinExtractValueNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueNumeric(BigDecimal __1, Object __2) {
+        GinExtractValueNumeric f = new GinExtractValueNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueNumeric(Field<BigDecimal> __1, Field<Object> __2) {
+        GinExtractValueNumeric f = new GinExtractValueNumeric();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueOid(Configuration configuration, Long __1, Object __2) {
+        GinExtractValueOid f = new GinExtractValueOid();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueOid(Long __1, Object __2) {
+        GinExtractValueOid f = new GinExtractValueOid();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueOid(Field<Long> __1, Field<Object> __2) {
+        GinExtractValueOid f = new GinExtractValueOid();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueText(Configuration configuration, String __1, Object __2) {
+        GinExtractValueText f = new GinExtractValueText();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueText(String __1, Object __2) {
+        GinExtractValueText f = new GinExtractValueText();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueText(Field<String> __1, Field<Object> __2) {
+        GinExtractValueText f = new GinExtractValueText();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueTime(Configuration configuration, LocalTime __1, Object __2) {
+        GinExtractValueTime f = new GinExtractValueTime();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueTime(LocalTime __1, Object __2) {
+        GinExtractValueTime f = new GinExtractValueTime();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueTime(Field<LocalTime> __1, Field<Object> __2) {
+        GinExtractValueTime f = new GinExtractValueTime();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueTimestamp(Configuration configuration, LocalDateTime __1, Object __2) {
+        GinExtractValueTimestamp f = new GinExtractValueTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueTimestamp(LocalDateTime __1, Object __2) {
+        GinExtractValueTimestamp f = new GinExtractValueTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueTimestamp(Field<LocalDateTime> __1, Field<Object> __2) {
+        GinExtractValueTimestamp f = new GinExtractValueTimestamp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueTimestamptz(Configuration configuration, OffsetDateTime __1, Object __2) {
+        GinExtractValueTimestamptz f = new GinExtractValueTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueTimestamptz(OffsetDateTime __1, Object __2) {
+        GinExtractValueTimestamptz f = new GinExtractValueTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueTimestamptz(Field<OffsetDateTime> __1, Field<Object> __2) {
+        GinExtractValueTimestamptz f = new GinExtractValueTimestamptz();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueTimetz(Configuration configuration, OffsetTime __1, Object __2) {
+        GinExtractValueTimetz f = new GinExtractValueTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueTimetz(OffsetTime __1, Object __2) {
+        GinExtractValueTimetz f = new GinExtractValueTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueTimetz(Field<OffsetTime> __1, Field<Object> __2) {
+        GinExtractValueTimetz f = new GinExtractValueTimetz();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueUuid(Configuration configuration, UUID __1, Object __2) {
+        GinExtractValueUuid f = new GinExtractValueUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueUuid(UUID __1, Object __2) {
+        GinExtractValueUuid f = new GinExtractValueUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueUuid(Field<UUID> __1, Field<Object> __2) {
+        GinExtractValueUuid f = new GinExtractValueUuid();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Object ginExtractValueVarbit(Configuration configuration, String __1, Object __2) {
+        GinExtractValueVarbit f = new GinExtractValueVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueVarbit(String __1, Object __2) {
+        GinExtractValueVarbit f = new GinExtractValueVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
+    public static Field<Object> ginExtractValueVarbit(Field<String> __1, Field<Object> __2) {
+        GinExtractValueVarbit f = new GinExtractValueVarbit();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * Call <code>gin_numeric_cmp</code>
+     */
+    public static Integer ginNumericCmp(Configuration configuration, BigDecimal __1, BigDecimal __2) {
+        GinNumericCmp f = new GinNumericCmp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        f.execute(configuration);
+        return f.getReturnValue();
+    }
+
+    /**
+     * Get <code>gin_numeric_cmp</code> as a field.
+     */
+    public static Field<Integer> ginNumericCmp(BigDecimal __1, BigDecimal __2) {
+        GinNumericCmp f = new GinNumericCmp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * Get <code>gin_numeric_cmp</code> as a field.
+     */
+    public static Field<Integer> ginNumericCmp(Field<BigDecimal> __1, Field<BigDecimal> __2) {
+        GinNumericCmp f = new GinNumericCmp();
+        f.set__1(__1);
+        f.set__2(__2);
+
+        return f.asField();
+    }
+
+    /**
+     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     */
+    @java.lang.Deprecated
     public static Double gserializedGistJoinsel_2d(Configuration configuration, Object __1, Long __2, Object __3, Short __4) {
         GserializedGistJoinsel_2d f = new GserializedGistJoinsel_2d();
         f.set__1(__1);
@@ -17338,44 +21961,20 @@ public class Routines {
     }
 
     /**
-     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     * Call <code>st_angle</code>
      */
-    @java.lang.Deprecated
-    public static Double stAngle1(Configuration configuration, Object pt1, Object pt2, Object pt3, Object pt4) {
+    public static Double stAngle1(Configuration configuration) {
         StAngle1 f = new StAngle1();
-        f.setPt1(pt1);
-        f.setPt2(pt2);
-        f.setPt3(pt3);
-        f.setPt4(pt4);
 
         f.execute(configuration);
         return f.getReturnValue();
     }
 
     /**
-     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
+     * Get <code>st_angle</code> as a field.
      */
-    @java.lang.Deprecated
-    public static Field<Double> stAngle1(Object pt1, Object pt2, Object pt3, Object pt4) {
+    public static Field<Double> stAngle1() {
         StAngle1 f = new StAngle1();
-        f.setPt1(pt1);
-        f.setPt2(pt2);
-        f.setPt3(pt3);
-        f.setPt4(pt4);
-
-        return f.asField();
-    }
-
-    /**
-     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
-     */
-    @java.lang.Deprecated
-    public static Field<Double> stAngle1(Field<Object> pt1, Field<Object> pt2, Field<Object> pt3, Field<Object> pt4) {
-        StAngle1 f = new StAngle1();
-        f.setPt1(pt1);
-        f.setPt2(pt2);
-        f.setPt3(pt3);
-        f.setPt4(pt4);
 
         return f.asField();
     }
@@ -30219,12 +34818,8 @@ public class Routines {
      * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
      */
     @java.lang.Deprecated
-    public static Object stTileenvelope(Configuration configuration, Integer zoom, Integer x, Integer y, Object bounds) {
+    public static Object stTileenvelope(Configuration configuration) {
         StTileenvelope f = new StTileenvelope();
-        f.setZoom(zoom);
-        f.setX(x);
-        f.setY(y);
-        f.setBounds(bounds);
 
         f.execute(configuration);
         return f.getReturnValue();
@@ -30234,26 +34829,8 @@ public class Routines {
      * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
      */
     @java.lang.Deprecated
-    public static Field<Object> stTileenvelope(Integer zoom, Integer x, Integer y, Object bounds) {
+    public static Field<Object> stTileenvelope() {
         StTileenvelope f = new StTileenvelope();
-        f.setZoom(zoom);
-        f.setX(x);
-        f.setY(y);
-        f.setBounds(bounds);
-
-        return f.asField();
-    }
-
-    /**
-     * @deprecated Unknown data type. Please define an explicit {@link org.jooq.Binding} to specify how this type should be handled. Deprecation can be turned off using {@literal <deprecationOnUnknownTypes/>} in your code generator configuration.
-     */
-    @java.lang.Deprecated
-    public static Field<Object> stTileenvelope(Field<Integer> zoom, Field<Integer> x, Field<Integer> y, Field<Object> bounds) {
-        StTileenvelope f = new StTileenvelope();
-        f.setZoom(zoom);
-        f.setX(x);
-        f.setY(y);
-        f.setBounds(bounds);
 
         return f.asField();
     }

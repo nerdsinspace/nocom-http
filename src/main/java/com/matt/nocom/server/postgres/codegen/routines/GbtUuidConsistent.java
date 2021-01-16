@@ -5,12 +5,13 @@ package com.matt.nocom.server.postgres.codegen.routines;
 
 
 import com.matt.nocom.server.postgres.codegen.DefaultSchema;
+
+import java.util.UUID;
+
 import org.jooq.Field;
 import org.jooq.Parameter;
 import org.jooq.impl.AbstractRoutine;
 import org.jooq.impl.Internal;
-
-import java.util.UUID;
 
 
 /**

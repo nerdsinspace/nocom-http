@@ -5,13 +5,14 @@ package com.matt.nocom.server.postgres.codegen.tables.records;
 
 
 import com.matt.nocom.server.postgres.codegen.tables.Players;
+
+import java.util.UUID;
+
 import org.jooq.Field;
 import org.jooq.Record1;
 import org.jooq.Record3;
 import org.jooq.Row3;
 import org.jooq.impl.UpdatableRecordImpl;
-
-import java.util.UUID;
 
 
 /**

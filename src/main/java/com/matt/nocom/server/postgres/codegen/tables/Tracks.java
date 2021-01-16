@@ -8,12 +8,24 @@ import com.matt.nocom.server.postgres.codegen.DefaultSchema;
 import com.matt.nocom.server.postgres.codegen.Indexes;
 import com.matt.nocom.server.postgres.codegen.Keys;
 import com.matt.nocom.server.postgres.codegen.tables.records.TracksRecord;
-import org.jooq.*;
-import org.jooq.impl.DSL;
-import org.jooq.impl.TableImpl;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.jooq.Field;
+import org.jooq.ForeignKey;
+import org.jooq.Identity;
+import org.jooq.Index;
+import org.jooq.Name;
+import org.jooq.Record;
+import org.jooq.Row8;
+import org.jooq.Schema;
+import org.jooq.Table;
+import org.jooq.TableField;
+import org.jooq.TableOptions;
+import org.jooq.UniqueKey;
+import org.jooq.impl.DSL;
+import org.jooq.impl.TableImpl;
 
 
 /**
@@ -22,7 +34,7 @@ import java.util.List;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Tracks extends TableImpl<TracksRecord> {
 
-    private static final long serialVersionUID = 751420578;
+    private static final long serialVersionUID = 1907513148;
 
     /**
      * The reference instance of <code>tracks</code>
@@ -117,7 +129,7 @@ public class Tracks extends TableImpl<TracksRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.TRACK_ENDINGS, Indexes.TRACKS_LEGACY);
+        return Arrays.<Index>asList(Indexes.TRACK_ENDINGS, Indexes.TRACKS_BY_FIRST, Indexes.TRACKS_BY_LAST, Indexes.TRACKS_BY_PREV, Indexes.TRACKS_LEGACY);
     }
 
     @Override

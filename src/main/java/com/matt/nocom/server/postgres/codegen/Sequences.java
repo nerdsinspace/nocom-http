@@ -15,11 +15,6 @@ import org.jooq.impl.Internal;
 public class Sequences {
 
     /**
-     * The sequence <code>dbscan_id_seq</code>
-     */
-    public static final Sequence<Integer> DBSCAN_ID_SEQ = Internal.createSequence("dbscan_id_seq", DefaultSchema.DEFAULT_SCHEMA, org.jooq.impl.SQLDataType.INTEGER.nullable(false), null, null, null, null, false, null);
-
-    /**
      * The sequence <code>dbscan_id_seq1</code>
      */
     public static final Sequence<Integer> DBSCAN_ID_SEQ1 = Internal.createSequence("dbscan_id_seq1", DefaultSchema.DEFAULT_SCHEMA, org.jooq.impl.SQLDataType.INTEGER.nullable(false), null, null, null, null, false, null);

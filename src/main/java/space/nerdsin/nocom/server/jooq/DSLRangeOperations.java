@@ -25,7 +25,7 @@ public class DSLRangeOperations {
   }
 
   @Support({SQLDialect.POSTGRES})
-  public static <T extends Comparable<T>> Field<Object> upperRange(Field<Range<T>> field) {
-    return DSL.field("upper({0})", field);
+  public static <T extends Comparable<T>> Field<T> upperRange(Field<Range<T>> field, Class<T> classType) {
+    return DSL.field("upper({0})", classType, field);
   }
 }
