@@ -31,17 +31,11 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     else    
         mkdir -p .gradle
 
-        docker-compose \
-            -f docker-compose.ci.yml \
-            run --rm \
-            --user "$(id -u):$(id -g)" \
-            nocom-http clean --stacktrace
-
         GIT_COMMIT="${GIT_COMMIT}" docker-compose \
             -f docker-compose.ci.yml \
             run --rm \
             --user "$(id -u):$(id -g)" \
-            nocom-http build
+            nocom-http ./gradlew clean build --stacktrace
 
         if [ "x${GIT_BRANCH}" = "xmaster" ] || [ "x${GIT_BRANCH}" = "xHEAD" ]; then
             docker build -t "registry.gitlab.com/nerdsinc/nocom-http:master" -t "registry.gitlab.com/nerdsinc/nocom-http:latest" .
