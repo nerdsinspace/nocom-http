@@ -282,7 +282,6 @@ public class NocomRepository {
         .on(PLAYERS.ID.eq(STATUSES.PLAYER_ID))
         .innerJoin(SERVERS)
         .on(SERVERS.ID.eq(STATUSES.SERVER_ID))
-        .where(STATUSES.DIMENSION.isNotNull())
         .fetch(record -> PlayerStatus.builder()
             .playerUsername(record.get(PLAYERS.USERNAME))
             .playerUuid(record.get(PLAYERS.UUID))
@@ -290,7 +289,7 @@ public class NocomRepository {
             .state(record.get(STATUSES.CURR_STATUS))
             .updatedAt(Instant.ofEpochMilli(record.get(STATUSES.UPDATED_AT)))
             .data(record.get(STATUSES.DATA))
-            .dimension(Dimension.byOrdinal(record.get(STATUSES.DIMENSION)))
+            .dimension(Dimension.byOrdinal(MoreObjects.firstNonNull(record.get(STATUSES.DIMENSION), (short)0)))
             .build());
   }
 
