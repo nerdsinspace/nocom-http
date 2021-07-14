@@ -21,7 +21,6 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         docker-compose \
             -f docker-compose.ci.yml \
             run --rm \
-            --user "$(id -u):$(id -g)" \
             nocom-http clean
     fi
 fi
