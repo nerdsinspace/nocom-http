@@ -9,4 +9,4 @@ services:
       - .:/opt/nocom-http:Z
       - ~/.gradle:/root/.gradle:Z
     working_dir: /opt/nocom-http
-    entrypoint: bash -c "chmod +x gradlew && ./gradlew"
+    entrypoint: ./gradlew
