@@ -9,6 +9,4 @@ services:
       - .:/opt/build:Z
       - ~/.gradle:/root/.gradle:Z
     working_dir: /opt/build
-    stdin_open: true
-    tty: true
     entrypoint: bash -c "chmod +x .gradlew && ./gradlew"
