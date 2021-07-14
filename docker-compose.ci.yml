@@ -2,13 +2,13 @@ version: '2.4'
 services:
   nocom-http:
     image: adoptopenjdk/openjdk11
-    network_mode: host
     environment:
       - GIT_COMMIT=${GIT_COMMIT:-latest}
       - NOCOM-HTTP_DEBUG=1
     volumes:
-      - ./:/opt/nocom-http/:Z
-      - ./.gradle:/root/.gradle:Z
-    working_dir: /opt/nocom-http
-    command: chmod +x ./gradlew
-    entrypoint: ./gradlew
+      - .:/opt/build:Z
+      - ~/.gradle:/root/.gradle:Z
+    working_dir: /opt/build
+    stdin_open: true
+    tty: true
+    entrypoint: bash -c "chmod .gradlew && ./gradlew"
