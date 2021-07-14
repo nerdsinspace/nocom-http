@@ -6,7 +6,7 @@ services:
       - GIT_COMMIT=${GIT_COMMIT:-latest}
       - NOCOM-HTTP_DEBUG=1
     volumes:
-      - .:/opt/build:Z
+      - .:/opt/nocom-http:Z
       - ~/.gradle:/root/.gradle:Z
-    working_dir: /opt/build
+    working_dir: /opt/nocom-http
     entrypoint: bash -c "chmod +x gradlew && ./gradlew"
