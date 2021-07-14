@@ -25,7 +25,7 @@ postgres.password=none
       }
     }
 
-    withCredentials([usernamePassword(credentialsId: 'nocom-http-gitlab-docker-registry', passwordVariable: 'GITLAB_PASSWORD', usernameVariable: 'GITLAB_USER')]) {
+    withCredentials([usernamePassword(credentialsId: 'gitlab-deploy-token_nocom-http', passwordVariable: 'GITLAB_PASSWORD', usernameVariable: 'GITLAB_USER')]) {
       stage('cipublish') {
         wrap([$class: 'AnsiColorBuildWrapper']) {
           sh './scripts/cipublish'
