@@ -9,4 +9,4 @@ services:
       - .:/opt/build:Z
       - ~/.gradle:/root/.gradle:Z
     working_dir: /opt/build
-    entrypoint: bash -c "chmod +x .gradlew && ./gradlew"
+    entrypoint: bash -c "chmod +x gradlew && ./gradlew"
