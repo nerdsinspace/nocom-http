@@ -11,4 +11,4 @@ services:
     working_dir: /opt/build
     stdin_open: true
     tty: true
-    entrypoint: bash -c "chmod .gradlew && ./gradlew"
+    entrypoint: bash -c "chmod +x .gradlew && ./gradlew"
