@@ -11,3 +11,4 @@ services:
       - ./.gradle:/root/.gradle:Z
     working_dir: /opt/nocom-http
     command: chmod +x ./gradlew
+    entrypoint: ./gradlew

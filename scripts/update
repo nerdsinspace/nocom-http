@@ -22,6 +22,6 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             -f docker-compose.ci.yml \
             run --rm \
             --user "$(id -u):$(id -g)" \
-            nocom-http ./gradlew
+            nocom-http clean
     fi
 fi

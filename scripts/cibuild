@@ -35,7 +35,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             -f docker-compose.ci.yml \
             run --rm \
             --user "$(id -u):$(id -g)" \
-            nocom-http ./gradlew clean build --stacktrace
+            nocom-http clean build --stacktrace
 
         if [ "x${GIT_BRANCH}" = "xmaster" ] || [ "x${GIT_BRANCH}" = "xHEAD" ]; then
             docker build -t "registry.gitlab.com/nerdsinc/nocom-http:master" -t "registry.gitlab.com/nerdsinc/nocom-http:latest" .
