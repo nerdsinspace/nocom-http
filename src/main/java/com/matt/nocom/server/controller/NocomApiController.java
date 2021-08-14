@@ -60,6 +60,12 @@ public class NocomApiController {
   public List<Player> clusterAssociations(@RequestParam int clusterId) {
     return nocom.getClusterPlayerAssociations(clusterId);
   }
+
+  @PostMapping("/player-associations")
+  @ResponseBody
+  public List<Association> playerAssociations(@RequestParam String playerUsername) {
+    return nocom.getPlayerClusterAssociations(playerUsername);
+  }
   
   @GetMapping("/bot-statuses")
   @ResponseBody
