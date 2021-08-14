@@ -249,6 +249,28 @@ public class NocomRepository {
             .build());
   }
 
+  /**
+   * Get the clusters associated with a player
+   *
+   * @param playerUsername playerUsername
+   * @return A list of root clusters associated with the given player username
+   */
+  @Transactional(readOnly = true)
+  public List<Association> getPlayerClusterAssociations(String playerUsername) {
+    final var ASSOCIATIONS_STRENGTH = field(name("strength"), BigDecimal.class);
+    final var ASSOCIATIONS_LAST_SEEN = field(name("last_seen"), long.class);
+
+    return dsl.select(ASSOCIATIONS.CLUSTER_ID, sum(ASSOCIATIONS.ASSOCIATION).as("strength"), max(ASSOCIATIONS.CREATED_AT).as("last_seen"))
+        .from(ASSOCIATIONS)
+        .where(ASSOCIATIONS.PLAYER_ID.eq(select(PLAYERS.ID).from(PLAYERS).where(lower(PLAYERS.USERNAME).like(playerUsername))))
+        .groupBy(ASSOCIATIONS.CLUSTER_ID)
+        .orderBy(ASSOCIATIONS_STRENGTH.desc()).fetch(record -> Association.builder()
+            .clusterId(record.get(ASSOCIATIONS.CLUSTER_ID))
+            .strength(record.get(ASSOCIATIONS_STRENGTH))
+            .lastSeen(record.get(ASSOCIATIONS_LAST_SEEN))
+            .build());
+  }
+
   private ClusterNode createClusterNode(Record record) {
     return ClusterNode.builder()
         .id(record.get(DBSCAN.ID))
